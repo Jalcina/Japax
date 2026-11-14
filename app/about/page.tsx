@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useLang, useT } from "@/lib/i18n";
@@ -32,7 +33,7 @@ const T = {
     title: "The team behind JaPax",
     intro: "JaPax was built by two people for the NASA Space Apps Challenge 2026 (Seville), answering the challenge “Flame in Freefall”.",
     teamEyebrow: "The creators",
-    teamTitle: "Jaime and Pablo",
+    zoom: "Enlarge photo",
     role: "Role",
     roleValue: "Founder & Developer",
     bio: "Bio",
@@ -65,7 +66,7 @@ const T = {
     title: "El equipo detrás de JaPax",
     intro: "JaPax lo hemos creado dos personas para el NASA Space Apps Challenge 2026 (Sevilla), respondiendo al reto “Flame in Freefall”.",
     teamEyebrow: "Los creadores",
-    teamTitle: "Jaime y Pablo",
+    zoom: "Ampliar foto",
     role: "Rol",
     roleValue: "Fundador y desarrollador",
     bio: "Bio",
@@ -98,6 +99,13 @@ export default function AboutPage() {
   const t = useT(T);
   const { lang } = useLang();
   const vl = lang; // the video always matches the site language
+  const [zoom, setZoom] = useState<{ src: string; name: string } | null>(null);
+  useEffect(() => {
+    if (!zoom) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setZoom(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [zoom]);
   return (
     <div className="pb-8">
       <div className="mx-auto max-w-6xl px-4 pt-10">
@@ -125,13 +133,21 @@ export default function AboutPage() {
         </video>
       </div>
 
-      <Section eyebrow={t.teamEyebrow} title={t.teamTitle}>
+      <section className="mx-auto max-w-6xl px-4 pt-16">
+        <div className="flex items-center gap-4 sm:gap-5">
+          <Image src="/brand/japax-isotipo.png" alt="" width={72} height={72} className="h-14 w-auto sm:h-20" />
+          <div>
+            <h2 className="text-4xl font-bold uppercase tracking-tight sm:text-6xl">{t.teamEyebrow}</h2>
+          </div>
+        </div>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {TEAM.map((m) => (
             <article key={m.github} className="card p-5">
               <div className="flex items-center gap-4">
                 {m.photo ? (
-                  <Image src={m.photo} alt={m.name} width={96} height={96} className="h-24 w-24 rounded-full border border-line-2 object-cover" />
+                  <button type="button" onClick={() => setZoom({ src: m.photo!, name: m.name })} aria-label={`${t.zoom}: ${m.name}`} className="shrink-0 cursor-zoom-in rounded-full transition-transform hover:scale-105 focus-visible:outline-2">
+                    <Image src={m.photo} alt={m.name} width={96} height={96} className="h-24 w-24 rounded-full border border-line-2 object-cover" />
+                  </button>
                 ) : (
                   <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-line-2 bg-surface-2 text-xl font-semibold text-ink-2" aria-hidden="true">
                     {m.initials}
@@ -167,7 +183,20 @@ export default function AboutPage() {
             </article>
           ))}
         </div>
-      </Section>
+      </section>
+
+      {zoom && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={zoom.name}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setZoom(null)}
+        >
+          <button type="button" aria-label="Close" className="absolute right-4 top-4 rounded-full border border-line-2 bg-surface-2 px-3 py-1.5 text-sm text-ink" onClick={() => setZoom(null)}>✕</button>
+          <Image src={zoom.src} alt={zoom.name} width={480} height={480} className="aspect-square w-[min(90vw,80vh,32rem)] rounded-2xl border border-line-2 object-cover" onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
 
       <Section eyebrow={t.projEyebrow} title={t.projTitle}>
         <div className="mt-4 max-w-3xl space-y-3 text-ink-2">
