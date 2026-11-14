@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import FlameView from "@/components/FlameView";
+import EnvironmentStage from "@/components/EnvironmentStage";
+import type { ImmersiveEnv } from "@/components/ImmersiveScene";
 import { ALL_LAYERS, type EnvId, type Fuel, type LabelText, type Layers, type SimParams, type SimStats } from "@/lib/flameEngine";
 import { flexVerdict } from "@/lib/flexVerdict";
 import { useData, useLang, useT } from "@/lib/i18n";
@@ -13,7 +15,7 @@ const T = {
     title: "Watch a flame burn at the molecular level",
     intro: "Choose an environment or set your own conditions. The molecules you see are counted from the gas composition and pressure you set; gravity decides whether hot gases rise. Switch layers on and off to look only at the flame, only at the molecules, or at any single species.",
     presets: "Environment",
-    env: { earth: "Earth", iss: "ISS", moon: "Lunar base", suit: "Spacesuit", custom: "Custom" } as Record<string, string>,
+    env: { earth: "Earth", iss: "ISS", moon: "Lunar base", mars: "Mars base", suit: "Spacesuit", custom: "Custom" } as Record<string, string>,
     play: "Play",
     pause: "Pause",
     reignite: "Re-ignite",
@@ -52,7 +54,7 @@ const T = {
     regime: {
       diffusion: "Diffusion flame. With no buoyancy, oxygen reaches the flame only by diffusion and the flame is a ghostly blue sphere.",
       buoyant: "Buoyancy-driven flame. Hot gases rise and pull fresh air in; the flame is a flickering teardrop.",
-      transition: "Partial gravity: NO experimental data exists. This shape is an illustrative blend of the 0 g and 1 g behaviors.",
+      transition: "Partial gravity: PSI has no data here and the only measurements (LUCI, 2025) are very limited. This shape is an illustrative blend of the 0 g and 1 g behaviors.",
     },
     rate: "reactions/s",
     molecules: "Molecules on screen",
@@ -68,7 +70,7 @@ const T = {
     honest: "Data vs. illustration",
     honestBody: [
       ["From your data:", "molecule counts follow the gas composition; density follows pressure, and diffusion slows as pressure rises; light gases move faster; products rise only with gravity; and the fate of the flame comes from the nearest measured FLEX tests."],
-      ["Illustrative:", "flame size, color, reaction speed and the amount of soot are qualitative; no experimental data exists between 0 g and 1 g."],
+      ["Illustrative:", "flame size, color, reaction speed and the amount of soot are qualitative; PSI has no data between 0 g and 1 g, and the first partial-gravity data (LUCI, 2025) are very limited."],
     ],
     aria: "Animated particle simulation of a burning droplet showing individual molecules and the flame, driven by the conditions you set",
     labels: { zone: "Reaction zone", oxygenIn: "O₂ diffuses in", fuelVapor: "Fuel vapor", products: "Hot products", plume: "Buoyant plume", sphere: "No buoyancy: spherical", droplet: "Fuel droplet", down: "gravity" } as LabelText,
@@ -79,7 +81,7 @@ const T = {
     title: "Mira cómo arde una llama a nivel molecular",
     intro: "Elige un entorno o fija tus propias condiciones. Las moléculas que ves se cuentan a partir de la composición del gas y la presión que fijas; la gravedad decide si los gases calientes suben. Activa o desactiva capas para ver solo la llama, solo las moléculas o una especie concreta.",
     presets: "Entorno",
-    env: { earth: "Tierra", iss: "ISS", moon: "Base lunar", suit: "Traje espacial", custom: "Personalizado" } as Record<string, string>,
+    env: { earth: "Tierra", iss: "ISS", moon: "Base lunar", mars: "Base marciana", suit: "Traje espacial", custom: "Personalizado" } as Record<string, string>,
     play: "Reproducir",
     pause: "Pausa",
     reignite: "Reencender",
@@ -134,7 +136,7 @@ const T = {
     honest: "Datos frente a ilustración",
     honestBody: [
       ["Viene de tus datos:", "el número de moléculas sigue la composición del gas; la densidad sigue la presión y la difusión se frena al subir la presión; los gases ligeros se mueven más rápido; los productos suben solo con gravedad; y el destino de la llama sale de los ensayos medidos de FLEX más cercanos."],
-      ["Ilustrativo:", "el tamaño, el color, la velocidad de reacción y la cantidad de hollín son cualitativos; no existen datos experimentales entre 0 g y 1 g."],
+      ["Ilustrativo:", "el tamaño, el color, la velocidad de reacción y la cantidad de hollín son cualitativos; PSI no tiene datos entre 0 g y 1 g, y los primeros datos de gravedad parcial (LUCI, 2025) son muy limitados."],
     ],
     aria: "Simulación animada de partículas de una gota ardiendo, con las moléculas individuales y la llama, según las condiciones que fijes",
     labels: { zone: "Zona de reacción", oxygenIn: "El O₂ difunde hacia dentro", fuelVapor: "Vapor de combustible", products: "Productos calientes", plume: "Penacho por flotabilidad", sphere: "Sin flotabilidad: esférica", droplet: "Gota de combustible", down: "gravedad" } as LabelText,
@@ -146,7 +148,8 @@ const MOL_COLOR: Record<string, string> = { o2: "#e34948", n2: "#3987e5", co2: "
 const LAYER_KEYS: (keyof Layers)[] = ["flame", "o2", "n2", "co2", "he", "fuel", "products", "soot", "flow", "labels"];
 const MOL_KEYS: (keyof Layers)[] = ["o2", "n2", "co2", "he", "fuel", "products", "soot"];
 
-const PRESET_ENV: Record<string, EnvId> = { earth: "earth", iss: "iss", moon: "moon", suit: "suit" };
+const PRESET_ENV: Record<string, EnvId> = { earth: "earth", iss: "iss", moon: "moon", mars: "mars", suit: "suit" };
+const SCENE_FOR: Record<EnvId, ImmersiveEnv> = { earth: "earth", iss: "iss", moon: "moon", mars: "mars", suit: "suit", none: "earth" };
 
 interface State {
   o2: number;
@@ -164,12 +167,18 @@ export default function FlameLab() {
   const data = useData();
 
   const preset = (id: string): State => {
-    const e = data.environments.find((x) => x.id === (id === "moon" ? "moon-habitat" : id))!;
+    const e = data.environments.find((x) => x.id === (id === "moon" ? "moon-habitat" : id === "mars" ? "mars-habitat" : id))!;
     return { o2: e.o2, pressureAtm: e.pressureAtm, gravityG: e.gravityG ?? 0, flowCmS: 0, co2: 0, he: 0, fuel: "methanol" };
   };
 
   const [st, setSt] = useState<State>(() => ({ o2: 0.21, pressureAtm: 1, gravityG: 0, flowCmS: 0, co2: 0, he: 0, fuel: "methanol" }));
   const [envBg, setEnvBg] = useState<EnvId>("iss");
+  const [showEnv, setShowEnv] = useState(true);
+
+  // two WebGL views at once is heavy: start with the 3D environment hidden on small screens
+  useEffect(() => {
+    if (window.innerWidth < 768) setShowEnv(false);
+  }, []);
   const [layers, setLayers] = useState<Layers>({ ...ALL_LAYERS, flow: true });
   const [running, setRunning] = useState(true);
   const [speed, setSpeed] = useState(1);
@@ -250,6 +259,16 @@ export default function FlameLab() {
               </label>
             </div>
           </div>
+
+          <label className="mt-3 flex cursor-pointer items-center gap-1.5 text-sm text-ink-2">
+            <input type="checkbox" checked={showEnv} onChange={(e) => setShowEnv(e.target.checked)} />
+            {lang === "es" ? "Ver el entorno en 3D" : "Show the environment in 3D"}
+          </label>
+          {showEnv && envBg !== "none" && (
+            <div className="mt-2">
+              <EnvironmentStage env={SCENE_FOR[envBg]} className="h-[34vh] min-h-[260px]" />
+            </div>
+          )}
 
           <div className="mt-3">
             <FlameView

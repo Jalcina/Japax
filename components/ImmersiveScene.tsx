@@ -3,16 +3,47 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { useLang } from "@/lib/i18n";
+import { createHyperFire, type FireMount, type FireParams, type HyperFire } from "@/lib/hyperFire";
+import {
+  loadModel,
+  tex,
+  smallScreen,
+  shadowSize,
+  rng,
+  hash,
+  vnoise,
+  fbm,
+  stars,
+  sunDisc,
+  atmoMat,
+  makeEarth,
+  fitModel,
+  shade,
+  makeTerrain,
+  makeRidge,
+} from "@/lib/sceneKit";
 
 export type ImmersiveEnv = "earth" | "moon" | "mars" | "iss" | "suit";
+
+/** What the Fire Lab gets once a scene is built: enough to add its own flames, smoke and surface decals. */
+export type SceneApi = {
+  scene: THREE.Scene;
+  camera: THREE.PerspectiveCamera;
+  controls: OrbitControls;
+  /** objects the tap-to-ignite ray must skip (the lab's own flames and decals) */
+  ignore: THREE.Object3D[];
+  /** called every frame after the scene update; pxPerUnit is what hyperFire.update expects */
+  addUpdater: (fn: (dt: number, t: number, camera: THREE.PerspectiveCamera, pxPerUnit: number) => void) => void;
+  /** first mesh under a pointer position, skipping `ignore` */
+  raycast: (clientX: number, clientY: number) => { point: THREE.Vector3; normal: THREE.Vector3; name: string } | null;
+};
+export type PickInfo = { normal: [number, number, number]; name: string };
 
 type Built = {
   update: (dt: number, t: number) => void;
@@ -20,227 +51,11 @@ type Built = {
   bloom: [number, number, number]; // strength, radius, threshold
   exposure: number;
   shadows?: boolean;
+  /** where the fire burns in this place, and where the camera goes to look at it */
+  fire?: { pos: [number, number, number]; scale: number; mount: FireMount; light?: number; bloom?: number; cam: { pos: [number, number, number]; target: [number, number, number] } };
 };
 
 type Ctx = { scene: THREE.Scene; renderer: THREE.WebGLRenderer; progress: (fraction: number) => void };
-
-// ---------- helpers ----------
-const tl = new THREE.TextureLoader();
-const draco = new DRACOLoader().setDecoderPath("/draco/");
-const gl = new GLTFLoader().setDRACOLoader(draco);
-// Loads a GLB and reports download progress (0..1) when the server announces the size.
-// Known sizes are the fallback when the server (gzip/chunked) sends no Content-Length.
-const MODEL_BYTES: Record<string, number> = {
-  "/models/lm.glb": 716840,
-  "/models/emu.glb": 3448904,
-  "/models/perseverance.glb": 4987176,
-  "/models/iss_hd.glb": 15411000,
-};
-const loadModel = (url: string, progress: Ctx["progress"]) =>
-  gl.loadAsync(url, (e) => {
-    const total = e.lengthComputable && e.total ? e.total : MODEL_BYTES[url];
-    if (total) progress(e.loaded / total);
-  });
-
-const tex = async (url: string, srgb = true) => {
-  const t = await tl.loadAsync(url);
-  if (srgb) t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 8;
-  return t;
-};
-
-const smallScreen = () => typeof window !== "undefined" && window.innerWidth < 768;
-const shadowSize = () => (smallScreen() ? 2048 : 4096);
-
-function rng(seed: number) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-const hash = (x: number, y: number) => {
-  const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
-  return s - Math.floor(s);
-};
-const vnoise = (x: number, y: number) => {
-  const xi = Math.floor(x), yi = Math.floor(y);
-  const xf = x - xi, yf = y - yi;
-  const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
-  const a = hash(xi, yi), b = hash(xi + 1, yi), c = hash(xi, yi + 1), d = hash(xi + 1, yi + 1);
-  return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
-};
-const fbm = (x: number, y: number, oct = 5) => {
-  let s = 0, a = 0.5, f = 1;
-  for (let i = 0; i < oct; i++) { s += a * vnoise(x * f, y * f); f *= 2; a *= 0.5; }
-  return s;
-};
-
-function stars(n: number, radius: number) {
-  const g = new THREE.BufferGeometry();
-  const p = new Float32Array(n * 3), c = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) {
-    const u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, s = Math.sqrt(1 - u * u);
-    p.set([radius * s * Math.cos(th), radius * u, radius * s * Math.sin(th)], i * 3);
-    const b = 0.35 + Math.pow(Math.random(), 3) * 0.65, k = Math.random();
-    c.set([b * (k > 0.7 ? 1 : 0.85 + k * 0.15), b * 0.92, b * (k < 0.3 ? 1 : 0.88)], i * 3);
-  }
-  g.setAttribute("position", new THREE.BufferAttribute(p, 3));
-  g.setAttribute("color", new THREE.BufferAttribute(c, 3));
-  return new THREE.Points(g, new THREE.PointsMaterial({ size: 1.7, sizeAttenuation: false, vertexColors: true, depthWrite: false, fog: false }));
-}
-
-function sunDisc(dir: THREE.Vector3, dist: number, size: number, tint = 0xfff2d8) {
-  const m = new THREE.Mesh(
-    new THREE.SphereGeometry(size, 32, 16),
-    new THREE.MeshBasicMaterial({ color: new THREE.Color(tint).multiplyScalar(6), toneMapped: false, fog: false }),
-  );
-  m.position.copy(dir).normalize().multiplyScalar(dist);
-  return m;
-}
-
-const atmoMat = (color: THREE.ColorRepresentation, power = 3, bias = 0.72, gain = 1.6) =>
-  new THREE.ShaderMaterial({
-    uniforms: { uColor: { value: new THREE.Color(color) }, uPow: { value: power }, uBias: { value: bias }, uGain: { value: gain } },
-    vertexShader: `varying vec3 vN; void main(){ vN = normalize(normalMatrix*normal); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
-    fragmentShader: `uniform vec3 uColor; uniform float uPow; uniform float uBias; uniform float uGain; varying vec3 vN;
-      void main(){ float i = pow(max(uBias - dot(vN, vec3(0.0,0.0,1.0)), 0.0), uPow); gl_FragColor = vec4(uColor, 1.0) * i * uGain; }`,
-    side: THREE.BackSide, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
-  });
-
-async function makeEarth(radius: number, glow = 1.6) {
-  const [map, normalMap, specularMap, cloudMap] = await Promise.all([
-    tex("/textures/earth.jpg"), tex("/textures/earth_normal.jpg", false), tex("/textures/earth_spec.jpg", false), tex("/textures/earth_clouds.png"),
-  ]);
-  const g = new THREE.Group();
-  const earth = new THREE.Mesh(
-    new THREE.SphereGeometry(radius, 128, 96),
-    new THREE.MeshPhongMaterial({ map, normalMap, normalScale: new THREE.Vector2(0.9, 0.9), specularMap, specular: new THREE.Color(0x4a5a70), shininess: 22 }),
-  );
-  const clouds = new THREE.Mesh(
-    new THREE.SphereGeometry(radius * 1.008, 128, 96),
-    new THREE.MeshLambertMaterial({ map: cloudMap, transparent: true, opacity: 0.85, depthWrite: false }),
-  );
-  const atmo = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.05, 96, 64), atmoMat(0x4f9bff, 3.2, 0.74, glow));
-  g.add(earth, clouds, atmo);
-  return { group: g, earth, clouds };
-}
-
-function fitModel(obj: THREE.Object3D, target: number, axis: "x" | "y" | "max" = "max") {
-  const box = new THREE.Box3().setFromObject(obj);
-  const size = box.getSize(new THREE.Vector3());
-  const s = target / (axis === "max" ? Math.max(size.x, size.y, size.z) : size[axis]);
-  obj.scale.multiplyScalar(s);
-  const b2 = new THREE.Box3().setFromObject(obj);
-  const c = b2.getCenter(new THREE.Vector3());
-  obj.position.x -= c.x;
-  obj.position.z -= c.z;
-  return new THREE.Box3().setFromObject(obj);
-}
-
-function shade(obj: THREE.Object3D, envIntensity = 1) {
-  obj.traverse((o) => {
-    const m = o as THREE.Mesh;
-    if (m.isMesh) {
-      m.castShadow = true;
-      m.receiveShadow = true;
-      const mat = m.material as THREE.MeshStandardMaterial;
-      if (mat && "envMapIntensity" in mat) mat.envMapIntensity = envIntensity;
-    }
-  });
-}
-
-type TerrainOpts = { size: number; seg: number; amp: number; freq: number; craters: number; craterMax: number; seed: number; flat: number; low: THREE.Color; high: THREE.Color; roughness: number };
-
-function makeTerrain(o: TerrainOpts) {
-  const r = rng(o.seed);
-  const cr = Array.from({ length: o.craters }, () => {
-    const rad = 3 + Math.pow(r(), 2.2) * o.craterMax;
-    return { x: (r() - 0.5) * o.size * 0.95, z: (r() - 0.5) * o.size * 0.95, r: rad, d: rad * (0.12 + r() * 0.1) };
-  });
-  const H = (x: number, z: number) => {
-    let h = (fbm(x * o.freq + o.seed, z * o.freq + o.seed) - 0.5) * 2 * o.amp;
-    h += (fbm(x * o.freq * 6, z * o.freq * 6, 3) - 0.5) * o.amp * 0.12;
-    for (const c of cr) {
-      const d = Math.hypot(x - c.x, z - c.z);
-      if (d < c.r) h -= c.d * (1 - (d / c.r) ** 2);
-      else if (d < c.r * 1.35) h += c.d * 0.28 * (1 - (d - c.r) / (c.r * 0.35));
-    }
-    const dc = Math.hypot(x, z);
-    const k = Math.min(Math.max((dc - o.flat) / (o.flat * 3), 0), 1);
-    return h * (k * k * (3 - 2 * k));
-  };
-  const geo = new THREE.PlaneGeometry(o.size, o.size, o.seg, o.seg);
-  geo.rotateX(-Math.PI / 2);
-  const pos = geo.attributes.position as THREE.BufferAttribute;
-  const col = new Float32Array(pos.count * 3);
-  const tmp = new THREE.Color();
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i), z = pos.getZ(i), h = H(x, z);
-    pos.setY(i, h);
-    const t = Math.min(Math.max(h / (o.amp * 1.2) * 0.5 + 0.5 + (fbm(x * 0.9, z * 0.9, 3) - 0.5) * 0.5, 0), 1);
-    tmp.copy(o.low).lerp(o.high, t);
-    col.set([tmp.r, tmp.g, tmp.b], i * 3);
-  }
-  geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
-  geo.computeVertexNormals();
-
-  // fine-grain regolith bump
-  const cv = document.createElement("canvas");
-  cv.width = cv.height = 512;
-  const cx = cv.getContext("2d")!;
-  const img = cx.createImageData(512, 512);
-  for (let y = 0; y < 512; y++) for (let x = 0; x < 512; x++) {
-    const v = (vnoise(x / 6, y / 6) * 0.5 + vnoise(x / 2, y / 2) * 0.3 + hash(x, y) * 0.2) * 255;
-    const i = (y * 512 + x) * 4;
-    img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255;
-  }
-  cx.putImageData(img, 0, 0);
-  const bump = new THREE.CanvasTexture(cv);
-  bump.wrapS = bump.wrapT = THREE.RepeatWrapping;
-  bump.repeat.set(o.size / 6, o.size / 6);
-
-  const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: o.roughness, metalness: 0, bumpMap: bump, bumpScale: 1.2 }));
-  mesh.receiveShadow = true;
-
-  // scattered boulders
-  const rockN = 420;
-  const rocks = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1, 1), new THREE.MeshStandardMaterial({ color: tmp.copy(o.low).multiplyScalar(0.8), roughness: 1, flatShading: true }), rockN);
-  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), sc = new THREE.Vector3(), p = new THREE.Vector3();
-  for (let i = 0; i < rockN; i++) {
-    let x = (r() - 0.5) * o.size * 0.9, z = (r() - 0.5) * o.size * 0.9;
-    if (Math.hypot(x, z) < 5) { x += 12; z += 12; }
-    const s = 0.08 + Math.pow(r(), 4) * 1.4;
-    e.set(r() * 6, r() * 6, r() * 6); q.setFromEuler(e);
-    sc.set(s * (0.8 + r() * 0.6), s * (0.5 + r() * 0.4), s * (0.8 + r() * 0.6));
-    p.set(x, H(x, z) + s * 0.15, z);
-    rocks.setMatrixAt(i, m4.compose(p, q, sc));
-  }
-  rocks.castShadow = rocks.receiveShadow = true;
-  const g = new THREE.Group();
-  g.add(mesh, rocks);
-  return { group: g, H };
-}
-
-// Distant mountain ring that hides the terrain edge and gives the horizon some depth.
-function makeRidge(radius: number, height: number, color: number, seed: number, freq = 2.2) {
-  const seg = 360;
-  const geo = new THREE.CylinderGeometry(radius, radius, 1, seg, 1, true);
-  const pos = geo.attributes.position as THREE.BufferAttribute;
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i), z = pos.getZ(i), top = pos.getY(i) > 0;
-    const a = Math.atan2(z, x);
-    const n = fbm(Math.cos(a) * freq + seed, Math.sin(a) * freq + seed, 5) + 0.35 * fbm(Math.cos(a) * freq * 4 + seed, Math.sin(a) * freq * 4 + seed, 3);
-    pos.setY(i, top ? 2 + n * height : -8);
-  }
-  geo.computeVertexNormals();
-  const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color, roughness: 1, side: THREE.DoubleSide, flatShading: true }));
-  m.receiveShadow = false;
-  return m;
-}
 
 // ---------- scene builders ----------
 async function buildEarth({ scene }: Ctx): Promise<Built> {
@@ -293,6 +108,7 @@ async function buildMoon({ scene, progress }: Ctx): Promise<Built> {
     update: (dt) => { earth.clouds.rotation.y += dt * 0.01; },
     cam: { pos: [13, 3.2, 15], target: [0, 3, 0], min: 5, max: 70, maxPolar: Math.PI / 2 - 0.03 },
     bloom: [0.35, 0.5, 0.92], exposure: 0.95, shadows: true,
+    fire: { pos: [5.4, H(5.4, 3.4) + 0.45, 3.4], scale: 1.5, mount: "pan", cam: { pos: [8.6, 1.9, 8.2], target: [5.4, 1.1, 3.4] } },
   };
 }
 
@@ -353,6 +169,7 @@ async function buildMars({ scene, progress }: Ctx): Promise<Built> {
     },
     cam: { pos: [7.5, 2.6, 9], target: [0, 1.3, 0], min: 4, max: 45, maxPolar: Math.PI / 2 - 0.03 },
     bloom: [0.28, 0.6, 0.9], exposure: 1.0, shadows: true,
+    fire: { pos: [3.5, H(3.5, 3.0) + 0.33, 3.0], scale: 1.1, mount: "pan", cam: { pos: [6.1, 1.5, 6.3], target: [3.5, 0.9, 3.0] } },
   };
 }
 
@@ -588,14 +405,172 @@ async function buildSuit({ scene, renderer, progress }: Ctx): Promise<Built> {
     update: () => {},
     cam: { pos: [2.4, 2.1, 4.1], target: [0, 1.65, 0], min: 2, max: 10, maxPolar: Math.PI / 2 - 0.02, autoRotate: 0.7 },
     bloom: [0.3, 0.5, 1.1], exposure: 0.9, shadows: true,
+    fire: { pos: [1.05, 0.18 + 0.26, 0.75], scale: 0.85, mount: "pan", light: 0.16, bloom: 0.22, cam: { pos: [3.3, 1.45, 3.7], target: [1.05, 0.95, 0.75] } },
   };
 }
+
+// A fire-safety test pad on Earth: 1 g, daylight, sky and horizon.
+async function buildEarthSite({ scene }: Ctx): Promise<Built> {
+  const horizon = new THREE.Color(0xd6e6f2), zenith = new THREE.Color(0x3f7fcf);
+  scene.background = horizon.clone();
+  scene.fog = new THREE.FogExp2(0xc7dbec, 0.0042);
+  scene.add(new THREE.Mesh(
+    new THREE.SphereGeometry(900, 32, 16),
+    new THREE.ShaderMaterial({
+      uniforms: { h: { value: horizon }, z: { value: zenith } },
+      vertexShader: `varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+      fragmentShader: `uniform vec3 h; uniform vec3 z; varying vec3 vP; void main(){ float t = pow(clamp(vP.y,0.0,1.0), 0.5); gl_FragColor = vec4(mix(h, z, t), 1.0); }`,
+      side: THREE.BackSide, depthWrite: false, fog: false,
+    }),
+  ));
+  const sunDir = new THREE.Vector3(-0.55, 0.62, 0.42).normalize();
+  const sun = new THREE.DirectionalLight(0xfff0dc, 3.0);
+  sun.position.copy(sunDir).multiplyScalar(80);
+  sun.castShadow = true;
+  Object.assign(sun.shadow.camera, { left: -30, right: 30, top: 30, bottom: -30, near: 1, far: 200 });
+  sun.shadow.mapSize.set(shadowSize(), shadowSize());
+  sun.shadow.bias = -0.0004;
+  sun.shadow.normalBias = 0.04;
+  scene.add(sun);
+  scene.add(new THREE.HemisphereLight(0xbcd8ff, 0x4d4333, 0.85));
+  scene.add(sunDisc(sunDir, 800, 12, 0xfff3dc));
+
+  const { group: terr } = makeTerrain({ size: 300, seg: 300, amp: 2.4, freq: 0.02, craters: 0, craterMax: 1, seed: 33, flat: 8, low: new THREE.Color(0x6a5a3f), high: new THREE.Color(0xb09a6c), roughness: 0.96 });
+  scene.add(terr);
+  scene.add(makeRidge(170, 15, 0x6d7d86, 4, 2.0));
+
+  // concrete test pad, a red extinguisher and safety cones
+  const pad = new THREE.Mesh(new THREE.CylinderGeometry(3.3, 3.4, 0.14, 72), new THREE.MeshStandardMaterial({ color: 0x8d9096, roughness: 0.92 }));
+  pad.position.y = 0.0;
+  pad.receiveShadow = pad.castShadow = true;
+  scene.add(pad);
+  const ex = new THREE.Group();
+  const eb = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.8, 24), new THREE.MeshStandardMaterial({ color: 0xc21f1f, roughness: 0.35, metalness: 0.3 }));
+  eb.position.y = 0.4;
+  const ec = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.14, 14), new THREE.MeshStandardMaterial({ color: 0x20242a, roughness: 0.4, metalness: 0.6 }));
+  ec.position.y = 0.87;
+  ex.add(eb, ec);
+  ex.position.set(-3.0, 0.07, 2.1);
+  ex.traverse((o) => { (o as THREE.Mesh).castShadow = true; });
+  scene.add(ex);
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2 + 0.5;
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(0.17, 0.5, 20), new THREE.MeshStandardMaterial({ color: 0xff6a00, roughness: 0.6 }));
+    cone.position.set(Math.cos(a) * 4.6, 0.25, Math.sin(a) * 4.6);
+    cone.castShadow = true;
+    scene.add(cone);
+  }
+  return {
+    update: () => {},
+    cam: { pos: [6.4, 2.5, 8.2], target: [0, 1.0, 0], min: 1.4, max: 45, maxPolar: Math.PI / 2 - 0.03 },
+    bloom: [0.3, 0.6, 0.9], exposure: 1.0, shadows: true,
+    fire: { pos: [0, 0.07 + 0.36, 0], scale: 1.2, mount: "pan", cam: { pos: [3.0, 1.5, 3.5], target: [0, 0.95, 0] } },
+  };
+}
+
+// Inside a pressurised module of the ISS: racks, handrails, light strips and the open end looking at Earth. 0 g.
+async function buildIssInterior({ scene }: Ctx): Promise<Built> {
+  scene.background = new THREE.Color(0x000003);
+  scene.add(stars(5000, 900));
+  const R = 2.5, L = 20;
+  const earth = await makeEarth(46, 0.6);
+  earth.group.position.set(0, -40, -82);
+  earth.group.rotation.set(0.25, 1.1, 0);
+  scene.add(earth.group);
+  const sun = new THREE.DirectionalLight(0xfff4e6, 0.35);
+  sun.position.set(14, 22, -40);
+  scene.add(sun);
+
+  const hull = new THREE.Mesh(
+    new THREE.CylinderGeometry(R, R, L, 72, 1, true).rotateX(Math.PI / 2),
+    new THREE.MeshStandardMaterial({ color: 0x8e949c, roughness: 0.6, metalness: 0.2, side: THREE.DoubleSide }),
+  );
+  scene.add(hull);
+  // racks around the module
+  const rackA = new THREE.MeshStandardMaterial({ color: 0xb4b9bf, roughness: 0.55, metalness: 0.2 });
+  const rackB = new THREE.MeshStandardMaterial({ color: 0x8b929c, roughness: 0.5, metalness: 0.3 });
+  const doorLine = new THREE.MeshStandardMaterial({ color: 0x2a2f38, roughness: 0.6 });
+  const screenMats = [0x2fb36a, 0x4aa3ff, 0xffb347].map((c) => new THREE.MeshBasicMaterial({ color: new THREE.Color(c).multiplyScalar(0.8) }));
+  const NR = 8;
+  for (let i = 0; i < NR; i++) {
+    const a = (i / NR) * Math.PI * 2 + Math.PI / NR;
+    const g = new THREE.Group();
+    const slab = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.7, L - 1.6), i % 2 ? rackA : rackB);
+    g.add(slab);
+    for (let k = -3; k <= 3; k++) {
+      const door = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.02, 0.02), doorLine);
+      door.position.set(0, -0.36, k * 2.4);
+      g.add(door);
+      if ((k + i) % 3 === 0) {
+        const sc = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.28), screenMats[(k + i + 9) % 3]);
+        sc.rotation.x = Math.PI / 2;
+        sc.position.set(0.3, -0.361, k * 2.4 + 0.9);
+        g.add(sc);
+      }
+    }
+    g.position.set(Math.sin(a) * (R - 0.35), Math.cos(a) * (R - 0.35), 0);
+    g.rotation.z = -a;
+    scene.add(g);
+  }
+  // ceiling light strips and handrails
+  const strip = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xf4f8ff).multiplyScalar(0.8) });
+  const rail = new THREE.MeshStandardMaterial({ color: 0xd9b52c, roughness: 0.35, metalness: 0.6 });
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2;
+    const st = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.02, L - 2), strip);
+    st.position.set(Math.sin(a) * (R - 0.74), Math.cos(a) * (R - 0.74), 0);
+    st.rotation.z = -a;
+    scene.add(st);
+    const hr = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, L - 3, 10).rotateX(Math.PI / 2), rail);
+    const b = a + Math.PI / 4;
+    hr.position.set(Math.sin(b) * (R - 0.8), Math.cos(b) * (R - 0.8), 0);
+    scene.add(hr);
+  }
+  // end ring that frames the open view of Earth and the closed bulkhead behind the camera
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(R - 0.05, 0.1, 16, 96), new THREE.MeshStandardMaterial({ color: 0xaab1bb, roughness: 0.3, metalness: 0.8 }));
+  ring.position.z = -L / 2;
+  scene.add(ring);
+  const bulk = new THREE.Mesh(new THREE.CircleGeometry(R, 72), new THREE.MeshStandardMaterial({ color: 0xb8bec6, roughness: 0.5, metalness: 0.4 }));
+  bulk.position.z = L / 2;
+  bulk.rotation.y = Math.PI;
+  scene.add(bulk);
+  // probe that holds the burner, coming in from the left wall
+  const steel = new THREE.MeshStandardMaterial({ color: 0x9aa1ab, roughness: 0.32, metalness: 0.92 });
+  const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.9, 16).rotateZ(Math.PI / 2), steel);
+  arm.position.set(-1.78, 0, 0);
+  scene.add(arm);
+  // interior lighting
+  scene.add(new THREE.HemisphereLight(0xdbe6f5, 0x59606b, 0.16));
+  for (const z of [-4, 3]) {
+    const pl = new THREE.PointLight(0xeef4ff, 3.2, 14, 2);
+    pl.position.set(0, 1.5, z);
+    scene.add(pl);
+  }
+  return {
+    update: (dt) => { earth.earth.rotation.y += dt * 0.01; earth.clouds.rotation.y += dt * 0.014; },
+    cam: { pos: [2.0, 0.55, 5.4], target: [0, -0.05, -0.6], min: 0.9, max: 8.5 },
+    bloom: [0.4, 0.5, 1.2], exposure: 0.85,
+    fire: { pos: [0, -0.78, 0], scale: 1.0, mount: "droplet", light: 0.5, bloom: 0.4, cam: { pos: [1.4, 0.25, 2.4], target: [0, 0, 0] } },
+  };
+}
+
+const FIRE_BUILDERS: Record<ImmersiveEnv, (c: Ctx) => Promise<Built>> = { earth: buildEarthSite, moon: buildMoon, mars: buildMars, iss: buildIssInterior, suit: buildSuit };
 
 const BUILDERS: Record<ImmersiveEnv, (c: Ctx) => Promise<Built>> = { earth: buildEarth, moon: buildMoon, mars: buildMars, iss: buildIss, suit: buildSuit };
 
 // ---------- component ----------
-export default function ImmersiveScene({ env }: { env: ImmersiveEnv }) {
+export default function ImmersiveScene({ env, fire, className = "h-[68vh] min-h-[460px]", onPick, life, wide, overview, onReady }: { env: ImmersiveEnv; fire?: FireParams; className?: string; onPick?: (point: [number, number, number], info?: PickInfo) => void; /** Fire Lab: load the playable site, keep the wide view and the tap-to-pick, but build no single flame */ wide?: boolean; /** Fire Lab: show the whole place (full ISS, whole Earth) instead of the playable site; orientation only, no ignition */ overview?: boolean; /** Fire Lab: receives the live scene; return a cleanup */ onReady?: (api: SceneApi) => void | (() => void); /** 0..1 flame vitality driven from outside; null/undefined keeps the built-in cycle */ life?: number | null }) {
   const host = useRef<HTMLDivElement>(null);
+  const pickRef = useRef(onPick);
+  pickRef.current = onPick;
+  const fireOn = !!fire || !!wide;
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
+  const fireKey = fire ? JSON.stringify(fire) : "";
+  const fireRef = useRef<FireParams | undefined>(fire);
+  fireRef.current = fire;
+  const hfRef = useRef<HyperFire | null>(null);
+  const actions = useRef<{ focus: () => void; overview: () => void } | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [progress, setProgress] = useState(0);
   const { lang } = useLang();
@@ -639,6 +614,41 @@ export default function ImmersiveScene({ env }: { env: ImmersiveEnv }) {
     resize();
 
     let built: Built | null = null;
+    let hf: HyperFire | null = null;
+    const ignore: THREE.Object3D[] = [];
+    const updaters: ((dt: number, t: number, camera: THREE.PerspectiveCamera, pxPerUnit: number) => void)[] = [];
+    let labCleanup: void | (() => void);
+    const skip = (o: THREE.Object3D) => { for (let p: THREE.Object3D | null = o; p; p = p.parent) if (ignore.includes(p)) return true; return false; };
+    const hitAt = (cx: number, cy: number) => {
+      const r = renderer.domElement.getBoundingClientRect();
+      const ray = new THREE.Raycaster();
+      ray.setFromCamera(new THREE.Vector2(((cx - r.left) / r.width) * 2 - 1, -((cy - r.top) / r.height) * 2 + 1), camera);
+      const hit = ray.intersectObjects(scene.children, true).find((h) => (h.object as THREE.Mesh).isMesh && !inFire(h.object) && !skip(h.object));
+      if (!hit) return null;
+      const n = hit.face ? hit.face.normal.clone().transformDirection(hit.object.matrixWorld) : new THREE.Vector3(0, 1, 0);
+      if (n.dot(ray.ray.direction) > 0) n.negate();
+      return { point: hit.point, normal: n, name: hit.object.name || (hit.object.parent?.name ?? "") };
+    };
+    // touch to burn: a short tap (not a drag) moves the fire to the surface under the finger and reports the point
+    let down: { x: number; y: number; t: number } | null = null;
+    const onDown = (e: PointerEvent) => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; };
+    const inFire = (o: THREE.Object3D) => { for (let p: THREE.Object3D | null = o; p; p = p.parent) if (hf && p === hf.group) return true; return false; };
+    const onUp = (e: PointerEvent) => {
+      const d = down; down = null;
+      const cb = pickRef.current;
+      if (!d || !cb || !built?.fire || Math.hypot(e.clientX - d.x, e.clientY - d.y) > 6 || performance.now() - d.t > 500) return;
+      const hit = hitAt(e.clientX, e.clientY);
+      if (!hit) return;
+      hf?.group.position.copy(hit.point);
+      cb([hit.point.x, hit.point.y, hit.point.z], { normal: [hit.normal.x, hit.normal.y, hit.normal.z], name: hit.name });
+    };
+    renderer.domElement.addEventListener("pointerdown", onDown);
+    renderer.domElement.addEventListener("pointerup", onUp);
+    let tween: { t0: number; dur: number; p0: THREE.Vector3; p1: THREE.Vector3; q0: THREE.Vector3; q1: THREE.Vector3 } | null = null;
+    let home: { p: THREE.Vector3; q: THREE.Vector3 } | null = null;
+    const flyTo = (p: THREE.Vector3, q: THREE.Vector3) => {
+      tween = { t0: performance.now(), dur: 1300, p0: camera.position.clone(), p1: p.clone(), q0: controls.target.clone(), q1: q.clone() };
+    };
     let last = performance.now(), elapsed = 0;
     const loop = () => {
       raf = requestAnimationFrame(loop);
@@ -648,36 +658,67 @@ export default function ImmersiveScene({ env }: { env: ImmersiveEnv }) {
       if (!built) return;
       elapsed += dt;
       built.update(dt, elapsed);
+      if (tween) {
+        const k = Math.min(1, (performance.now() - tween.t0) / tween.dur);
+        const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+        camera.position.lerpVectors(tween.p0, tween.p1, e);
+        controls.target.lerpVectors(tween.q0, tween.q1, e);
+        if (k >= 1) tween = null;
+      }
+      const pxPerUnit = renderer.domElement.height / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
+      if (hf) hf.update(dt, elapsed, camera, pxPerUnit);
+      for (const u of updaters) u(dt, elapsed, camera, pxPerUnit);
       controls.update();
       composer.render();
     };
 
-    BUILDERS[env]({ scene, renderer, progress: (f) => { if (!disposed) setProgress(Math.min(0.99, Math.max(0, f))); } })
+    (fireOn && !overview ? FIRE_BUILDERS : BUILDERS)[env]({ scene, renderer, progress: (f) => { if (!disposed) setProgress(Math.min(0.99, Math.max(0, f))); } })
       .then((b) => {
         if (disposed) return;
         built = b;
         renderer.toneMappingExposure = b.exposure;
         renderer.shadowMap.enabled = !!b.shadows;
-        bloom.strength = b.bloom[0]; bloom.radius = b.bloom[1]; bloom.threshold = b.bloom[2];
+        bloom.strength = fireOn && b.fire ? (b.fire.bloom ?? Math.max(b.bloom[0], 0.55)) : b.bloom[0]; bloom.radius = b.bloom[1]; bloom.threshold = b.bloom[2];
+        if (fireOn && b.fire && !wide) {
+          hf = createHyperFire({ scale: b.fire.scale, mount: b.fire.mount, light: b.fire.light });
+          hf.group.position.set(...b.fire.pos);
+          if (fireRef.current) hf.set(fireRef.current);
+          scene.add(hf.group);
+          hfRef.current = hf;
+        }
         // portrait screens: pull the camera back so the subject still fits
         const k = camera.aspect < 1 ? Math.min(2, 1 / Math.pow(camera.aspect, 0.85)) : 1;
         const t = new THREE.Vector3(...b.cam.target);
         camera.position.copy(t).add(new THREE.Vector3(...b.cam.pos).sub(t).multiplyScalar(k));
         controls.target.copy(t);
-        controls.minDistance = b.cam.min;
+        controls.minDistance = fireOn && b.fire ? Math.min(b.cam.min, 1.2) : b.cam.min;
         controls.maxDistance = b.cam.max * k;
         controls.maxPolarAngle = b.cam.maxPolar ?? Math.PI;
         controls.autoRotate = !!b.cam.autoRotate;
         controls.autoRotateSpeed = b.cam.autoRotate ?? 0;
         controls.update();
+        home = { p: camera.position.clone(), q: controls.target.clone() };
+        const fc = b.fire?.cam;
+        actions.current = {
+          focus: () => { if (fc) flyTo(new THREE.Vector3(...fc.pos), new THREE.Vector3(...fc.target)); },
+          overview: () => { if (home) flyTo(home.p, home.q); },
+        };
         setState("ready");
+        if (onReadyRef.current) {
+          labCleanup = onReadyRef.current({ scene, camera, controls, ignore, addUpdater: (fn) => { updaters.push(fn); }, raycast: hitAt });
+        }
       })
       .catch((e) => { console.error(e); if (!disposed) setState("error"); });
     loop();
 
     return () => {
       disposed = true;
+      if (typeof labCleanup === "function") labCleanup();
+      hfRef.current = null;
+      actions.current = null;
       cancelAnimationFrame(raf);
+      renderer.domElement.removeEventListener("pointerdown", onDown);
+      renderer.domElement.removeEventListener("pointerup", onUp);
       ro.disconnect();
       controls.dispose();
       scene.traverse((o) => {
@@ -692,12 +733,21 @@ export default function ImmersiveScene({ env }: { env: ImmersiveEnv }) {
       (scene.environment as THREE.Texture | null)?.dispose();
       composer.dispose();
       renderer.dispose();
+      renderer.forceContextLoss(); // give the GPU context back now; dispose() alone leaves it alive until GC
       renderer.domElement.remove();
     };
-  }, [env]);
+  }, [env, fireOn, wide, overview]);
+
+  useEffect(() => {
+    if (fireRef.current) hfRef.current?.set(fireRef.current);
+  }, [fireKey]);
+
+  useEffect(() => {
+    hfRef.current?.setLife(life ?? null);
+  }, [life, state]);
 
   return (
-    <div className="relative h-[68vh] min-h-[460px] w-full overflow-hidden rounded-xl border border-white/10 bg-black">
+    <div className={`relative w-full overflow-hidden rounded-xl border border-white/10 bg-black ${className}`}>
       <div ref={host} className="absolute inset-0" />
       {state === "loading" && (
         <div role="status" aria-live="polite" className="pointer-events-none absolute inset-0 grid place-items-center">
@@ -716,8 +766,15 @@ export default function ImmersiveScene({ env }: { env: ImmersiveEnv }) {
           </div>
         </div>
       )}
-      {state === "error" && <div className="absolute inset-0 grid place-items-center text-sm text-red-300">Could not start the 3D scene (WebGL unavailable?).</div>}
-      <div className="pointer-events-none absolute bottom-3 left-3 text-xs text-white/50">Drag to orbit · scroll to zoom</div>
+      {state === "error" && <div className="absolute inset-0 grid place-items-center text-sm text-red-300">{lang === "es" ? "No se pudo iniciar la escena 3D (¿WebGL no disponible?)." : "Could not start the 3D scene (WebGL unavailable?)."}</div>}
+      <div className="pointer-events-none absolute bottom-3 left-3 text-xs text-white/50">{lang === "es" ? "Arrastra para orbitar · rueda para acercar" : "Drag to orbit · scroll to zoom"}</div>
+      {fireOn && !wide && state === "ready" && (
+        <div className="absolute right-3 top-3 flex flex-wrap gap-2 text-xs">
+          <button onClick={() => actions.current?.focus()} className="rounded-full bg-black/55 px-3 py-1.5 text-white/90 backdrop-blur hover:bg-black/75">{lang === "es" ? "Ir al fuego" : "Go to the fire"}</button>
+          <button onClick={() => actions.current?.overview()} className="rounded-full bg-black/55 px-3 py-1.5 text-white/90 backdrop-blur hover:bg-black/75">{lang === "es" ? "Vista general" : "Overview"}</button>
+          <button onClick={() => hfRef.current?.reignite()} className="rounded-full bg-black/55 px-3 py-1.5 text-white/90 backdrop-blur hover:bg-black/75">{lang === "es" ? "Reencender" : "Reignite"}</button>
+        </div>
+      )}
     </div>
   );
 }

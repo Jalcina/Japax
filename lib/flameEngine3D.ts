@@ -11,7 +11,7 @@
  */
 import type { Fate, Fuel, FlameStatus, Layers, SimParams, SimStats } from './flameEngine'
 
-export type Env3 = 'earth' | 'iss' | 'moon' | 'suit' | 'none'
+export type Env3 = 'earth' | 'iss' | 'moon' | 'mars' | 'suit' | 'none'
 export interface Params3 extends SimParams {
   /** unit vector the forced air travels along (default +x) */
   wind?: [number, number, number]

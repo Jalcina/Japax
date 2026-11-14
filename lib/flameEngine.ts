@@ -11,10 +11,10 @@
  *
  * WHAT IS ILLUSTRATION
  *  - Flame size, colors, reaction rates and the soot amount are qualitative.
- *  - Between 0 g and 1 g there is no experimental data; the shape is an interpolation.
+ *  - Between 0 g and 1 g PSI has no data (LUCI 2025 is very limited); the shape is an interpolation.
  */
 
-export type EnvId = 'earth' | 'iss' | 'moon' | 'suit' | 'none'
+export type EnvId = 'earth' | 'iss' | 'moon' | 'mars' | 'suit' | 'none'
 export type Fuel = 'methanol' | 'heptane'
 export type Fate = 'burn' | 'extinguish' | 'unknown'
 
@@ -692,6 +692,17 @@ export class FlameEngine {
       ctx.beginPath(); ctx.moveTo(0, h * 0.86); ctx.quadraticCurveTo(w * 0.3, h * 0.82, w * 0.55, h * 0.87); ctx.quadraticCurveTo(w * 0.8, h * 0.9, w, h * 0.85); ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath(); ctx.fill()
       ctx.fillStyle = 'rgba(0,0,0,0.25)'
       for (const [x, y, rx] of [[0.2, 0.93, 38], [0.55, 0.95, 52], [0.78, 0.92, 30]] as const) { ctx.beginPath(); ctx.ellipse(w * x, h * y, rx, 8, 0, 0, TAU); ctx.fill() }
+    } else if (e === 'mars') {
+      // dusty butterscotch sky, a small pale sun and rust-coloured dunes
+      grad('#5a2f1f', '#c9885a')
+      const sun = ctx.createRadialGradient(w * 0.2, h * 0.22, 2, w * 0.2, h * 0.22, 42)
+      sun.addColorStop(0, 'rgba(255,240,215,0.95)'); sun.addColorStop(1, 'rgba(255,205,150,0)')
+      ctx.fillStyle = sun
+      ctx.beginPath(); ctx.arc(w * 0.2, h * 0.22, 42, 0, TAU); ctx.fill()
+      ctx.fillStyle = '#7a4129'
+      ctx.beginPath(); ctx.moveTo(0, h * 0.85); ctx.quadraticCurveTo(w * 0.28, h * 0.8, w * 0.5, h * 0.86); ctx.quadraticCurveTo(w * 0.78, h * 0.92, w, h * 0.84); ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath(); ctx.fill()
+      ctx.fillStyle = 'rgba(0,0,0,0.22)'
+      for (const [x, y, rx] of [[0.22, 0.94, 40], [0.58, 0.96, 54], [0.8, 0.92, 32]] as const) { ctx.beginPath(); ctx.ellipse(w * x, h * y, rx, 8, 0, 0, TAU); ctx.fill() }
     } else if (e === 'suit') {
       grad('#080a0f', '#0a0d13')
       const vg = ctx.createRadialGradient(w / 2, h / 2, h * 0.3, w / 2, h / 2, h * 0.85)

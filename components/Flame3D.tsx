@@ -27,129 +27,6 @@ interface Props {
   className?: string;
 }
 
-/* ------------------------------------------------------------------ GLSL */
-const NOISE = /* glsl */ `
-float hash(vec3 p){ p = fract(p*0.3183099+.1); p*=17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
-float noise(vec3 x){
-  vec3 i=floor(x), f=fract(x); f=f*f*(3.-2.*f);
-  return mix(mix(mix(hash(i+vec3(0,0,0)),hash(i+vec3(1,0,0)),f.x), mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x), f.y),
-             mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x), mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x), f.y), f.z);
-}
-float fbm(vec3 p){ float a=.5, s=0.; for(int i=0;i<5;i++){ s+=a*noise(p); p*=2.03; a*=.5; } return s; }
-`;
-
-const FLAME_VERT = /* glsl */ `
-varying vec3 vWorld;
-void main(){
-  vec4 w = modelMatrix * vec4(position, 1.0);
-  vWorld = w.xyz;
-  gl_Position = projectionMatrix * viewMatrix * w;
-}`;
-
-// Volumetric flame: ray-marched emission through a noisy shell around the droplet.
-// 0 g -> a blue sphere (diffusion flame); with gravity the shell stretches, tapers and flickers into a teardrop whose
-// soot turns it yellow. Only radius, intensity, gravity and airflow come from the simulation; the look is qualitative.
-const FLAME_FRAG = /* glsl */ `
-precision highp float;
-varying vec3 vWorld;
-uniform float uTime, uRf, uI, uG, uSoot, uFlow;
-uniform vec3 uWind;
-uniform int uSteps;
-const float RB = 3.7;
-${NOISE}
-vec4 flame(vec3 p){
-  vec3 q = p;
-  float g = uG;
-  float lift = uRf * 0.42 * g;
-  q.y -= lift;
-  float h = q.y / uRf;
-  float taper = mix(1.0, 1.0 - 0.60 * smoothstep(-0.3, 1.9, h), g);
-  q.xz /= max(taper, 0.28);
-  q.y /= (1.0 + 1.05 * g);
-  q -= uWind * (clamp(uFlow, 0.0, 60.0) * 0.011) * uRf * 0.7;
-  float flicker = 0.4 + 1.9 * g;
-  vec3 np = q * 2.3 + vec3(0.0, -uTime * flicker, 0.0) + uWind * (-uTime * 0.15);
-  float n = fbm(np);
-  float n2 = noise(np * 4.1 + vec3(uTime * 0.6));          // fine flame licks
-  float r = length(q) + (n - 0.5) * uRf * (0.20 + 0.60 * g) + (n2 - 0.5) * uRf * 0.06;
-  float x = (r - uRf) / (0.15 * uRf + 1e-3);
-  float sheet = exp(-x * x);
-  float core = 0.12 * exp(-pow(r / (0.60 * uRf), 2.0));
-  float halo = 0.10 * exp(-pow((r - 1.20 * uRf) / (0.40 * uRf), 2.0));
-  float tip = 1.0 - g * 0.55 * smoothstep(0.9, 2.1, h);
-  float d = (sheet * (0.82 + 0.28 * n2) + core + halo) * uI * tip;
-
-  vec3 blue = vec3(0.10, 0.36, 1.00);
-  vec3 cyan = vec3(0.35, 0.82, 1.00);
-  vec3 yellow = vec3(1.00, 0.74, 0.28);
-  vec3 orange = vec3(1.00, 0.40, 0.10);
-  float soot = clamp(uSoot + 1.15 * g, 0.0, 1.0);
-  float inner = 1.0 - smoothstep(0.30 * uRf, 1.08 * uRf, r);
-  vec3 warm = mix(yellow, orange, 0.20 * inner + 0.55 * smoothstep(0.2, 2.0, h));
-  vec3 col = mix(blue, warm, smoothstep(0.12, 0.72, soot) * (0.82 + 0.18 * inner));
-  col = mix(col, cyan, 0.22 * sheet * (1.0 - soot));
-  col = mix(col, vec3(1.0, 0.92, 0.78), 0.22 * core * soot * 4.0);
-  col = mix(col, blue, 0.75 * g * (1.0 - smoothstep(-0.65, 0.05, h)) * (0.3 + 0.7 * sheet));
-  return vec4(col, d);
-}
-void main(){
-  vec3 ro = cameraPosition;
-  vec3 rd = normalize(vWorld - ro);
-  float b = dot(ro, rd);
-  float c = dot(ro, ro) - RB * RB;
-  float disc = b * b - c;
-  if (disc < 0.0) discard;
-  disc = sqrt(disc);
-  float t0 = max(-b - disc, 0.0);
-  float t1 = -b + disc;
-  float dt = (t1 - t0) / float(uSteps);
-  float t = t0 + dt * hash(vec3(gl_FragCoord.xy, fract(uTime) * 37.0));
-  vec3 acc = vec3(0.0);
-  float T = 1.0;
-  for (int i = 0; i < 96; i++) {
-    if (i >= uSteps) break;
-    vec4 s = flame(ro + rd * t);
-    float a = 1.0 - exp(-s.a * dt * 2.2);
-    acc += T * a * s.rgb * (1.05 - 0.3 * clamp(uSoot + 1.15 * uG, 0.0, 1.0));
-    T *= (1.0 - a);
-    t += dt;
-    if (T < 0.02) break;
-  }
-  gl_FragColor = vec4(acc, 1.0 - T);
-}`;
-
-const EARTH_VERT = /* glsl */ `
-varying vec3 vN; varying vec3 vP; varying vec3 vV;
-void main(){
-  vN = normalize(mat3(modelMatrix) * normal);
-  vec4 w = modelMatrix * vec4(position, 1.0);
-  vP = position;
-  vV = normalize(cameraPosition - w.xyz);
-  gl_Position = projectionMatrix * viewMatrix * w;
-}`;
-const EARTH_FRAG = /* glsl */ `
-precision highp float;
-varying vec3 vN; varying vec3 vP; varying vec3 vV;
-uniform float uTime; uniform vec3 uSun; uniform float uR;
-${NOISE}
-void main(){
-  vec3 p = normalize(vP) * 3.0;
-  float land = smoothstep(0.50, 0.56, fbm(p * 1.1 + vec3(uTime * 0.004)));
-  float cloud = smoothstep(0.55, 0.85, fbm(p * 2.2 + vec3(uTime * 0.012, 0.0, uTime * 0.007)));
-  vec3 ocean = vec3(0.02, 0.12, 0.38);
-  vec3 ground = mix(vec3(0.08, 0.26, 0.12), vec3(0.34, 0.30, 0.16), smoothstep(0.55, 0.8, fbm(p * 3.0)));
-  vec3 base = mix(ocean, ground, land);
-  base = mix(base, vec3(0.92), cloud * 0.85);
-  float dif = clamp(dot(normalize(vN), normalize(uSun)) * 0.8 + 0.25, 0.04, 1.0);
-  float rim = pow(1.0 - clamp(dot(normalize(vN), vV), 0.0, 1.0), 2.6);
-  vec3 col = base * dif + vec3(0.25, 0.55, 1.0) * rim * 0.95;
-  gl_FragColor = vec4(col, 1.0);
-}`;
-const SKY_FRAG = /* glsl */ `
-precision highp float; varying vec3 vP; uniform vec3 uTop; uniform vec3 uBottom;
-void main(){ float k = smoothstep(-0.25, 0.65, normalize(vP).y); gl_FragColor = vec4(mix(uBottom, uTop, k), 1.0); }`;
-const SKY_VERT = /* glsl */ `varying vec3 vP; void main(){ vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
-
 const ATOM_HEX = { O: 0xe34948, N: 0x3987e5, C: 0x6f6e68, H: 0xf4f2ec, He: 0x8ee8e0, F: 0xeda100, S: 0x2b2a28 } as const;
 const AR = { O: 0.044, N: 0.042, C: 0.048, H: 0.029, He: 0.043, F: 0.05, S: 0.042 } as const;
 const LO_CAP = 6400;
@@ -159,126 +36,6 @@ const BOND_CAP = 2600;
 const LABEL_IDS = ["droplet", "fuelVapor", "zone", "oxygenIn", "products", "plume", "sphere"] as const;
 type LabelId = (typeof LABEL_IDS)[number];
 const LABEL_SIDE: Record<LabelId, "l" | "r"> = { droplet: "l", fuelVapor: "r", zone: "r", oxygenIn: "l", products: "r", plume: "r", sphere: "l" };
-
-/**
- * Procedural lunar surface: a height field built from physically shaped craters (parabolic bowl, raised rim, ejecta blanket,
- * central peaks on big ones), maria and fine regolith roughness; the normal map is derived from that height field, so the
- * sun's raking light carves real-looking craters. Albedo adds maria, bright young ejecta and ray systems.
- * Illustrative terrain, not real lunar topography.
- */
-let moonMapsCache: { albedo: import("three").DataTexture; normal: import("three").DataTexture } | null = null;
-async function getMoonMaps(THREE: TH) {
-  if (moonMapsCache) return moonMapsCache;
-  const tick = () => new Promise<void>((r) => setTimeout(r, 0));
-  const W = 3072, H = 1536, N = W * H;
-  let seed = 11;
-  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  const grid = (gw: number, gh: number) => {
-    const a = new Float32Array(gw * gh);
-    for (let i = 0; i < a.length; i++) a[i] = rnd();
-    return a;
-  };
-  const samp = (a: Float32Array, gw: number, gh: number, x: number, y: number) => {
-    const fx = x * gw, fy = y * (gh - 1);
-    const x0 = Math.floor(fx), y0 = Math.floor(fy);
-    let tx = fx - x0, ty = fy - y0;
-    tx = tx * tx * (3 - 2 * tx);
-    ty = ty * ty * (3 - 2 * ty);
-    const i0 = x0 % gw, i1 = (x0 + 1) % gw, j1 = Math.min(y0 + 1, gh - 1);
-    return (a[y0 * gw + i0] * (1 - tx) + a[y0 * gw + i1] * tx) * (1 - ty) + (a[j1 * gw + i0] * (1 - tx) + a[j1 * gw + i1] * tx) * ty;
-  };
-  const g0 = grid(10, 5), g1 = grid(48, 24), g2 = grid(192, 96), g3 = grid(768, 384);
-  const h = new Float32Array(N), fresh = new Float32Array(N), mare = new Float32Array(N);
-  for (let j = 0; j < H; j++) {
-    if (j % 64 === 0) await tick();
-    const v = j / H;
-    for (let i = 0; i < W; i++) {
-      const u = i / W, k = j * W + i;
-      const m = 0.7 * samp(g0, 10, 5, u, v) + 0.3 * samp(g1, 48, 24, u, v);
-      const mm = Math.min(1, Math.max(0, (m - 0.52) / 0.12));
-      mare[k] = mm * mm * (3 - 2 * mm);
-      h[k] = 11 * (samp(g1, 48, 24, u, v) - 0.5) + 4.5 * (samp(g2, 192, 96, u, v) - 0.5) + 1.5 * (samp(g3, 768, 384, u, v) - 0.5) + (rnd() - 0.5) * 0.55 - 5 * mare[k];
-    }
-  }
-  const hash = Float32Array.from({ length: 96 }, () => Math.pow(rnd(), 3));
-  const stamp = (cx: number, cy: number, r: number, age: number, rays: boolean) => {
-    const depth = (0.3 + 0.12 * rnd()) * r * (0.35 + 0.65 * age);
-    const reach = rays ? 9 : 2.6;
-    const R = Math.ceil(r * reach);
-    const young = age * age * age;
-    for (let dy = -R; dy <= R; dy++) {
-      const y = cy + dy;
-      if (y < 0 || y >= H) continue;
-      for (let dx = -R; dx <= R; dx++) {
-        const d = Math.hypot(dx, dy) / r;
-        if (d > reach) continue;
-        const x = (((cx + dx) % W) + W) % W, k = y * W + x;
-        if (d < 1) {
-          h[k] += -depth * (1 - d * d) * (1 - 0.25 * d * d) + depth * 0.32 * Math.exp(-(((d - 0.97) / 0.1) ** 2));
-          if (r > 30) h[k] += depth * 0.35 * Math.exp(-((d / 0.13) ** 2));
-        } else {
-          h[k] += depth * 0.32 * Math.exp(-(((d - 1) / 0.1) ** 2)) + depth * 0.16 * Math.pow(d, -3);
-        }
-        if (young > 0.25) {
-          let f = d < 1 ? 0.25 * young * d : young * (0.5 * Math.exp(-(((d - 1) / 0.22) ** 2)) + 0.3 * Math.exp(-(d - 1) * 1.5));
-          if (rays && d > 1) {
-            const a = (Math.atan2(dy, dx) + Math.PI) / (Math.PI * 2) * 96, b0 = Math.floor(a) % 96, b1 = (b0 + 1) % 96, t = a - Math.floor(a);
-            f += young * 0.9 * (hash[b0] * (1 - t) + hash[b1] * t) / Math.pow(d, 0.9);
-          }
-          fresh[k] += f;
-        }
-      }
-    }
-  };
-  const big: [number, number, number][] = [];
-  for (let c = 0; c < 6500; c++) {
-    if (c % 150 === 0) await tick();
-    const r = 2 + Math.pow(rnd(), 3.6) * 80;
-    const cx = Math.floor(rnd() * W), cy = Math.floor(rnd() * H);
-    const mk = mare[cy * W + cx];
-    if (mk > 0.5 && rnd() < 0.65) continue; // plains are younger and smoother
-    if (r > 55 && big.length < 8) big.push([cx, cy, r]);
-    stamp(cx, cy, r, rnd(), false);
-  }
-  for (const [cx, cy, r] of big) {
-    await tick();
-    stamp(cx, cy, Math.max(r, 40), 1, true);
-  }
-
-  const alb = new Uint8Array(N * 4), nrm = new Uint8Array(N * 4);
-  const S = 1.25;
-  for (let j = 0; j < H; j++) {
-    if (j % 64 === 0) await tick();
-    const jm = Math.max(0, j - 1), jp = Math.min(H - 1, j + 1);
-    for (let i = 0; i < W; i++) {
-      const k = j * W + i, im = (i - 1 + W) % W, ip = (i + 1) % W;
-      const gx = (h[j * W + ip] - h[j * W + im]) * 0.5, gy = (h[jp * W + i] - h[jm * W + i]) * 0.5;
-      let nx = -gx * S, ny = -gy * S, nz = 1;
-      const inv = 1 / Math.hypot(nx, ny, nz);
-      nx *= inv; ny *= inv; nz *= inv;
-      const o = k * 4;
-      nrm[o] = (nx * 0.5 + 0.5) * 255; nrm[o + 1] = (ny * 0.5 + 0.5) * 255; nrm[o + 2] = (nz * 0.5 + 0.5) * 255; nrm[o + 3] = 255;
-      const m = mare[k];
-      let a = 0.5 + (rnd() - 0.5) * 0.09 - 0.045 * Math.max(-3, Math.min(3, h[k] * 0.12));
-      a *= 1 - 0.42 * m;
-      a += Math.min(0.45, fresh[k] * 0.42);
-      alb[o] = Math.min(255, a * 1.03 * 255); alb[o + 1] = Math.min(255, a * 255); alb[o + 2] = Math.min(255, a * (0.94 + 0.14 * m) * 255); alb[o + 3] = 255;
-    }
-  }
-  const mk = (data: Uint8Array, srgb: boolean) => {
-    const t = new THREE.DataTexture(data, W, H, THREE.RGBAFormat, THREE.UnsignedByteType);
-    t.wrapS = THREE.RepeatWrapping;
-    t.minFilter = THREE.LinearMipmapLinearFilter;
-    t.magFilter = THREE.LinearFilter;
-    t.generateMipmaps = true;
-    t.anisotropy = 8;
-    if (srgb) t.colorSpace = THREE.SRGBColorSpace;
-    t.needsUpdate = true;
-    return t;
-  };
-  moonMapsCache = { albedo: mk(alb, true), normal: mk(nrm, false) };
-  return moonMapsCache;
-}
 
 export default function Flame3D({ params, layers, env, running, speed, aspect, labelText, ariaLabel, reigniteKey, autoRotate, resetKey, cursorAir, zoomReq, onZoom, onStats, onUnsupported, className }: Props) {
   const wrap = useRef<HTMLDivElement>(null);
@@ -300,7 +57,10 @@ export default function Flame3D({ params, layers, env, running, speed, aspect, l
       const { RenderPass } = await import("three/examples/jsm/postprocessing/RenderPass.js");
       const { UnrealBloomPass } = await import("three/examples/jsm/postprocessing/UnrealBloomPass.js");
       const { OutputPass } = await import("three/examples/jsm/postprocessing/OutputPass.js");
-      const { RoomEnvironment } = await import("three/examples/jsm/environments/RoomEnvironment.js");
+      const { RoundedBoxGeometry } = await import("three/examples/jsm/geometries/RoundedBoxGeometry.js");
+      const { Reflector } = await import("three/examples/jsm/objects/Reflector.js");
+      const { createHyperFire } = await import("@/lib/hyperFire");
+      const { buildLabDome } = await import("@/lib/labDome");
       if (cancelled) return;
 
       let renderer: InstanceType<TH["WebGLRenderer"]>;
@@ -310,7 +70,8 @@ export default function Flame3D({ params, layers, env, running, speed, aspect, l
         onUnsupported?.();
         return;
       }
-      renderer.toneMapping = THREE.NoToneMapping;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.05;
       const canvas = renderer.domElement;
       canvas.setAttribute("role", "img");
       canvas.setAttribute("aria-label", ariaLabel);
@@ -339,46 +100,102 @@ export default function Flame3D({ params, layers, env, running, speed, aspect, l
 
       /* realistic reflections on atoms and droplet */
       const pmrem = new THREE.PMREMGenerator(renderer);
-      const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+      // a photo-studio of soft boxes: gives glass, steel and every atom believable highlights
+      const studio = new THREE.Scene();
+      studio.background = new THREE.Color(0x06080c);
+      const softbox = (w: number, hh: number, x: number, y: number, z: number, color: number, power: number) => {
+        const m = new THREE.Mesh(new THREE.PlaneGeometry(w, hh), new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(power), side: THREE.DoubleSide }));
+        m.position.set(x, y, z);
+        m.lookAt(0, 0, 0);
+        studio.add(m);
+      };
+      softbox(9, 5, 0, 8, 2, 0xffffff, 7);
+      softbox(2.2, 8, -8, 2, 1, 0xffd9b0, 5);
+      softbox(2.2, 8, 8, 1, -2, 0xa9c8ff, 4);
+      softbox(10, 1.4, 0, -1, -9, 0xdfe9ff, 3);
+      softbox(6, 2, 0, 3, 9, 0xffffff, 2);
+      const envTex = pmrem.fromScene(studio, 0.02).texture;
       scene.environment = envTex;
       scene.environmentIntensity = 0.5;
 
       const composer = new EffectComposer(renderer);
       composer.addPass(new RenderPass(scene, camera));
-      const bloom = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.26, 0.5, 0.7);
+      const bloom = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.5, 0.6, 0.85);
       composer.addPass(bloom);
       composer.addPass(new OutputPass());
 
       /* ---------------- lights ---------------- */
-      const ambient = new THREE.AmbientLight(0xffffff, 0.45);
+      const ambient = new THREE.AmbientLight(0xffffff, 0.16);
       scene.add(ambient);
-      const key = new THREE.DirectionalLight(0xdfe9ff, 0.8);
-      key.position.set(-4, 7, 5);
+      const key = new THREE.DirectionalLight(0xeaf1ff, 1.15);
+      key.position.set(-5, 9, 6);
       scene.add(key);
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      key.castShadow = true;
       key.shadow.mapSize.set(2048, 2048);
-      Object.assign(key.shadow.camera, { left: -12, right: 12, top: 12, bottom: -12, near: 1, far: 40 });
+      Object.assign(key.shadow.camera, { left: -11, right: 11, top: 11, bottom: -11, near: 1, far: 40 });
       key.shadow.bias = -0.0004;
       key.shadow.normalBias = 0.03;
-      const fireLight = new THREE.PointLight(0xff9a4c, 0, 14, 1.6);
-      scene.add(fireLight);
+      const rim = new THREE.DirectionalLight(0x8fb6ff, 0.7);
+      rim.position.set(7, 3, -9);
+      scene.add(rim);
+      const fill = new THREE.DirectionalLight(0xffd6b0, 0.22);
+      fill.position.set(6, -1, 8);
+      scene.add(fill);
 
       /* ---------------- chamber, droplet, fiber ---------------- */
-      const boxGeo = new THREE.BoxGeometry(BOX.x * 2, BOX.yMax - BOX.yMin, BOX.z * 2);
-      const edges = new THREE.LineSegments(new THREE.EdgesGeometry(boxGeo), new THREE.LineBasicMaterial({ color: 0x5aa3ff, transparent: true, opacity: 0.22 }));
-      edges.position.y = (BOX.yMax + BOX.yMin) / 2;
-      scene.add(edges);
-      // glass walls (faint, reflective) and metal corner posts so the chamber reads as a real test rig
-      const glass = new THREE.Mesh(boxGeo, new THREE.MeshPhysicalMaterial({ color: 0xb8d4ff, transparent: true, opacity: 0.03, roughness: 0.04, metalness: 0, envMapIntensity: 0.5, side: THREE.BackSide, depthWrite: false }));
-      glass.position.y = edges.position.y;
-      scene.add(glass);
-      const postMat = new THREE.MeshStandardMaterial({ color: 0xa9b4c4, roughness: 0.28, metalness: 0.9, envMapIntensity: 1.3 });
-      for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
-        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, BOX.yMax - BOX.yMin, 10), postMat);
-        post.position.set(sx * BOX.x, edges.position.y, sz * BOX.z);
-        scene.add(post);
+      const CH = BOX.yMax - BOX.yMin, CY = (BOX.yMax + BOX.yMin) / 2;
+      const steel = new THREE.MeshPhysicalMaterial({ color: 0xb3bcc8, roughness: 0.26, metalness: 1, envMapIntensity: 1.7, clearcoat: 0.25 });
+      const darkSteel = new THREE.MeshStandardMaterial({ color: 0x1a1f27, roughness: 0.5, metalness: 0.85, envMapIntensity: 0.7 });
+      const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xd2e8ff, transparent: true, opacity: 0.07, roughness: 0.02, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 2.2, side: THREE.DoubleSide, depthWrite: false });
+      const chamber = new THREE.Group();
+      scene.add(chamber);
+      const addC = <T extends InstanceType<TH["Object3D"]>>(o: T, x: number, y: number, z: number) => { o.position.set(x, y, z); chamber.add(o); return o; };
+      // frame: twelve rods and eight corner balls
+      const rod = (len: number, axis: "x" | "y" | "z", x: number, y: number, z: number) => {
+        const m = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, len, 20), steel);
+        if (axis === "x") m.rotation.z = Math.PI / 2;
+        if (axis === "z") m.rotation.x = Math.PI / 2;
+        m.castShadow = true;
+        return addC(m, x, y, z);
+      };
+      for (const sx of [-1, 1]) for (const sz of [-1, 1]) rod(CH, "y", sx * BOX.x, CY, sz * BOX.z);
+      for (const sy of [BOX.yMin, BOX.yMax]) {
+        for (const sz of [-1, 1]) rod(BOX.x * 2, "x", 0, sy, sz * BOX.z);
+        for (const sx of [-1, 1]) rod(BOX.z * 2, "z", sx * BOX.x, sy, 0);
+        for (const sx of [-1, 1]) for (const sz of [-1, 1]) addC(new THREE.Mesh(new THREE.SphereGeometry(0.1, 24, 16), steel), sx * BOX.x, sy, sz * BOX.z);
       }
+      // glass on four sides
+      for (const sz of [-1, 1]) addC(new THREE.Mesh(new THREE.PlaneGeometry(BOX.x * 2, CH), glassMat), 0, CY, sz * BOX.z);
+      for (const sx of [-1, 1]) { const g = new THREE.Mesh(new THREE.PlaneGeometry(BOX.z * 2, CH), glassMat); g.rotation.y = Math.PI / 2; addC(g, sx * BOX.x, CY, 0); }
+      // perforated floor plate, base and top plates, bolts
+      const perf = document.createElement("canvas");
+      perf.width = perf.height = 128;
+      const pc = perf.getContext("2d")!;
+      pc.fillStyle = "#808080"; pc.fillRect(0, 0, 128, 128);
+      pc.fillStyle = "#202020";
+      for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { pc.beginPath(); pc.arc(8 + i * 16, 8 + j * 16, 3.2, 0, Math.PI * 2); pc.fill(); }
+      const perfTex = new THREE.CanvasTexture(perf);
+      perfTex.wrapS = perfTex.wrapT = THREE.RepeatWrapping;
+      perfTex.repeat.set(9, 7);
+      const floorPlate = new THREE.Mesh(new THREE.BoxGeometry(BOX.x * 2 - 0.1, 0.05, BOX.z * 2 - 0.1), new THREE.MeshStandardMaterial({ color: 0x59616d, roughness: 0.38, metalness: 0.95, bumpMap: perfTex, bumpScale: 2.4, envMapIntensity: 1.4 }));
+      floorPlate.receiveShadow = true;
+      addC(floorPlate, 0, BOX.yMin + 0.03, 0);
+      const base = new THREE.Mesh(new RoundedBoxGeometry(BOX.x * 2 + 1.0, 0.3, BOX.z * 2 + 1.0, 4, 0.08), darkSteel);
+      base.castShadow = base.receiveShadow = true;
+      addC(base, 0, BOX.yMin - 0.15, 0);
+      const top = new THREE.Mesh(new RoundedBoxGeometry(BOX.x * 2 + 0.5, 0.2, BOX.z * 2 + 0.5, 4, 0.06), darkSteel);
+      top.castShadow = true;
+      addC(top, 0, BOX.yMax + 0.1, 0);
+      addC(new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.7, 0.3, 40), steel), 0, BOX.yMax + 0.35, 0);
+      for (const sx of [-1, 1]) for (const sz of [-1, 1]) for (const k of [0, 1]) {
+        const bolt = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.06, 6), steel);
+        addC(bolt, sx * (BOX.x + 0.28 - k * 0.45), BOX.yMin + 0.01, sz * (BOX.z + 0.28 - k * 0.45));
+      }
+      // the surrounding facility: dome, fan with HEPA intake, particle counters, hood, racks, gas supply, camera
+      const lab = buildLabDome();
+      scene.add(lab.group);
 
       const dropMat = new THREE.MeshPhysicalMaterial({ color: 0xdfe6f2, roughness: 0.04, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.6, emissive: 0x222a38, emissiveIntensity: 0.3 });
       const droplet = new THREE.Mesh(new THREE.SphereGeometry(0.11, 48, 32), dropMat);
@@ -387,35 +204,12 @@ export default function Flame3D({ params, layers, env, running, speed, aspect, l
       fiber.rotation.z = Math.PI / 2 - 0.4;
       scene.add(fiber);
 
-      /* ---------------- volumetric flame ---------------- */
-      const flameMat = new THREE.ShaderMaterial({
-        vertexShader: FLAME_VERT,
-        fragmentShader: FLAME_FRAG,
-        transparent: true,
-        depthTest: false,
-        depthWrite: false,
-        side: THREE.BackSide,
-        blending: THREE.CustomBlending,
-        blendEquation: THREE.AddEquation,
-        blendSrc: THREE.OneFactor,
-        blendDst: THREE.OneMinusSrcAlphaFactor,
-        uniforms: {
-          uTime: { value: 0 },
-          uRf: { value: 0.6 },
-          uI: { value: 0 },
-          uG: { value: 0 },
-          uSoot: { value: 0.1 },
-          uFlow: { value: 0 },
-          uWind: { value: new THREE.Vector3(1, 0, 0) },
-          uSteps: { value: 72 },
-        },
-      });
-      const flameMesh = new THREE.Mesh(new THREE.SphereGeometry(3.7, 48, 32), flameMat);
-      flameMesh.renderOrder = 10;
-      scene.add(flameMesh);
+      /* ---------------- hyper-real flame: ray-marched volume + smoke + embers, driven by the engine ---------------- */
+      const hf = createHyperFire({ mount: "droplet", hardware: false, light: 0.38 });
+      scene.add(hf.group);
 
       /* ---------------- atoms (two levels of detail, per-instance colour) and bonds ---------------- */
-      const atomMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.27, metalness: 0.02, envMapIntensity: 1.1 });
+      const atomMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.2, metalness: 0, clearcoat: 0.8, clearcoatRoughness: 0.1, envMapIntensity: 1.6, sheen: 0.35, sheenColor: new THREE.Color(0xffffff), sheenRoughness: 0.45 });
       const mkAtoms = (seg: [number, number], cap: number) => {
         const m = new THREE.InstancedMesh(new THREE.SphereGeometry(1, seg[0], seg[1]), atomMat, cap);
         m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -434,7 +228,7 @@ export default function Flame3D({ params, layers, env, running, speed, aspect, l
       const hiC = (atomsHi.instanceColor as InstanceType<TH["InstancedBufferAttribute"]>).array as Float32Array;
       let nLo = 0, nHi = 0;
 
-      const bondMat = new THREE.MeshStandardMaterial({ color: 0xd9d7d0, roughness: 0.35, metalness: 0.2, envMapIntensity: 1 });
+      const bondMat = new THREE.MeshPhysicalMaterial({ color: 0xd9d7d0, roughness: 0.22, metalness: 0.55, clearcoat: 0.5, envMapIntensity: 1.5 });
       const bonds = new THREE.InstancedMesh(new THREE.CylinderGeometry(1, 1, 1, 9, 1, true), bondMat, BOND_CAP);
       bonds.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
       bonds.count = 0;
@@ -509,271 +303,59 @@ export default function Flame3D({ params, layers, env, running, speed, aspect, l
       cursorArrow.visible = false;
       scene.add(cursorArrow);
 
-      /* ---------------- environments ---------------- */
-      let envGroup: InstanceType<TH["Group"]> | null = null;
-      const dispose = (o: InstanceType<TH["Object3D"]>) => {
-        o.traverse((c) => {
-          const m = c as InstanceType<TH["Mesh"]>;
-          m.geometry?.dispose?.();
-          const mat = m.material as InstanceType<TH["Material"]> | InstanceType<TH["Material"]>[] | undefined;
-          const free = (x: InstanceType<TH["Material"]>) => {
-            (x as InstanceType<TH["MeshStandardMaterial"]>).map?.dispose?.();
-            x.dispose();
-          };
-          if (Array.isArray(mat)) mat.forEach(free);
-          else if (mat) free(mat);
-        });
-      };
-      const stars = (n: number, radius: number) => {
-        const pos = new Float32Array(n * 3);
-        for (let i = 0; i < n; i++) {
-          const u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, s = Math.sqrt(1 - u * u);
-          pos[i * 3] = radius * s * Math.cos(th);
-          pos[i * 3 + 1] = radius * u;
-          pos[i * 3 + 2] = radius * s * Math.sin(th);
-        }
-        const g = new THREE.BufferGeometry();
-        g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-        return new THREE.Points(g, new THREE.PointsMaterial({ color: 0xffffff, size: 1.7, sizeAttenuation: false, transparent: true, opacity: 0.85, depthWrite: false, fog: false }));
-      };
-      const earthMat = (sun: [number, number, number]) =>
-        new THREE.ShaderMaterial({ vertexShader: EARTH_VERT, fragmentShader: EARTH_FRAG, uniforms: { uTime: { value: 0 }, uSun: { value: new THREE.Vector3(...sun) }, uR: { value: 1 } } });
+      /* ---------------- test cell: identical scenery for every environment, only the physics changes ---------------- */
       const uniformsToAnimate: { value: number }[] = [];
-
+      const tickers: ((dt: number, t: number) => void)[] = [];
+      let tickT = 0;
+      let envBuilt = false;
       const buildEnv = (e: Env3) => {
-        if (envGroup) {
-          scene.remove(envGroup);
-          dispose(envGroup);
-          envGroup = null;
-        }
-        uniformsToAnimate.length = 0;
-        const g = new THREE.Group();
-        const bg: Record<Env3, number> = { earth: 0x0b1626, iss: 0x03050a, moon: 0x020306, suit: 0x07090e, none: 0x0d1017 };
-        scene.background = new THREE.Color(bg[e]);
-        scene.fog = new THREE.Fog(bg[e], 16, 46);
-        key.castShadow = false;
-        // on the Moon there is no air to scatter light: one harsh, low sun and very dark shadows
-        ambient.intensity = e === "moon" ? 0.2 : 0.45;
-        scene.environmentIntensity = e === "moon" ? 0.28 : 0.5;
-        if (e === "moon") key.position.set(-9, 5.5, 6.5);
-        else key.position.set(-4, 7, 5);
-        key.intensity = e === "moon" ? 2.2 : e === "iss" ? 0.7 : 0.8;
-        key.color.set(e === "moon" ? 0xfff4e0 : 0xdfe9ff);
-        controls.maxPolarAngle = e === "earth" || e === "moon" ? Math.PI * 0.515 : Math.PI;
-        // on the Moon you can pull far back and see the whole globe with the chamber standing on it
-        controls.maxDistance = e === "moon" ? 110 : 18;
-        // framing: on the Moon look slightly down so the lunar ground, flag and horizon fill the lower third
-        if (e === "moon") { HOME.set(2.8, 2.7, 13.2); HOME_T.set(0, -0.6, 0); }
-        else { HOME.set(1.4, 1.0, 8.8); HOME_T.set(0, 0.55, 0); }
+        void e;
+        if (envBuilt) return;
+        envBuilt = true;
+        scene.background = new THREE.Color(0x06080c);
+        scene.fog = new THREE.FogExp2(0x06080c, 0.016);
+        scene.environmentIntensity = 0.95;
+        controls.maxPolarAngle = Math.PI * 0.52;
+        controls.maxDistance = 22;
+        HOME.set(2.4, 1.4, 11.2);
+        HOME_T.set(0, 0.4, 0);
         camera.position.copy(HOME);
         controls.target.copy(HOME_T);
         controls.update();
-        camera.far = e === "moon" ? 600 : 140;
+        camera.far = 220;
         camera.updateProjectionMatrix();
-
-        if (e === "earth") {
-          g.add(new THREE.Mesh(new THREE.SphereGeometry(60, 24, 16), new THREE.ShaderMaterial({ vertexShader: SKY_VERT, fragmentShader: SKY_FRAG, side: THREE.BackSide, depthWrite: false, fog: false, uniforms: { uTop: { value: new THREE.Color(0x1a3f66) }, uBottom: { value: new THREE.Color(0x0a1420) } } })));
-          const floor = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshStandardMaterial({ color: 0x101b28, roughness: 0.5, metalness: 0.15 }));
-          floor.rotation.x = -Math.PI / 2;
-          floor.position.y = BOX.yMin - 0.02;
-          g.add(floor);
-          const grid = new THREE.GridHelper(60, 60, 0x2a4a6a, 0x16293b);
-          grid.position.y = BOX.yMin - 0.01;
-          (grid.material as InstanceType<TH["LineBasicMaterial"]>).transparent = true;
-          (grid.material as InstanceType<TH["LineBasicMaterial"]>).opacity = 0.45;
-          g.add(grid);
-        } else if (e === "iss") {
-          g.add(stars(1300, 80));
-          const earth = new THREE.Mesh(new THREE.SphereGeometry(38, 96, 64), earthMat([0.4, 0.5, 0.8]));
-          earth.position.set(0, -41.4, -14);
-          g.add(earth);
-          uniformsToAnimate.push((earth.material as InstanceType<TH["ShaderMaterial"]>).uniforms.uTime);
-        } else if (e === "moon") {
-          g.add(stars(1500, 320));
-          // the whole Moon: a full cratered sphere with the chamber standing on its top (curved horizon when you orbit)
-          scene.fog = new THREE.Fog(bg[e], 400, 900);
-          const RM = 40, yTop = BOX.yMin - 0.15, cy = yTop - RM;
-          let seed = 7;
-          const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-          const moonMat = new THREE.MeshStandardMaterial({ color: 0x8a8781, normalScale: new THREE.Vector2(1.15, 1.15), roughness: 0.97, metalness: 0, envMapIntensity: 0.12 });
-          // the detailed terrain is generated in small slices without freezing the page, then swapped in
-          void getMoonMaps(THREE).then((maps) => {
-            if (cancelled || envGroup !== g) return;
-            moonMat.color.set(0xffffff);
-            moonMat.map = maps.albedo;
-            moonMat.normalMap = maps.normal;
-            moonMat.needsUpdate = true;
-            api.current?.dirty();
-          });
-          const moon = new THREE.Mesh(new THREE.SphereGeometry(RM, 192, 128), moonMat);
-          moon.position.y = cy;
-          moon.rotation.x = Math.PI / 2; // texture poles point sideways, so the chamber sits on the undistorted equator
-          g.add(moon);
-
-          // near-field regolith: a tiled micro-relief cap (planar UVs) so the ground stays detailed up close
-          const gc = document.createElement("canvas");
-          gc.width = gc.height = 512;
-          const g2 = gc.getContext("2d")!;
-          g2.fillStyle = "#808080";
-          g2.fillRect(0, 0, 512, 512);
-          for (let i = 0; i < 34000; i++) {
-            const v = 40 + Math.floor(rnd() * 190), s = rnd() < 0.15 ? 3 : rnd() < 0.5 ? 2 : 1;
-            g2.fillStyle = `rgb(${v},${v},${v})`;
-            g2.beginPath();
-            g2.arc(rnd() * 512, rnd() * 512, s * 0.7, 0, Math.PI * 2);
-            g2.fill();
-          }
-          const grain = new THREE.CanvasTexture(gc);
-          grain.wrapS = grain.wrapT = THREE.RepeatWrapping;
-          grain.anisotropy = 8;
-          const capGeo = new THREE.SphereGeometry(RM + 0.003, 160, 48, 0, Math.PI * 2, 0, 0.5);
-          const cuv = capGeo.attributes.uv as InstanceType<TH["BufferAttribute"]>;
-          const cpos = capGeo.attributes.position as InstanceType<TH["BufferAttribute"]>;
-          for (let i = 0; i < cuv.count; i++) cuv.setXY(i, cpos.getX(i) * 0.5, cpos.getZ(i) * 0.5);
-          const cap = new THREE.Mesh(capGeo, new THREE.MeshStandardMaterial({ color: 0x9a9791, map: grain, bumpMap: grain, bumpScale: 1.6, roughness: 1, metalness: 0, transparent: true, opacity: 0.22, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1, envMapIntensity: 0 }));
-          cap.position.y = cy;
-          cap.receiveShadow = true;
-          g.add(cap);
-
-          // United States flag planted beside the chamber (Apollo style: pole with a horizontal bar holding the flag out)
-          const fc = document.createElement("canvas");
-          fc.width = 760;
-          fc.height = 400;
-          const f2 = fc.getContext("2d")!;
-          const sh = fc.height / 13;
-          for (let i = 0; i < 13; i++) {
-            f2.fillStyle = i % 2 === 0 ? "#b22234" : "#ffffff";
-            f2.fillRect(0, i * sh, fc.width, sh + 1);
-          }
-          f2.fillStyle = "#3c3b6e";
-          f2.fillRect(0, 0, fc.width * 0.4, sh * 7);
-          f2.fillStyle = "#ffffff";
-          for (let r = 0; r < 9; r++) {
-            const n = r % 2 === 0 ? 6 : 5;
-            for (let c = 0; c < n; c++) {
-              const sx = fc.width * 0.4 * ((r % 2 === 0 ? c + 0.5 : c + 1) / 6.2) + 4;
-              const sy = (sh * 7 * (r + 0.7)) / 9.4;
-              f2.beginPath();
-              for (let k = 0; k < 10; k++) {
-                const a = -Math.PI / 2 + (k * Math.PI) / 5, rr = k % 2 === 0 ? 9 : 3.6;
-                f2.lineTo(sx + Math.cos(a) * rr, sy + Math.sin(a) * rr);
-              }
-              f2.closePath();
-              f2.fill();
-            }
-          }
-          const flagTex = new THREE.CanvasTexture(fc);
-          flagTex.colorSpace = THREE.SRGBColorSpace;
-          flagTex.anisotropy = 8;
-          const fx = -5.6, fz = -2.2, fy = cy + Math.sqrt(RM * RM - fx * fx - fz * fz);
-          const flagG = new THREE.Group();
-          flagG.position.set(fx, fy, fz);
-          flagG.rotation.y = 0.35;
-          flagG.scale.setScalar(1.7);
-          const metal = new THREE.MeshStandardMaterial({ color: 0xd8d8d8, roughness: 0.35, metalness: 0.8 });
-          const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 1.75, 12), metal);
-          pole.position.y = 0.875;
-          const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 1.0, 10), metal);
-          bar.rotation.z = Math.PI / 2;
-          bar.position.set(0.5, 1.7, 0);
-          const cloth = new THREE.PlaneGeometry(0.95, 0.5, 14, 6);
-          const cp = cloth.attributes.position as InstanceType<TH["BufferAttribute"]>;
-          for (let i = 0; i < cp.count; i++) cp.setZ(i, 0.025 * Math.sin(cp.getX(i) * 9) * (0.4 + (cp.getX(i) + 0.475)));
-          cloth.computeVertexNormals();
-          const flag = new THREE.Mesh(cloth, new THREE.MeshStandardMaterial({ map: flagTex, side: THREE.DoubleSide, roughness: 0.9, metalness: 0 }));
-          flag.position.set(0.5, 1.45, 0);
-          const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.04, 16), metal);
-          foot.position.y = 0.02;
-          flagG.add(pole, bar, flag, foot);
-          g.add(flagG);
-
-          // fabric weave (bump) so the cloth catches the light like real nylon
-          const wv = document.createElement("canvas");
-          wv.width = 256;
-          wv.height = 128;
-          const w2 = wv.getContext("2d")!;
-          w2.fillStyle = "#808080";
-          w2.fillRect(0, 0, 256, 128);
-          for (let i = 0; i < 256; i += 2) {
-            w2.fillStyle = "#b4b4b4";
-            w2.fillRect(i, 0, 1, 128);
-          }
-          for (let j = 0; j < 128; j += 2) {
-            w2.fillStyle = "#5c5c5c";
-            w2.fillRect(0, j, 256, 1);
-          }
-          const weave = new THREE.CanvasTexture(wv);
-          weave.wrapS = weave.wrapT = THREE.RepeatWrapping;
-          weave.repeat.set(5, 3);
-          (flag.material as InstanceType<TH["MeshStandardMaterial"]>).bumpMap = weave;
-          (flag.material as InstanceType<TH["MeshStandardMaterial"]>).bumpScale = 0.5;
-          for (const m of [pole, bar, flag, foot]) m.castShadow = true;
-          moon.receiveShadow = true;
-
-          // surface surface placement helper: point on the sphere top, plus its up-normal
-          const onMoon = (x: number, z: number) => {
-            const y = cy + Math.sqrt(RM * RM - x * x - z * z);
-            const n = new THREE.Vector3(x, y - cy, z).normalize();
-            return { p: new THREE.Vector3(x, y, z), n };
-          };
-          const up = new THREE.Vector3(0, 1, 0);
-
-          // scattered boulders and pebbles (instanced), kept out of the chamber footprint
-          const rockMat = new THREE.MeshStandardMaterial({ color: 0x7a7873, roughness: 1, metalness: 0, flatShading: true });
-          const rockGeo = new THREE.DodecahedronGeometry(1, 1);
-          const rg = rockGeo.attributes.position as InstanceType<TH["BufferAttribute"]>;
-          for (let i = 0; i < rg.count; i++) {
-            const k = 0.82 + 0.3 * Math.sin(rg.getX(i) * 7.3 + rg.getY(i) * 3.1 + rg.getZ(i) * 5.7);
-            rg.setXYZ(i, rg.getX(i) * k, rg.getY(i) * k * 0.7, rg.getZ(i) * k);
-          }
-          rockGeo.computeVertexNormals();
-          const NR = 170;
-          const rocks = new THREE.InstancedMesh(rockGeo, rockMat, NR);
-          const dm = new THREE.Object3D();
-          let placed = 0;
-          while (placed < NR) {
-            const a = rnd() * Math.PI * 2, d = 4.6 + Math.pow(rnd(), 0.7) * 22;
-            const x = Math.cos(a) * d, z = Math.sin(a) * d * 0.9;
-            if (Math.abs(x) < BOX.x + 0.6 && Math.abs(z) < BOX.z + 0.6) continue;
-            const s = 0.025 + Math.pow(rnd(), 4) * 0.34;
-            const { p, n } = onMoon(x, z);
-            dm.position.copy(p).addScaledVector(n, -s * 0.2);
-            dm.quaternion.setFromUnitVectors(up, n);
-            dm.rotateY(rnd() * 6.28);
-            dm.scale.set(s * (0.8 + rnd() * 0.6), s, s * (0.8 + rnd() * 0.6));
-            dm.updateMatrix();
-            rocks.setMatrixAt(placed++, dm.matrix);
-          }
-          rocks.castShadow = true;
-          rocks.receiveShadow = true;
-          g.add(rocks);
-
-          // boot prints and a rover track leading from the flag
-          const printGeo = new THREE.CircleGeometry(1, 14);
-          const printMat = new THREE.MeshBasicMaterial({ color: 0x2c2b2a, transparent: true, opacity: 0.38, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
-          const prints = new THREE.InstancedMesh(printGeo, printMat, 40);
-          let pi = 0;
-          for (let k = 0; k < 18 && pi < 36; k++) {
-            const t = k / 17, side = k % 2 === 0 ? -0.09 : 0.09;
-            const x = -5.1 + t * 1.2 + side, z = -1.6 + t * 7.6;
-            const { p, n } = onMoon(x, z);
-            dm.position.copy(p).addScaledVector(n, 0.004);
-            dm.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), n);
-            dm.rotateZ(0.12 * Math.sin(k));
-            dm.scale.set(0.045, 0.11, 1);
-            dm.updateMatrix();
-            prints.setMatrixAt(pi++, dm.matrix);
-          }
-          prints.count = pi;
-          g.add(prints);
-          key.castShadow = true;
-          const earth = new THREE.Mesh(new THREE.SphereGeometry(2.3, 48, 32), earthMat([-0.4, 0.4, 0.8]));
-          earth.position.set(16, 9, -34);
-          g.add(earth);
-          uniformsToAnimate.push((earth.material as InstanceType<TH["ShaderMaterial"]>).uniforms.uTime);
-        }
-        scene.add(g);
-        envGroup = g;
+        // soft vertical gradient behind everything
+        const dome = new THREE.Mesh(
+          new THREE.SphereGeometry(90, 32, 16),
+          new THREE.ShaderMaterial({
+            uniforms: { uTop: { value: new THREE.Color(0x0a0e15) }, uMid: { value: new THREE.Color(0x121a25) }, uBot: { value: new THREE.Color(0x05070a) } },
+            vertexShader: "varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }",
+            fragmentShader: "uniform vec3 uTop; uniform vec3 uMid; uniform vec3 uBot; varying vec3 vP; void main(){ float h = vP.y; vec3 c = h > 0.0 ? mix(uMid, uTop, smoothstep(0.0, 0.7, h)) : mix(uMid, uBot, smoothstep(0.0, -0.35, h)); gl_FragColor = vec4(c, 1.0); }",
+            side: THREE.BackSide, depthWrite: false, fog: false,
+          }),
+        );
+        scene.add(dome);
+        // polished floor: a real planar mirror under a dark glossy sheet that fades the reflection with distance
+        const floorY = BOX.yMin - 0.3;
+        const mirror = new Reflector(new THREE.CircleGeometry(60, 72), { clipBias: 0.003, textureWidth: 640, textureHeight: 640, color: 0x6c7685 });
+        mirror.rotation.x = -Math.PI / 2;
+        mirror.position.y = floorY;
+        scene.add(mirror);
+        const sheen = new THREE.Mesh(
+          new THREE.CircleGeometry(60, 72).rotateX(-Math.PI / 2),
+          new THREE.ShaderMaterial({
+            transparent: true, depthWrite: false,
+            vertexShader: "varying vec3 vW; void main(){ vec4 w = modelMatrix*vec4(position,1.0); vW = w.xyz; gl_Position = projectionMatrix*viewMatrix*w; }",
+            fragmentShader: "varying vec3 vW; void main(){ float r = length(vW.xz); float a = mix(0.62, 0.97, smoothstep(2.0, 16.0, r)); gl_FragColor = vec4(0.015, 0.02, 0.03, a); }",
+          }),
+        );
+        sheen.position.y = floorY + 0.004;
+        scene.add(sheen);
+        // a faint lit pad of the floor right under the chamber, so the flame's light and the key light land on something
+        const lit = new THREE.Mesh(new THREE.CircleGeometry(9, 64).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x0c1118, roughness: 0.3, metalness: 0.6, transparent: true, opacity: 0.55, envMapIntensity: 1.2 }));
+        lit.position.y = floorY + 0.008;
+        lit.receiveShadow = true;
+        scene.add(lit);
       };
       buildEnv(live.current.env);
 
@@ -832,6 +414,7 @@ export default function Flame3D({ params, layers, env, running, speed, aspect, l
       let dirty = true;
 
       /* camera tween between zoom presets */
+      let hfT = 0;
       let tween: { t0: number; dur: number; p0: InstanceType<TH["Vector3"]>; p1: InstanceType<TH["Vector3"]>; q0: InstanceType<TH["Vector3"]>; q1: InstanceType<TH["Vector3"]> } | null = null;
       const zoomTo = (preset: ZoomPreset) => {
         const dir = camera.position.clone().sub(controls.target);
@@ -870,7 +453,6 @@ export default function Flame3D({ params, layers, env, running, speed, aspect, l
       const applyQuality = () => {
         const dpr = window.devicePixelRatio || 1;
         renderer.setPixelRatio(quality === 2 ? Math.min(1.5, dpr) : 1);
-        flameMat.uniforms.uSteps.value = quality === 2 ? 72 : quality === 1 ? 48 : 32;
         bloom.enabled = quality > 0;
       };
       let W = 800, H = 500;
@@ -978,20 +560,15 @@ export default function Flame3D({ params, layers, env, running, speed, aspect, l
         const camDist = camera.position.distanceTo(controls.target);
         boost = Math.max(1, Math.min(1.9, camDist / 5.5));
 
-        // flame
-        const U = flameMat.uniforms;
-        U.uTime.value += L.running ? dt * L.speed : 0;
-        U.uRf.value = eng.rf;
-        U.uI.value = eng.intensity;
-        U.uG.value = g;
-        U.uSoot.value = P.fuel === "heptane" ? 0.42 : 0.06;
-        U.uFlow.value = wflow;
-        (U.uWind.value as InstanceType<TH["Vector3"]>).set(wdir[0], wdir[1], wdir[2]);
-        flameMesh.visible = Ly.flame && eng.intensity > 0.01;
-        fireLight.visible = Ly.flame;
-        fireLight.intensity = 3.0 * eng.intensity;
-        fireLight.position.set(0, eng.zoneY + eng.rf * 0.3, 0);
-        fireLight.color.setRGB(1, 0.62 + 0.18 * (1 - g), 0.3 + 0.55 * (1 - g));
+        // flame: the hyper-real volume takes its size, place and life from the same engine that moves the molecules
+        if (tickers.length) { tickT += dt; for (const f of tickers) f(dt, tickT); dirty = true; }
+        lab.update(dt, { o2: P.o2, pressureAtm: P.pressureAtm, g: P.gravityG, flowK: Math.min(1, wflow / 40), fuel: P.fuel, intensity: Math.min(1, eng.intensity) });
+        hf.set({ g: P.gravityG, o2: P.o2, pressureAtm: P.pressureAtm, fuel: P.fuel, fate: P.fate, wind: [wdir[0] * Math.min(1, wflow / 40), wdir[1] * Math.min(1, wflow / 40), wdir[2] * Math.min(1, wflow / 40)] });
+        hf.setLife(Math.min(1, eng.intensity));
+        hf.setPose(Math.max(0.2, eng.rf * 1.05), eng.zoneY, 0);
+        hf.group.visible = Ly.flame;
+        hfT += L.running ? dt * L.speed : 0;
+        hf.update(L.running ? dt * L.speed : 0, hfT, camera, renderer.domElement.height / (2 * Math.tan((camera.fov * Math.PI) / 360)));
         dropMat.color.set(P.fuel === "heptane" ? 0xe0b84a : 0xdfe6f2);
 
         // molecules
@@ -1085,7 +662,7 @@ export default function Flame3D({ params, layers, env, running, speed, aspect, l
           for (let c = 0; c < 2; c++) {
             const a = arrows[ai++];
             if (!a) break;
-            const phase = ((U.uTime.value * wflow * 0.012 + r * 0.31 + c * 0.5) % 1 + 1) % 1;
+            const phase = ((hfT * wflow * 0.012 + r * 0.31 + c * 0.5) % 1 + 1) % 1;
             const base = tmp.set(wdir[0], wdir[1], wdir[2]).multiplyScalar(-2.6 + phase * 3.4);
             a.position.set(base.x + (c ? 0.6 : -0.5), base.y - 1.2 + r * 0.8, base.z + (r % 2 ? 0.8 : -0.8));
             a.setDirection(new THREE.Vector3(wdir[0], wdir[1], wdir[2]));
@@ -1096,7 +673,7 @@ export default function Flame3D({ params, layers, env, running, speed, aspect, l
         for (let k = 0; k < 3 && upOn; k++) {
           const a = arrows[ai++];
           if (!a) break;
-          const phase = ((U.uTime.value * (0.5 + g) * 0.5 + k * 0.33) % 1 + 1) % 1;
+          const phase = ((hfT * (0.5 + g) * 0.5 + k * 0.33) % 1 + 1) % 1;
           a.position.set((k - 1) * 0.35, 0.5 + phase * 2.4, 0);
           a.setDirection(new THREE.Vector3(0, 1, 0));
           a.setLength(0.4 + 0.5 * g, 0.12, 0.08);
@@ -1165,6 +742,7 @@ export default function Flame3D({ params, layers, env, running, speed, aspect, l
         pmrem.dispose();
         composer.dispose();
         renderer.dispose();
+        renderer.forceContextLoss(); // give the GPU context back now; dispose() alone leaves it alive until GC
         canvas.remove();
         api.current = null;
       };
@@ -1232,9 +810,6 @@ export default function Flame3D({ params, layers, env, running, speed, aspect, l
         {tag("products", labelText.products, "#e9e7e0")}
         {tag("plume", labelText.plume, "#8ac8ff")}
         {tag("sphere", labelText.sphere, "#8ac8ff")}
-        {env === "suit" && (
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at center, rgba(0,0,0,0) 52%, rgba(0,0,0,0.78) 100%)", boxShadow: "inset 0 0 0 10px rgba(8,10,15,0.9), inset 0 0 0 11px rgba(138,200,255,0.18)" }} />
-        )}
       </div>
     </div>
   );
