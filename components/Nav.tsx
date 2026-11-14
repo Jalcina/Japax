@@ -106,6 +106,10 @@ export default function Nav() {
   const t = useT(T);
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [path]);
+  // The saved tour state is read from localStorage; show it only after mount so it matches the server HTML
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const live = mounted && on;
 
   // logical learning order: understand -> see -> play -> explore -> decide -> ask -> verify
   const LINKS = [
@@ -124,14 +128,14 @@ export default function Nav() {
   const guideBtn = (
     <button
       onClick={() => setOn(!on)}
-      aria-pressed={on}
-      className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${on ? "border-accent bg-accent/25 text-ink" : "border-line-2 text-ink-2 hover:text-ink"}`}
+      aria-pressed={live}
+      className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${live ? "border-accent bg-accent/25 text-ink" : "border-line-2 text-ink-2 hover:text-ink"}`}
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
         <circle cx="12" cy="12" r="9" />
         <path d="m15.5 8.5-2 5-5 2 2-5z" />
       </svg>
-      {on ? t.guideOn : t.guide}
+      {live ? t.guideOn : t.guide}
     </button>
   );
 
