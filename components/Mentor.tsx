@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useGuide } from "@/lib/guide";
 import { setPaxMood, usePaxMood } from "@/lib/paxMood";
 import { useLang, useT } from "@/lib/i18n";
-import PaxFace from "@/components/PaxFace";
+import PaxCharacter from "@/components/PaxCharacter";
 import { openAsk } from "@/components/AskWindow";
 
 const NAME = "Pax";
@@ -142,7 +142,8 @@ export default function Mentor() {
   const svc = "block w-full rounded-lg border border-line-2 px-2.5 py-1 text-left text-xs transition-colors hover:bg-surface-2";
   const item = "block w-full rounded-xl border border-line-2 px-3 py-2.5 text-left transition-colors hover:bg-surface-2";
 
-  const size = open ? 80 : asleep ? 88 : 112;
+  // The new model leaves room around the planet for its ring and flame, so the canvas is a bit larger.
+  const size = open ? 104 : asleep ? 112 : 140;
   const tailH = Math.round(size * 0.18 + 9);
   const bubble = "pax-pop relative max-w-[calc(100vw-2rem)] rounded-2xl border border-accent/40 bg-surface shadow-2xl";
   // tail: the speech bubble hangs from Pax's head
@@ -199,7 +200,7 @@ export default function Mentor() {
 
       <div className="relative">
         <button data-pax onPointerEnter={() => !asleep && mood === "idle" && setPaxMood("happy", 1500)} onClick={() => { markSeen(); setOpen((v) => !v); }} aria-label={t.open} aria-expanded={open} className="block rounded-full p-1 transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-accent">
-          <PaxFace talking={talking} sleeping={asleep && !open} size={size} mood={mood} />
+          <PaxCharacter talking={talking} mood={asleep && !open ? "sleeping" : mood} size={size} />
         </button>
       </div>
     </div>
