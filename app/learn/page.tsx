@@ -18,7 +18,7 @@ const T = {
     path: [
       { href: "/history", t: "History", d: "Real fires that shaped the research." },
       { href: "/simulator", t: "Simulator", d: "Watch the same flame in four environments." },
-      { href: "/lab", t: "Data Lab", d: "Change the conditions and compare with real tests." },
+      { href: "/simulator#data", t: "Data Lab", d: "Change the conditions and compare with real tests." },
     ],
     glossH: "Glossary",
     gloss: [
@@ -49,7 +49,7 @@ const T = {
     path: [
       { href: "/history", t: "Historia", d: "Incendios reales que dieron forma a la investigación." },
       { href: "/simulator", t: "Simulador", d: "Mira la misma llama en cuatro entornos." },
-      { href: "/lab", t: "Laboratorio", d: "Cambia las condiciones y compara con ensayos reales." },
+      { href: "/simulator#data", t: "Laboratorio", d: "Cambia las condiciones y compara con ensayos reales." },
     ],
     glossH: "Glosario",
     gloss: [

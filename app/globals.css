@@ -77,6 +77,8 @@ body {
 
 .link {
   color: var(--flame);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
 .link:hover {

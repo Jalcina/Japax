@@ -13,7 +13,7 @@ export const GUIDE_T = {
     finish: "Finish tour",
     skip: "Skip tour",
     tryLabel: "Try it",
-    pageNames: { "/": "Home", "/learn": "Basics", "/history": "History", "/simulator": "Simulator", "/lab": "Data Lab", "/explorer": "Experiments", "/dashboard": "Ranking", "/references": "Sources" } as Record<string, string>,
+    pageNames: { "/": "Home", "/learn": "Basics", "/history": "History", "/simulator": "Simulator", "/explorer": "Experiments", "/dashboard": "Ranking", "/references": "Sources" } as Record<string, string>,
     steps: {
       "/": [
         { sel: "main h1", title: "Why this exists", body: "Fire is one of the most dangerous things that can happen on a trip to the Moon or Mars. NASA has run fire experiments in space for decades. JaPax turns them into clear answers." },
@@ -30,16 +30,10 @@ export const GUIDE_T = {
         { sel: "main ol", title: "The timeline", body: "Events appear in order, from the first accidents to today's experiments. Each one links to its source.", tryIt: "Scroll down and open any event." },
       ],
       "/simulator": [
-        { sel: "main h1", title: "The same fire, in different places", body: "Here you see how one burning droplet behaves on Earth, on the space station, on the Moon and inside a spacesuit." },
-        { sel: "#stage", title: "The stage", body: "Each panel is one place. Gravity and the air change the shape of the flame, and that changes how dangerous it is." },
-        { sel: "input[type=checkbox]", title: "Compare with Earth", body: "Switch this on to see the Earth flame next to the one from space.", tryIt: "Tick the box." },
+        { sel: "main h1", title: "One fire, many places", body: "Pick a place, tap a surface and watch a simulated fire spread. Every number is labelled measured, reported, estimated or simulated." },
+        { sel: "#sim-tabs", title: "Three sections", body: "Touch to burn is the simulator. Evidence shows what NASA actually measured. Data holds the raw test tables.", tryIt: "Open the Evidence tab, then come back." },
+        { sel: "#fire-lab", title: "Touch to burn", body: "Tap any surface in the 3D scene: the fire starts there and spreads while the live data change. Then try the fire-suppression panel.", tryIt: "Tap a surface." },
         { sel: "section[aria-live=polite]", title: "The numbers", body: "These gauges summarise what changes in each place: oxygen, pressure and gravity." },
-        { sel: "#cov", title: "What NASA has measured", body: "This shows which places have real experiments behind them, and which do not. The empty ones are the gaps research still has to fill." },
-      ],
-      "/lab": [
-        { sel: "main h1", title: "Test the conditions yourself", body: "Choose oxygen, pressure, gravity and airflow, and see what the real NASA tests say about those conditions." },
-        { sel: "input[type=number]", title: "Set a condition", body: "Change a value, for example more oxygen. The result updates right away.", tryIt: "Raise the oxygen and read the verdict." },
-        { sel: "#flex", title: "Evidence behind it", body: "Below the simulation are the actual test tables the verdict comes from. Nothing here is invented." },
       ],
       "/explorer": [
         { sel: "main h1", title: "Every experiment in one place", body: "These are the NASA investigations behind JaPax. Each shows what was burned, under which conditions, and how it was measured." },
@@ -64,7 +58,7 @@ export const GUIDE_T = {
     finish: "Terminar",
     skip: "Saltar recorrido",
     tryLabel: "Pruébalo",
-    pageNames: { "/": "Inicio", "/learn": "Lo básico", "/history": "Historia", "/simulator": "Simulador", "/lab": "Laboratorio", "/explorer": "Experimentos", "/dashboard": "Ranking", "/references": "Fuentes" } as Record<string, string>,
+    pageNames: { "/": "Inicio", "/learn": "Lo básico", "/history": "Historia", "/simulator": "Simulador", "/explorer": "Experimentos", "/dashboard": "Ranking", "/references": "Fuentes" } as Record<string, string>,
     steps: {
       "/": [
         { sel: "main h1", title: "Por qué existe", body: "El fuego es de lo más peligroso en un viaje a la Luna o a Marte. La NASA lleva décadas haciendo experimentos de fuego en el espacio. JaPax los convierte en respuestas claras." },
@@ -81,16 +75,10 @@ export const GUIDE_T = {
         { sel: "main ol", title: "La línea del tiempo", body: "Los hechos aparecen en orden, desde los primeros accidentes hasta los experimentos de hoy. Cada uno enlaza a su fuente.", tryIt: "Baja y abre cualquier evento." },
       ],
       "/simulator": [
-        { sel: "main h1", title: "El mismo fuego en lugares distintos", body: "Aquí ves cómo se comporta una gota ardiendo en la Tierra, en la estación espacial, en la Luna y dentro de un traje." },
-        { sel: "#stage", title: "El escenario", body: "Cada panel es un lugar. La gravedad y el aire cambian la forma de la llama, y eso cambia lo peligrosa que es." },
-        { sel: "input[type=checkbox]", title: "Comparar con la Tierra", body: "Actívalo para ver la llama de la Tierra junto a la del espacio.", tryIt: "Marca la casilla." },
+        { sel: "main h1", title: "Un fuego, muchos lugares", body: "Elige un lugar, toca una superficie y mira cómo se propaga un fuego simulado. Cada número lleva su etiqueta: medido, reportado, estimado o simulado." },
+        { sel: "#sim-tabs", title: "Tres secciones", body: "Toca y arde es el simulador. Evidencia muestra lo que la NASA midió de verdad. Datos guarda las tablas de ensayos sin tratar.", tryIt: "Abre la pestaña Evidencia y vuelve." },
+        { sel: "#fire-lab", title: "Toca y arde", body: "Toca cualquier superficie de la escena 3D: el fuego empieza ahí y se propaga mientras cambian los datos en vivo. Después prueba el panel de extinción.", tryIt: "Toca una superficie." },
         { sel: "section[aria-live=polite]", title: "Los números", body: "Estos indicadores resumen qué cambia en cada lugar: oxígeno, presión y gravedad." },
-        { sel: "#cov", title: "Lo que la NASA ha medido", body: "Muestra qué lugares tienen experimentos reales detrás y cuáles no. Los vacíos son lo que la investigación aún debe cubrir." },
-      ],
-      "/lab": [
-        { sel: "main h1", title: "Prueba tú las condiciones", body: "Elige oxígeno, presión, gravedad y flujo de aire, y mira qué dicen los ensayos reales de la NASA para esas condiciones." },
-        { sel: "input[type=number]", title: "Ajusta una condición", body: "Cambia un valor, por ejemplo más oxígeno. El resultado se actualiza al instante.", tryIt: "Sube el oxígeno y lee el veredicto." },
-        { sel: "#flex", title: "La evidencia detrás", body: "Debajo están las tablas de ensayos reales de las que sale el veredicto. Nada aquí es inventado." },
       ],
       "/explorer": [
         { sel: "main h1", title: "Todos los experimentos en un sitio", body: "Estas son las investigaciones de la NASA detrás de JaPax. Cada una muestra qué se quemó, en qué condiciones y cómo se midió." },

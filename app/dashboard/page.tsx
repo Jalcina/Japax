@@ -16,6 +16,7 @@ import {
   type Weights,
 } from "@/lib/scoring";
 import ScoreBar from "@/components/ScoreBar";
+import EquipmentMap from "@/components/EquipmentMap";
 import { AreaBadge, Pending, Section } from "@/components/ui";
 
 const PROFILES: Record<string, Weights> = {
@@ -124,7 +125,7 @@ export default function Dashboard() {
         .sort((a, b) => b.score.total - a.score.total),
     [w, data, area],
   );
-  const envs = data.environments.filter((e) => e.id !== "iss");
+  const envs = data.environments.filter((e) => e.id !== "iss" && e.id !== "mars-habitat");
   const coverLabel = { full: t.covered, partial: t.partial, none: "—" } as const;
 
   const topFactor = (parts: Record<FactorKey, number>) => FACTORS.reduce((best, k) => (parts[k] > parts[best] ? k : best), FACTORS[0]);
@@ -260,6 +261,8 @@ export default function Dashboard() {
           <p className="mt-4 text-xs text-muted">{t.howRead}</p>
         </div>
       </section>
+
+      <EquipmentMap />
 
       <Section eyebrow={t.mEyebrow} title={t.mTitle}>
         <p className="mt-3 max-w-3xl text-sm text-ink-2">

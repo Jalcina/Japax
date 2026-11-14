@@ -7,17 +7,31 @@ import { coversEnvironment, scoreInvestigation } from "@/lib/scoring";
 import { ALL_LAYERS, type EnvId, type Fuel, type LabelText, type Layers, type SimParams, type SimStats } from "@/lib/flameEngine";
 import { flexVerdict } from "@/lib/flexVerdict";
 import CoverageMap from "@/components/CoverageMap";
+import SpreadEvidence from "@/components/SpreadEvidence";
+import FireFighter from "@/components/FireFighter";
+import FireLab3D from "@/components/FireLab3D";
+import DataLab from "@/components/DataLab";
 import FlameView from "@/components/FlameView";
+import type { ImmersiveEnv } from "@/components/ImmersiveScene";
 import { Pending, SourceTag } from "@/components/ui";
 
 const T = {
   en: {
     eyebrow: "Simulator",
     title: "Pick an environment and watch the fire behave",
-    intro: "Each environment runs the same burning droplet under its own atmosphere and gravity. The readouts below are computed from the data; the animation shows what that atmosphere does to the flame, molecule by molecule.",
+    intro: "Step into each place in 3D, then watch the same burning droplet under its own atmosphere and gravity. The readouts below are computed from the data; the animation shows what that atmosphere does to the flame, molecule by molecule.",
     envGroup: "Environment",
     envNames: { earth: "Earth", iss: "ISS", "moon-habitat": "Lunar base", suit: "Spacesuit" } as Record<string, string>,
-    stageTitle: "The environment, animated",
+    stageTitle: "How the fire behaves here",
+    tabsAria: "Simulator sections",
+    tabs: { fire: "Touch to burn", evidence: "Evidence", data: "Data" } as Record<"fire" | "evidence" | "data", string>,
+    viewAria: "View",
+    viewPlace: "3D place",
+    viewMol: "Molecular view",
+    viewPlaceHint: "Tap any surface to start a fire there.",
+    viewMolHint: "The same flame, molecule by molecule. Loaded only while you look at it.",
+    heroTitle: (n: string) => `See the place: fire in ${n}, in 3D`,
+    exploreHint: "The same atmosphere and gravity as a free cinematic view: a real location with the flame burning in it.",
     compare: "Compare with Earth",
     molecules: "Show molecules",
     labelsT: "Callouts",
@@ -79,10 +93,19 @@ const T = {
   es: {
     eyebrow: "Simulador",
     title: "Elige un entorno y mira cómo se comporta el fuego",
-    intro: "Cada entorno ejecuta la misma gota ardiendo con su propia atmósfera y gravedad. Los indicadores de abajo se calculan a partir de los datos; la animación muestra qué hace esa atmósfera con la llama, molécula a molécula.",
+    intro: "Entra en cada lugar en 3D y mira después la misma gota ardiendo con su propia atmósfera y gravedad. Los indicadores de abajo se calculan a partir de los datos; la animación muestra qué hace esa atmósfera con la llama, molécula a molécula.",
     envGroup: "Entorno",
     envNames: { earth: "Tierra", iss: "ISS", "moon-habitat": "Base lunar", suit: "Traje espacial" } as Record<string, string>,
-    stageTitle: "El entorno, animado",
+    stageTitle: "Cómo se comporta el fuego aquí",
+    tabsAria: "Secciones del simulador",
+    tabs: { fire: "Toca y arde", evidence: "Evidencia", data: "Datos" } as Record<"fire" | "evidence" | "data", string>,
+    viewAria: "Vista",
+    viewPlace: "Lugar en 3D",
+    viewMol: "Vista molecular",
+    viewPlaceHint: "Toca cualquier superficie para iniciar un fuego ahí.",
+    viewMolHint: "La misma llama, molécula a molécula. Solo se carga mientras la miras.",
+    heroTitle: (n: string) => `Ver el lugar: fuego en ${n}, en 3D`,
+    exploreHint: "La misma atmósfera y gravedad como vista cinematográfica libre: un lugar real con la llama ardiendo en él.",
     compare: "Comparar con la Tierra",
     molecules: "Mostrar moléculas",
     labelsT: "Etiquetas",
@@ -145,6 +168,7 @@ const T = {
 
 const VERDICT_TONE: Record<string, string> = { earth: "var(--muted)", iss: "var(--a-suppression)", "moon-habitat": "var(--crit)", suit: "var(--crit)" };
 const ENGINE_ENV: Record<string, EnvId> = { earth: "earth", iss: "iss", "moon-habitat": "moon", suit: "suit" };
+const SCENE_ENV: Record<string, ImmersiveEnv> = { earth: "earth", iss: "iss", "moon-habitat": "moon", suit: "suit" };
 
 type Tx = (typeof T)["en"];
 
@@ -212,11 +236,16 @@ function Gauge({ label, value, display, max, marker, markerLabel }: { label: str
   );
 }
 
+type Tab = "fire" | "evidence" | "data";
+const TABS: Tab[] = ["fire", "evidence", "data"];
+
 export default function Simulator() {
   const t = useT(T);
   const data = useData();
   const [envId, setEnvId] = useState("moon-habitat");
-  const [compare, setCompare] = useState(true);
+  const [tab, setTab] = useState<Tab>("fire");
+  const [fireView, setFireView] = useState<"place" | "molecular">("place");
+  const [compare, setCompare] = useState(false);
   const [showMol, setShowMol] = useState(true);
   const [showLabels, setShowLabels] = useState(true);
   const [running, setRunning] = useState(true);
@@ -229,8 +258,30 @@ export default function Simulator() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) setRunning(false);
   }, []);
 
+  // the active tab lives in the URL hash (#fire, #evidence, #data) so every tab can be linked to directly
+  useEffect(() => {
+    const read = () => {
+      const h = window.location.hash.slice(1);
+      if ((TABS as string[]).includes(h)) setTab(h as Tab);
+    };
+    read();
+    window.addEventListener("hashchange", read);
+    return () => window.removeEventListener("hashchange", read);
+  }, []);
+  const go = (next: Tab) => {
+    if (window.location.hash.slice(1) === next) setTab(next);
+    else window.location.hash = next;
+  };
+  const onTabKey = (e: React.KeyboardEvent, i: number) => {
+    const to = e.key === "ArrowRight" ? (i + 1) % TABS.length : e.key === "ArrowLeft" ? (i + TABS.length - 1) % TABS.length : e.key === "Home" ? 0 : e.key === "End" ? TABS.length - 1 : -1;
+    if (to < 0) return;
+    e.preventDefault();
+    go(TABS[to]);
+    document.getElementById(`tab-${TABS[to]}`)?.focus();
+  };
+
   const earth = data.environments.find((e) => e.id === "earth")!;
-  const env = data.environments.find((e) => e.id === envId)!;
+  const env = (data.environments.find((e) => e.id === envId) ?? data.environments.find((e) => e.id === "moon-habitat"))!;
   const o2Ratio = (env.o2 / earth.o2 - 1) * 100;
   const ppO2Psi = env.o2 * env.pressurePsi;
   const ppO2Earth = earth.o2 * earth.pressurePsi;
@@ -252,6 +303,8 @@ export default function Simulator() {
     .sort((a, b) => (a.c === b.c ? scoreInvestigation(b.inv).total - scoreInvestigation(a.inv).total : a.c === "full" ? -1 : 1));
   const full = covers.filter((r) => r.c === "full");
   const name = t.envNames[envId] ?? env.name;
+  const labEnv = SCENE_ENV[envId] as "earth" | "iss" | "moon" | "suit";
+  const pill = (on: boolean) => `rounded-full border px-4 py-1.5 text-sm transition-colors ${on ? "border-accent bg-accent/15 text-ink" : "border-line-2 text-ink-2 hover:text-ink"}`;
 
   return (
     <div className="mx-auto max-w-6xl px-4 pt-10">
@@ -259,153 +312,189 @@ export default function Simulator() {
       <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">{t.title}</h1>
       <p className="mt-3 max-w-3xl text-ink-2">{t.intro}</p>
 
-      <div role="radiogroup" aria-label={t.envGroup} className="mt-6 flex flex-wrap gap-2">
-        {data.environments.map((e) => (
-          <button
-            key={e.id}
-            role="radio"
-            aria-checked={envId === e.id}
-            onClick={() => setEnvId(e.id)}
-            className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${envId === e.id ? "border-accent bg-accent/15 text-ink" : "border-line-2 text-ink-2 hover:text-ink"}`}
-          >
-            {t.envNames[e.id] ?? e.name}
+      {/* ---------- one experience, three tabs: only the active one is mounted, so only one WebGL scene is alive ---------- */}
+      <div id="sim-tabs" role="tablist" aria-label={t.tabsAria} className="mt-6 flex flex-wrap gap-2 border-b border-line pb-3">
+        {TABS.map((k, i) => (
+          <button key={k} id={`tab-${k}`} role="tab" aria-selected={tab === k} aria-controls={`panel-${k}`} tabIndex={tab === k ? 0 : -1}
+            onClick={() => go(k)} onKeyDown={(e) => onTabKey(e, i)}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${tab === k ? "bg-accent/15 text-ink ring-1 ring-accent" : "text-ink-2 hover:text-ink"}`}>
+            {t.tabs[k]}
           </button>
         ))}
       </div>
 
-      {/* ---------- animated stage ---------- */}
-      <section className="mt-5" aria-labelledby="stage">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-          <h2 id="stage" className="mr-auto text-xl font-semibold">{t.stageTitle}</h2>
-          <label className="flex cursor-pointer items-center gap-1.5 text-ink-2"><input type="checkbox" checked={compare} onChange={(e) => setCompare(e.target.checked)} /> {t.compare}</label>
-          <label className="flex cursor-pointer items-center gap-1.5 text-ink-2"><input type="checkbox" checked={showMol} onChange={(e) => setShowMol(e.target.checked)} /> {t.molecules}</label>
-          <label className="flex cursor-pointer items-center gap-1.5 text-ink-2"><input type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} /> {t.labelsT}</label>
-          <label className="flex items-center gap-1.5 text-ink-2">
-            {t.fuel}
-            <select value={fuel} onChange={(e) => setFuel(e.target.value as Fuel)} className="rounded-lg border border-line-2 bg-surface px-1.5 py-1 text-ink">
-              <option value="methanol">{t.methanol}</option><option value="heptane">{t.heptane}</option>
-            </select>
-          </label>
-          <button onClick={() => setRunning((r) => !r)} className="rounded-lg border border-line-2 px-3 py-1 text-ink-2 hover:text-ink">{running ? t.pause : t.play}</button>
-          <label className="flex items-center gap-1.5 text-ink-2">
-            {t.speed}
-            <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))} className="rounded-lg border border-line-2 bg-surface px-1.5 py-1 text-ink">
-              <option value={0.25}>×0.25</option><option value={0.5}>×0.5</option><option value={1}>×1</option><option value={2}>×2</option>
-            </select>
-          </label>
+      {tab !== "data" && (
+        <div role="radiogroup" aria-label={t.envGroup} className="mt-5 flex flex-wrap gap-2">
+          {data.environments.filter((e) => e.id !== "mars-habitat").map((e) => (
+            <button key={e.id} role="radio" aria-checked={envId === e.id} onClick={() => setEnvId(e.id)} className={pill(envId === e.id)}>
+              {t.envNames[e.id] ?? e.name}
+            </button>
+          ))}
         </div>
+      )}
 
-        <div className={`mt-3 grid gap-3 ${compare && envId !== "earth" ? "md:grid-cols-2" : ""}`}>
-          {compare && envId !== "earth" && (
-            <figure>
-              <FlameView title={t.envNames.earth} params={ear.params} layers={layers} env="earth" running={running} speed={speed} aspect={0.68} labelText={t.labels} ariaLabel={t.stageAria(t.envNames.earth)} />
-            </figure>
+      {/* ================= TAB 1: touch to burn ================= */}
+      {tab === "fire" && (
+        <div role="tabpanel" id="panel-fire" aria-labelledby="tab-fire" className="mt-5">
+          <div role="group" aria-label={t.viewAria} className="flex flex-wrap items-center gap-2 text-sm">
+            <button aria-pressed={fireView === "place"} onClick={() => setFireView("place")} className={pill(fireView === "place")}>{t.viewPlace}</button>
+            <button aria-pressed={fireView === "molecular"} onClick={() => setFireView("molecular")} className={pill(fireView === "molecular")}>{t.viewMol}</button>
+            <span className="text-xs text-muted">{fireView === "place" ? t.viewPlaceHint : t.viewMolHint}</span>
+          </div>
+
+          {fireView === "place" ? (
+            <div className="mt-4">
+              <FireLab3D key={envId} fixedEnv={labEnv} onOpenEvidence={() => go("evidence")} />
+            </div>
+          ) : (
+            <section className="mt-4" aria-labelledby="stage">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                <h2 id="stage" className="mr-auto text-xl font-semibold">{t.stageTitle}</h2>
+                <label className="flex cursor-pointer items-center gap-1.5 text-ink-2"><input type="checkbox" checked={compare} onChange={(e) => setCompare(e.target.checked)} /> {t.compare}</label>
+                <label className="flex cursor-pointer items-center gap-1.5 text-ink-2"><input type="checkbox" checked={showMol} onChange={(e) => setShowMol(e.target.checked)} /> {t.molecules}</label>
+                <label className="flex cursor-pointer items-center gap-1.5 text-ink-2"><input type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} /> {t.labelsT}</label>
+                <label className="flex items-center gap-1.5 text-ink-2">
+                  {t.fuel}
+                  <select value={fuel} onChange={(e) => setFuel(e.target.value as Fuel)} className="rounded-lg border border-line-2 bg-surface px-1.5 py-1 text-ink">
+                    <option value="methanol">{t.methanol}</option><option value="heptane">{t.heptane}</option>
+                  </select>
+                </label>
+                <button onClick={() => setRunning((r) => !r)} className="rounded-lg border border-line-2 px-3 py-1 text-ink-2 hover:text-ink">{running ? t.pause : t.play}</button>
+                <label className="flex items-center gap-1.5 text-ink-2">
+                  {t.speed}
+                  <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))} className="rounded-lg border border-line-2 bg-surface px-1.5 py-1 text-ink">
+                    <option value={0.25}>×0.25</option><option value={0.5}>×0.5</option><option value={1}>×1</option><option value={2}>×2</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className={`mt-3 grid gap-3 ${compare && envId !== "earth" ? "md:grid-cols-2" : ""}`}>
+                {compare && envId !== "earth" && (
+                  <figure>
+                    <FlameView title={t.envNames.earth} params={ear.params} layers={layers} env="earth" running={running} speed={speed} aspect={0.68} labelText={t.labels} ariaLabel={t.stageAria(t.envNames.earth)} />
+                  </figure>
+                )}
+                <figure>
+                  <FlameView
+                    title={stats ? `${name} · ${t.status[stats.status]} · ${t.regime[stats.regime]}` : name}
+                    params={sel.params}
+                    layers={layers}
+                    env={ENGINE_ENV[envId]}
+                    running={running}
+                    speed={speed}
+                    aspect={compare && envId !== "earth" ? 0.68 : 0.5}
+                    labelText={t.labels}
+                    ariaLabel={t.stageAria(name)}
+                    onStats={setStats}
+                  />
+                </figure>
+              </div>
+              {showMol && (
+                <ul className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-2" aria-label={t.legend}>
+                  {[["#e34948", "O₂"], ["#3987e5", "N₂"], ["#9a988f", "CO₂"], ["#f0efec", "H₂O"], ["#eda100", t.fuelVap], ["#6b6a66", t.soot]].map(([c, n]) => (
+                    <li key={c} className="inline-flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-full" style={{ background: c }} aria-hidden="true" />
+                      {n}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <p className="mt-2 text-xs text-muted">{t.illus}</p>
+            </section>
           )}
-          <figure>
-            <FlameView
-              title={stats ? `${name} · ${t.status[stats.status]} · ${t.regime[stats.regime]}` : name}
-              params={sel.params}
-              layers={layers}
-              env={ENGINE_ENV[envId]}
-              running={running}
-              speed={speed}
-              aspect={compare && envId !== "earth" ? 0.68 : 0.5}
-              labelText={t.labels}
-              ariaLabel={t.stageAria(name)}
-              onStats={setStats}
-            />
-          </figure>
+
+          {/* ---------- live readouts ---------- */}
+          <section className="mt-6 grid gap-4 md:grid-cols-3" aria-live="polite" aria-label={t.gauges}>
+            <div className="card p-5">
+              <p className="eyebrow">{t.gauges}</p>
+              <div className="mt-4 space-y-6 pb-2">
+                <Gauge label={t.gOxygen} value={env.o2 * 100} display={`${Math.round(env.o2 * 100)}%`} max={100} marker={earth.o2 * 100} markerLabel={`${t.earthMark} 21%`} />
+                <Gauge label={t.gPressure} value={env.pressurePsi} display={`${env.pressurePsi} psi (${env.pressureAtm} atm)`} max={15} marker={earth.pressurePsi} markerLabel={`${t.earthMark} 14.7`} />
+                <Gauge label={t.gGravity} value={(env.gravityG ?? 0) * 100} display={env.gravityG === null ? "n/a" : `${env.gravityG} g`} max={100} marker={100} markerLabel={`${t.earthMark} 1 g`} />
+              </div>
+              {env.note && <p className="mt-3 text-xs text-muted">{env.note}</p>}
+            </div>
+
+            <div className="card p-5">
+              <p className="eyebrow">{t.vsEarth}</p>
+              <div className="mt-3 text-3xl font-semibold tabular-nums" style={{ color: o2Ratio > 5 ? "var(--accent)" : "var(--ink)" }}>
+                {o2Ratio > 0 ? "+" : ""}
+                {o2Ratio.toFixed(0)}%
+              </div>
+              <p className="text-sm text-ink-2">{t.oxConc}</p>
+              <p className="mt-3 text-xs text-ink-2">
+                {t.ppO2} <strong className="text-ink">{ppO2Psi.toFixed(1)} psi</strong> ({t.earthWord} {ppO2Earth.toFixed(1)} psi).
+                {envId === "moon-habitat" && t.moonNote}
+              </p>
+              <p className="mt-2 text-xs text-muted">{t.computed}</p>
+            </div>
+
+            <div className="card p-5" style={{ borderColor: VERDICT_TONE[envId] }}>
+              <p className="eyebrow">{t.gravEv}</p>
+              <p className="mt-3 text-sm">{t.verdict[envId]}</p>
+              <p className="eyebrow mt-4">{t.flexTitle}</p>
+              <p className="mt-2 text-sm text-ink-2">{sel.verdict.inRange ? t.flexIn(sel.verdict.extinctions) : t.flexOut}</p>
+            </div>
+          </section>
         </div>
-        {showMol && (
-          <ul className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-2" aria-label={t.legend}>
-            {[["#e34948", "O₂"], ["#3987e5", "N₂"], ["#9a988f", "CO₂"], ["#f0efec", "H₂O"], ["#eda100", t.fuelVap], ["#6b6a66", t.soot]].map(([c, n]) => (
-              <li key={c} className="inline-flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full" style={{ background: c }} aria-hidden="true" />
-                {n}
-              </li>
-            ))}
-          </ul>
-        )}
-        <p className="mt-2 text-xs text-muted">{t.illus}{" "}
-          <Link href="/lab#flame-lab" className="link">{t.openLab} →</Link>
-        </p>
-      </section>
+      )}
 
-      {/* ---------- live readouts ---------- */}
-      <section className="mt-6 grid gap-4 md:grid-cols-3" aria-live="polite" aria-label={t.gauges}>
-        <div className="card p-5">
-          <p className="eyebrow">{t.gauges}</p>
-          <div className="mt-4 space-y-6 pb-2">
-            <Gauge label={t.gOxygen} value={env.o2 * 100} display={`${Math.round(env.o2 * 100)}%`} max={100} marker={earth.o2 * 100} markerLabel={`${t.earthMark} 21%`} />
-            <Gauge label={t.gPressure} value={env.pressurePsi} display={`${env.pressurePsi} psi (${env.pressureAtm} atm)`} max={15} marker={earth.pressurePsi} markerLabel={`${t.earthMark} 14.7`} />
-            <Gauge label={t.gGravity} value={(env.gravityG ?? 0) * 100} display={env.gravityG === null ? "n/a" : `${env.gravityG} g`} max={100} marker={100} markerLabel={`${t.earthMark} 1 g`} />
-          </div>
-          {env.note && <p className="mt-3 text-xs text-muted">{env.note}</p>}
+      {/* ================= TAB 2: what NASA measured ================= */}
+      {tab === "evidence" && (
+        <div role="tabpanel" id="panel-evidence" aria-labelledby="tab-evidence" className="mt-2">
+          <SpreadEvidence env={{ o2: env.o2, pressureAtm: env.pressureAtm, gravityG: env.gravityG }} />
+          <FireFighter key={envId} env={{ o2: env.o2, pressureAtm: env.pressureAtm }} fuel={fuel} />
+
+          <section className="mt-12" aria-labelledby="cov">
+            <h2 id="cov" className="text-xl font-semibold">{t.covTitle}</h2>
+            {covers.length === 0 ? (
+              <p className="card mt-3 p-4 text-sm text-ink-2">{t.covNone}</p>
+            ) : (
+              <>
+                <p className="mt-2 text-sm text-ink-2">
+                  {t.covText(full.length)}
+                  <Pending />).
+                </p>
+                <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {covers.map(({ inv, c }) => (
+                    <li key={inv.id} className="card p-4">
+                      <div className="flex items-center justify-between">
+                        <Link href={`/explorer/${inv.id}`} className="font-semibold hover:underline">{inv.acronym}</Link>
+                        <span className={`rounded px-2 py-0.5 text-xs ${c === "full" ? "bg-[color:var(--a-suppression)]/25" : "bg-[color:var(--warn)]/20"}`}>
+                          {c === "full" ? t.covered : t.partial}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm text-ink-2">{inv.findings[0]?.text}</p>
+                      <div className="mt-2"><SourceTag src={inv.findings[0]?.src ?? "PSI"} /></div>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </section>
+
+          <section className="mt-12" aria-labelledby="map">
+            <h2 id="map" className="text-xl font-semibold">{t.mapTitle}</h2>
+            <div className="mt-3"><CoverageMap /></div>
+          </section>
+
+          <section className="mt-12 pb-4" aria-labelledby="curve">
+            <h2 id="curve" className="text-xl font-semibold">{t.curveTitle}</h2>
+            <p className="mt-2 max-w-3xl text-sm text-ink-2">{t.curveText}</p>
+            <div className="card mt-4 p-3 sm:p-5">
+              <FlammabilityCurve t={t} />
+              <p className="mt-2 text-xs text-muted">{t.curveNote} <SourceTag src="GUIDE p.31" /></p>
+            </div>
+          </section>
         </div>
+      )}
 
-        <div className="card p-5">
-          <p className="eyebrow">{t.vsEarth}</p>
-          <div className="mt-3 text-3xl font-semibold tabular-nums" style={{ color: o2Ratio > 5 ? "var(--accent)" : "var(--ink)" }}>
-            {o2Ratio > 0 ? "+" : ""}
-            {o2Ratio.toFixed(0)}%
-          </div>
-          <p className="text-sm text-ink-2">{t.oxConc}</p>
-          <p className="mt-3 text-xs text-ink-2">
-            {t.ppO2} <strong className="text-ink">{ppO2Psi.toFixed(1)} psi</strong> ({t.earthWord} {ppO2Earth.toFixed(1)} psi).
-            {envId === "moon-habitat" && t.moonNote}
-          </p>
-          <p className="mt-2 text-xs text-muted">{t.computed}</p>
+      {/* ================= TAB 3: the raw measured tables ================= */}
+      {tab === "data" && (
+        <div role="tabpanel" id="panel-data" aria-labelledby="tab-data" className="mt-6">
+          <DataLab />
         </div>
-
-        <div className="card p-5" style={{ borderColor: VERDICT_TONE[envId] }}>
-          <p className="eyebrow">{t.gravEv}</p>
-          <p className="mt-3 text-sm">{t.verdict[envId]}</p>
-          <p className="eyebrow mt-4">{t.flexTitle}</p>
-          <p className="mt-2 text-sm text-ink-2">{sel.verdict.inRange ? t.flexIn(sel.verdict.extinctions) : t.flexOut}</p>
-        </div>
-      </section>
-
-      <section className="mt-8" aria-labelledby="cov">
-        <h2 id="cov" className="text-xl font-semibold">{t.covTitle}</h2>
-        {covers.length === 0 ? (
-          <p className="card mt-3 p-4 text-sm text-ink-2">{t.covNone}</p>
-        ) : (
-          <>
-            <p className="mt-2 text-sm text-ink-2">
-              {t.covText(full.length)}
-              <Pending />).
-            </p>
-            <ul className="mt-3 grid gap-3 sm:grid-cols-2">
-              {covers.map(({ inv, c }) => (
-                <li key={inv.id} className="card p-4">
-                  <div className="flex items-center justify-between">
-                    <Link href={`/explorer/${inv.id}`} className="font-semibold hover:underline">{inv.acronym}</Link>
-                    <span className={`rounded px-2 py-0.5 text-xs ${c === "full" ? "bg-[color:var(--a-suppression)]/25" : "bg-[color:var(--warn)]/20"}`}>
-                      {c === "full" ? t.covered : t.partial}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-sm text-ink-2">{inv.findings[0]?.text}</p>
-                  <div className="mt-2"><SourceTag src={inv.findings[0]?.src ?? "PSI"} /></div>
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-      </section>
-
-      <section className="mt-12" aria-labelledby="map">
-        <h2 id="map" className="text-xl font-semibold">{t.mapTitle}</h2>
-        <div className="mt-3"><CoverageMap /></div>
-      </section>
-
-      <section className="mt-12" aria-labelledby="curve">
-        <h2 id="curve" className="text-xl font-semibold">{t.curveTitle}</h2>
-        <p className="mt-2 max-w-3xl text-sm text-ink-2">{t.curveText}</p>
-        <div className="card mt-4 p-3 sm:p-5">
-          <FlammabilityCurve t={t} />
-          <p className="mt-2 text-xs text-muted">{t.curveNote} <SourceTag src="GUIDE p.31" /></p>
-        </div>
-      </section>
+      )}
     </div>
   );
 }
