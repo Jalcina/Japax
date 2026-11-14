@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import PaxFace from "@/components/PaxFace";
+import PaxCharacter from "@/components/PaxCharacter";
 
 /** 30-second film starring Pax. English only (judging rules). Numbers come from the verified PSI data used across JaPax. */
 const DURATION = 30;
@@ -118,7 +118,7 @@ export default function DemoPage() {
         <div key={sIdx} className="pax-scene absolute inset-0 flex items-center justify-center pb-24"><Visual i={sIdx} local={local} /></div>
 
         <div className="absolute inset-x-0 bottom-0 flex items-end gap-3 p-4">
-          <PaxFace talking={talking} size={84} />
+          <PaxCharacter talking={talking} size={104} className="shrink-0" />
           <p aria-live="polite" className="mb-2 flex-1 rounded-2xl rounded-bl-sm border border-line-2 bg-surface/90 px-4 py-3 text-sm leading-snug sm:text-base">{playing || t > 0 ? scene.line : "Press play and I'll tell you why fire in space matters."}</p>
         </div>
 

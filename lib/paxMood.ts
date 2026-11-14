@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { PaxMood } from "@/components/PaxFace";
+import type { PaxCharacterMood as PaxMood } from "@/components/PaxCharacter";
 
 const EVENT = "pax:mood";
 

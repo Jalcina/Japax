@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { TOUR, useGuide } from "@/lib/guide";
 import { useT } from "@/lib/i18n";
 import { GUIDE_T } from "@/lib/guideStops";
-import PaxFace from "@/components/PaxFace";
+import PaxCharacter from "@/components/PaxCharacter";
 
 type Box = { top: number; left: number; width: number; height: number };
 const CARD_W = 360;
@@ -156,7 +156,7 @@ export default function GuideTour() {
             style={arrow === "up" ? { top: -7, left: arrowLeft - 6, borderTopWidth: 1, borderLeftWidth: 1 } : { bottom: -7, left: arrowLeft - 6, borderBottomWidth: 1, borderRightWidth: 1 }} />
         )}
         <div className="mb-3 flex items-center gap-3">
-          <PaxFace talking={talking} size={34} />
+          <PaxCharacter talking={talking} size={46} minimal className="-my-1.5 shrink-0" />
           <div className="min-w-0 flex-1">
             <p className="text-[11px] font-medium uppercase tracking-wide text-muted">{t.pageNames[key]} · {t.step(i + 1, steps.length)}</p>
             <h2 className="text-base font-semibold leading-tight">{step.title}</h2>

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useT } from "@/lib/i18n";
 import AskChat from "@/components/AskChat";
-import PaxFace from "@/components/PaxFace";
+import PaxCharacter from "@/components/PaxCharacter";
 import { usePaxMood } from "@/lib/paxMood";
 
 const EVENT = "pax:ask";
@@ -78,7 +78,7 @@ export default function AskWindow() {
     <div className="fixed inset-0 z-[80] flex items-end justify-center bg-[#05070a]/70 p-0 backdrop-blur-sm sm:items-center sm:p-6" onMouseDown={(e) => e.target === e.currentTarget && setOpen(false)}>
       <section role="dialog" aria-modal="true" aria-label={t.title} className="flex h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-t-2xl border border-line-2 bg-surface shadow-2xl sm:h-[85vh] sm:rounded-2xl">
         <header className="flex items-center gap-3 border-b border-line px-5 py-3">
-          <PaxFace talking={false} size={38} mood={mood} />
+          <PaxCharacter mood={mood} size={48} minimal className="-my-2 shrink-0" />
           <div className="min-w-0 flex-1">
             <h2 className="text-base font-semibold leading-tight">{t.title}</h2>
             <p className="truncate text-xs text-muted">{t.sub}</p>
