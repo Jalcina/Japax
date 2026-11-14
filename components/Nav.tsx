@@ -139,9 +139,8 @@ export default function Nav() {
     <header className="sticky top-0 z-40 border-b border-line bg-bg/85 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4">
         <LangMenu lang={lang} setLang={setLang} label={t.language} />
-        <Link href="/" className="flex shrink-0 items-center gap-2 text-lg font-semibold tracking-tight">
-          <Image src="/brand/japax-isotipo.png" alt="" width={321} height={584} className="h-7 w-auto" priority />
-          JaPax
+        <Link href="/" className="flex shrink-0 items-center">
+          <Image src="/brand/japax-header-logo.png" alt="JaPax" width={1624} height={455} className="h-8 w-auto" priority />
         </Link>
 
         <nav aria-label={t.main} className="ml-auto hidden items-center gap-0.5 text-sm xl:flex">
