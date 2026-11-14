@@ -17,8 +17,8 @@ const TEAM: { name: string; initials: string; github: string; linkedin?: string;
   },
   { name: "Pablo Triguero", initials: "PT", github: "ptricha", linkedin: "https://www.linkedin.com/in/pablotriguerochamizo/", photo: "/team/pablo.jpg",
     bio: {
-      en: "Studying Computer Engineering. Co-created JaPax for the NASA Space Apps Challenge 2026 in Seville.",
-      es: "Estudia Ingeniería Informática. Cocreó JaPax para el NASA Space Apps Challenge 2026 en Sevilla.",
+      en: "Studying Computer Engineering, with a specialisation in Data Science. Co-created JaPax for the NASA Space Apps Challenge 2026 in Seville.",
+      es: "Estudia Ingeniería Informática con mención en Ciencia de Datos. Cocreó JaPax para el NASA Space Apps Challenge 2026 en Sevilla.",
     },
   },
 ];
