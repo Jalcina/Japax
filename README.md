@@ -13,7 +13,7 @@ Built for the **NASA Space Apps Challenge 2026**, challenge *Flame in Freefall: 
 | **Simulator** (3D) | Pick an environment (Earth, ISS, lunar base, spacesuit): oxygen versus Earth, which experiments covered it, and a plain statement of where there is no data. |
 | **Ranking** | Explainable lunar-habitat relevance score with adjustable weights, plus a coverage matrix by environment. |
 | **History** | A vertical timeline of 31 verified milestones: incidents, experiments, hardware, spinoffs and open-data releases, with filters. |
-| **Oracle** | Flame Oracle: visual answers (headline, key numbers, a chart of real data, cited evidence, data gaps, confidence). Numbers come from computed data; Claude narrates when an API key is set and unsupported figures are removed. |
+| **Ask Pax** | Pax, the Q&A assistant: visual answers (headline, key numbers, a chart of real data, cited evidence, data gaps, confidence). Numbers come from computed data; Claude narrates when an API key is set and unsupported figures are removed. |
 | **References** | Every source, library and limitation. |
 
 ## Principles

@@ -45,7 +45,7 @@ export function detectTopic(q: string): Topic {
 }
 
 /* ---------- facts computed from the recorded rows (never typed by hand) ---------- */
-function computed() {
+export function computed() {
   const rows = lab.flex.rows.filter((r) => r.o2 != null && r.pAtm)
   const all = lab.flex.rows
   const count = (k: string) => all.filter((r) => r.end === k).length

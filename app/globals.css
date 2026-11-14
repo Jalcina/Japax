@@ -87,7 +87,7 @@ input[type="range"] {
   accent-color: var(--accent);
 }
 
-/* ---- Flame Oracle ---- */
+/* ---- Pax (Q&A) ---- */
 @keyframes rise {
   from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: none; }

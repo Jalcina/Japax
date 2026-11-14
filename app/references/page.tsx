@@ -43,7 +43,7 @@ const T = {
     docsTitle: "NASA documents and pages",
     swEyebrow: "Software",
     swTitle: "Libraries, fonts and tools",
-    ai: "AI assistance: the code was developed with the help of Claude (Anthropic) via Claude Code, and the optional AI narration of the Flame Oracle answers can use a Claude model, with every number checked against the verified evidence. All outputs are grounded in the data above.",
+    ai: "AI assistance: the code was developed with the help of Claude (Anthropic) via Claude Code, and the optional AI narration of Pax answers can use a Claude model, with every number checked against the verified evidence. All outputs are grounded in the data above.",
     mEyebrow: "Method",
     mTitle: "How to read the numbers",
     m: [
@@ -68,7 +68,7 @@ const T = {
     docsTitle: "Documentos y páginas de NASA",
     swEyebrow: "Software",
     swTitle: "Bibliotecas, tipografías y herramientas",
-    ai: "Asistencia de IA: el código se desarrolló con ayuda de Claude (Anthropic) mediante Claude Code, y la narración opcional por IA del Oráculo de la Llama puede usar un modelo Claude, con cada cifra comprobada contra la evidencia verificada. Todas las salidas se basan en los datos de arriba.",
+    ai: "Asistencia de IA: el código se desarrolló con ayuda de Claude (Anthropic) mediante Claude Code, y la narración opcional por IA de Pax puede usar un modelo Claude, con cada cifra comprobada contra la evidencia verificada. Todas las salidas se basan en los datos de arriba.",
     mEyebrow: "Método",
     mTitle: "Cómo leer las cifras",
     m: [
