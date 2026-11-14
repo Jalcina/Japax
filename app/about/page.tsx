@@ -3,13 +3,23 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useLang, useT } from "@/lib/i18n";
-import { Pending, Section } from "@/components/ui";
+import { Section } from "@/components/ui";
 
 // Fill these in when available. Anything left empty is shown as "pending", never invented.
 // Photos: put a file in /public/team/ and set `photo` (e.g. "/team/jaime.jpg").
-const TEAM: { name: string; initials: string; github: string; linkedin?: string; photo?: string }[] = [
-  { name: "Jaime Alcina", initials: "JA", github: "Jalcina", linkedin: "https://www.linkedin.com/in/jaimealcina/", photo: "/team/jaime.jpg" },
-  { name: "Pablo Triguero", initials: "PT", github: "ptricha", linkedin: "https://www.linkedin.com/in/pablotriguerochamizo/", photo: "/team/pablo.jpg" },
+const TEAM: { name: string; initials: string; github: string; linkedin?: string; photo?: string; bio: { en: string; es: string } }[] = [
+  { name: "Jaime Alcina", initials: "JA", github: "Jalcina", linkedin: "https://www.linkedin.com/in/jaimealcina/", photo: "/team/jaime.jpg",
+    bio: {
+      en: "Studying Multiplatform Application Development. Co-created JaPax for the NASA Space Apps Challenge 2026 in Seville.",
+      es: "Estudia Desarrollo de Aplicaciones Multiplataforma. Cocreó JaPax para el NASA Space Apps Challenge 2026 en Sevilla.",
+    },
+  },
+  { name: "Pablo Triguero", initials: "PT", github: "ptricha", linkedin: "https://www.linkedin.com/in/pablotriguerochamizo/", photo: "/team/pablo.jpg",
+    bio: {
+      en: "Studying Computer Engineering. Co-created JaPax for the NASA Space Apps Challenge 2026 in Seville.",
+      es: "Estudia Ingeniería Informática. Cocreó JaPax para el NASA Space Apps Challenge 2026 en Sevilla.",
+    },
+  },
 ];
 
 /** Bump when the files in /public/about are re-rendered: they are cached for 7 days, so the URL must change. */
@@ -139,7 +149,7 @@ export default function AboutPage() {
                 </div>
                 <div className="flex items-baseline gap-2">
                   <dt className="w-14 shrink-0 text-muted">{t.bio}</dt>
-                  <dd><Pending>{t.pending}</Pending></dd>
+                  <dd>{m.bio[lang]}</dd>
                 </div>
               </dl>
               <div className="mt-4 flex flex-wrap gap-2 text-sm">
