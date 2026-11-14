@@ -39,6 +39,9 @@ const T = {
     bubbleLead: "I can help you:",
     svcAsk: "Ask me anything",
     svcTour: "Take a guided tour",
+    svcTourResume: "Continue the guided tour",
+    tourResume: "Continue the guided tour",
+    tourResumeSub: "I will pick up right where you left off",
     hintLead: "Tap below and I will explain it:",
     hintBtn: "Explain this to me",
   },
@@ -57,6 +60,9 @@ const T = {
     bubbleLead: "Puedo ayudarte a:",
     svcAsk: "Preguntarme lo que sea",
     svcTour: "Hacer un recorrido guiado",
+    svcTourResume: "Continuar el recorrido guiado",
+    tourResume: "Continuar el recorrido guiado",
+    tourResumeSub: "Seguimos justo donde lo dejaste",
     hintLead: "Pulsa abajo y te lo explico:",
     hintBtn: "Explícamelo",
   },
@@ -91,7 +97,7 @@ export default function Mentor() {
   const { lang } = useLang();
   const path = usePathname();
   const mood = usePaxMood();
-  const { on, setOn } = useGuide();
+  const { on, setOn, hasProgress } = useGuide();
   const [open, setOpen] = useState(false);
   const [asleep, setAsleep] = useState(false);
   const [tick, setTick] = useState(0);
@@ -169,8 +175,8 @@ export default function Mentor() {
                 <span className="block text-xs text-ink-2">{t.askSub}</span>
               </button>
               <button onClick={() => { setOpen(false); toggleTour(); }} className={item}>
-                <span className="block text-sm font-semibold">{on ? t.stop : t.tour}</span>
-                {!on && <span className="block text-xs text-ink-2">{t.tourSub}</span>}
+                <span className="block text-sm font-semibold">{on ? t.stop : hasProgress ? t.tourResume : t.tour}</span>
+                {!on && <span className="block text-xs text-ink-2">{hasProgress ? t.tourResumeSub : t.tourSub}</span>}
               </button>
             </div>
           </section>
@@ -192,7 +198,7 @@ export default function Mentor() {
             <p className="mt-0.5 text-xs text-ink-2">{seen && hint ? t.hintLead : t.bubbleLead}</p>
             <div className="mt-2 space-y-1.5">
               <button onClick={() => { markSeen(); openAsk(hint?.[1]); }} className={`${svc} border-accent/50 bg-accent/15`}>{hint ? t.hintBtn : t.svcAsk}</button>
-              <button onClick={toggleTour} className={svc}>{on ? t.stop : t.svcTour}</button>
+              <button onClick={toggleTour} className={svc}>{on ? t.stop : hasProgress ? t.svcTourResume : t.svcTour}</button>
             </div>
           </section>
         )}

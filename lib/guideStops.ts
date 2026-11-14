@@ -12,6 +12,8 @@ export const GUIDE_T = {
     nextPage: (name: string) => `Continue to ${name}`,
     finish: "Finish tour",
     skip: "Skip tour",
+    restart: "Start over",
+    resumed: "Welcome back! We continue where you left off.",
     tryLabel: "Try it",
     pageNames: { "/": "Home", "/learn": "Basics", "/history": "History", "/simulator": "Simulator", "/explorer": "Experiments", "/dashboard": "Ranking", "/references": "Sources" } as Record<string, string>,
     steps: {
@@ -57,6 +59,8 @@ export const GUIDE_T = {
     nextPage: (name: string) => `Continuar a ${name}`,
     finish: "Terminar",
     skip: "Saltar recorrido",
+    restart: "Empezar de nuevo",
+    resumed: "¡Has vuelto! Seguimos donde lo dejaste.",
     tryLabel: "Pruébalo",
     pageNames: { "/": "Inicio", "/learn": "Lo básico", "/history": "Historia", "/simulator": "Simulador", "/explorer": "Experimentos", "/dashboard": "Ranking", "/references": "Fuentes" } as Record<string, string>,
     steps: {
