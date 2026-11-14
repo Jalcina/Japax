@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLang, useT } from "@/lib/i18n";
 import type { OracleAnswer } from "@/lib/oracle";
 import OracleViz from "@/components/OracleViz";
+import { setPaxMood } from "@/lib/paxMood";
 
 const T = {
   en: {
@@ -26,6 +27,7 @@ const T = {
     ask: "Ask",
     steps: ["Searching 19 investigations", "Checking measured tests", "Writing the answer"],
     err: "Something went wrong. Please try again.",
+    retry: "Try again",
     modeAi: "AI-composed from verified evidence",
     modeEv: "Answer built from verified evidence",
     conf: { high: "High confidence", medium: "Medium confidence", low: "Low confidence" },
@@ -60,6 +62,7 @@ const T = {
     ask: "Preguntar",
     steps: ["Buscando en 19 investigaciones", "Comprobando ensayos medidos", "Redactando la respuesta"],
     err: "Algo salió mal. Inténtalo de nuevo.",
+    retry: "Reintentar",
     modeAi: "Redactado por IA a partir de evidencia verificada",
     modeEv: "Respuesta construida con evidencia verificada",
     conf: { high: "Confianza alta", medium: "Confianza media", low: "Confianza baja" },
@@ -273,12 +276,17 @@ export default function AskChat({ embedded = false, initialQuestion }: { embedde
     setQ("");
     setBusy(true);
     setTurns((x) => [...x, { q: question }]);
+    setPaxMood("thinking");
     try {
       const res = await fetch("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, lang }) });
       const a = (await res.json()) as OracleAnswer;
       setTurns((x) => x.map((tn, i) => (i === x.length - 1 ? (res.ok ? { ...tn, a } : { ...tn, err: true }) : tn)));
+      // Pax reacts to the answer: a data gap or low confidence worries it, a solid answer pleases it
+      if (!res.ok) setPaxMood("worried", 4000);
+      else setPaxMood(a.gap || a.confidence === "low" ? "worried" : "happy", 4000);
     } catch {
       setTurns((x) => x.map((tn, i) => (i === x.length - 1 ? { ...tn, err: true } : tn)));
+      setPaxMood("worried", 4000);
     } finally {
       setBusy(false);
       setTimeout(() => end.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 80);
@@ -286,7 +294,10 @@ export default function AskChat({ embedded = false, initialQuestion }: { embedde
   }
 
   // deep link: /ask?q=your+question asks it right away
+  const started = useRef(false);
   useEffect(() => {
+    if (started.current) return; // Strict Mode runs effects twice in dev: ask only once
+    started.current = true;
     const p = initialQuestion ?? (embedded ? null : new URLSearchParams(window.location.search).get("q"));
     if (p) send(p);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -331,7 +342,21 @@ export default function AskChat({ embedded = false, initialQuestion }: { embedde
             <div className="flex justify-end">
               <p className="max-w-[85%] rounded-2xl rounded-br-sm bg-accent/15 px-4 py-2.5 text-sm"><span className="sr-only">{t.you}: </span>{tn.q}</p>
             </div>
-            {tn.a ? <AnswerCard a={tn.a} onAsk={send} /> : tn.err ? <p className="card p-4 text-sm text-ink-2">{t.err}</p> : <Thinking steps={t.steps} />}
+            {tn.a ? <AnswerCard a={tn.a} onAsk={send} /> : tn.err ? (
+              <div className="card flex flex-wrap items-center gap-3 p-4 text-sm text-ink-2" role="alert">
+                <p className="flex-1">{t.err}</p>
+                <button
+                  disabled={busy}
+                  onClick={() => {
+                    setTurns((x) => x.filter((_, k) => k !== i));
+                    send(tn.q);
+                  }}
+                  className="rounded-lg border border-line-2 px-3 py-1.5 text-ink hover:border-accent disabled:opacity-40"
+                >
+                  {t.retry}
+                </button>
+              </div>
+            ) : <Thinking steps={t.steps} />}
           </section>
         ))}
         <div ref={end} />

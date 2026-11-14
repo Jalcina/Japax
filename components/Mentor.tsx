@@ -1,13 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useGuide } from "@/lib/guide";
-import { useT } from "@/lib/i18n";
+import { setPaxMood, usePaxMood } from "@/lib/paxMood";
+import { useLang, useT } from "@/lib/i18n";
 import PaxFace from "@/components/PaxFace";
 import { openAsk } from "@/components/AskWindow";
 
 const NAME = "Pax";
 const IDLE_MS = 60_000;
+const SEEN_KEY = "japax-pax-seen";
+
+/** Per-page nudge: what Pax offers to explain here, and the question it opens in the Ask window. */
+const HINTS: Record<string, { en: [string, string]; es: [string, string] }> = {
+  "/simulator": { en: ["Not sure what the verdict means?", "How should I read the simulator verdict?"], es: ["¿No tienes claro qué significa el veredicto?", "¿Cómo debo leer el veredicto del simulador?"] },
+  "/lab": { en: ["Curious how the nearest tests are chosen?", "What happens when my conditions are outside the measured range?"], es: ["¿Quieres saber cómo se eligen los ensayos más cercanos?", "¿Qué pasa cuando mis condiciones quedan fuera del rango medido?"] },
+  "/explorer": { en: ["Lost among the investigations?", "Which NASA investigations matter most for the Moon?"], es: ["¿Perdido entre las investigaciones?", "¿Qué investigaciones de NASA importan más para la Luna?"] },
+  "/dashboard": { en: ["Want to know how scores are built?", "What fire data exists for the Moon or Mars?"], es: ["¿Quieres saber cómo se calculan las puntuaciones?", "¿Qué datos de fuego existen para la Luna o Marte?"] },
+  "/history": { en: ["Want the story behind an incident?", "Tell me about Apollo 1, Apollo 13 and Mir"], es: ["¿Quieres la historia detrás de un incidente?", "Cuéntame lo de Apollo 1, Apollo 13 y Mir"] },
+  "/learn": { en: ["New to fire in space?", "How is smoke different in microgravity and does it affect detectors?"], es: ["¿Nuevo en el fuego en el espacio?", "¿Cómo es el humo en microgravedad y afecta a los detectores?"] },
+  "/safety": { en: ["Questions about fire safety?", "Which suppressants were tested and how did the flames end?"], es: ["¿Dudas sobre seguridad contra incendios?", "¿Qué supresores se ensayaron y cómo terminaron las llamas?"] },
+};
 
 const T = {
   en: {
@@ -25,6 +39,8 @@ const T = {
     bubbleLead: "I can help you:",
     svcAsk: "Ask me anything",
     svcTour: "Take a guided tour",
+    hintLead: "Tap below and I will explain it:",
+    hintBtn: "Explain this to me",
   },
   es: {
     hello: `Hola, soy ${NAME}. Puedo explicarte cualquier cosa de esta web o guiarte paso a paso.`,
@@ -41,6 +57,8 @@ const T = {
     bubbleLead: "Puedo ayudarte a:",
     svcAsk: "Preguntarme lo que sea",
     svcTour: "Hacer un recorrido guiado",
+    hintLead: "Pulsa abajo y te lo explico:",
+    hintBtn: "Explícamelo",
   },
 };
 
@@ -70,10 +88,28 @@ function useTyped(text: string) {
 
 export default function Mentor() {
   const t = useT(T);
+  const { lang } = useLang();
+  const path = usePathname();
+  const mood = usePaxMood();
   const { on, setOn } = useGuide();
   const [open, setOpen] = useState(false);
   const [asleep, setAsleep] = useState(false);
   const [tick, setTick] = useState(0);
+  const [seen, setSeen] = useState(false);
+
+  // Returning visitors skip the full greeting; Pax only offers the page-specific nudge.
+  useEffect(() => {
+    try {
+      setSeen(localStorage.getItem(SEEN_KEY) === "1");
+    } catch {}
+  }, []);
+  const markSeen = () => {
+    setSeen(true);
+    try {
+      localStorage.setItem(SEEN_KEY, "1");
+    } catch {}
+  };
+  const hint = HINTS[path]?.[lang];
 
   // No interaction with Pax for 1 minute (menu closed, tour off): Pax falls asleep.
   useEffect(() => {
@@ -82,8 +118,14 @@ export default function Mentor() {
     return () => clearTimeout(id);
   }, [asleep, open, on, tick]);
   const wake = () => {
+    if (asleep) setPaxMood("surprised", 1400); // startled awake
     setAsleep(false);
     setTick((x) => x + 1);
+  };
+  // Starting the tour cheers Pax up
+  const toggleTour = () => {
+    if (!on) setPaxMood("happy", 2500);
+    setOn(!on);
   };
 
   const speech = open ? t.hello : "";
@@ -125,7 +167,7 @@ export default function Mentor() {
                 <span className="block text-sm font-semibold">{t.ask}</span>
                 <span className="block text-xs text-ink-2">{t.askSub}</span>
               </button>
-              <button onClick={() => { setOpen(false); setOn(!on); }} className={item}>
+              <button onClick={() => { setOpen(false); toggleTour(); }} className={item}>
                 <span className="block text-sm font-semibold">{on ? t.stop : t.tour}</span>
                 {!on && <span className="block text-xs text-ink-2">{t.tourSub}</span>}
               </button>
@@ -145,19 +187,19 @@ export default function Mentor() {
         {!open && !asleep && (
           <section aria-label={t.bubbleAria} className={`${bubble} w-[13.5rem] p-3`}>
             {tail}
-            <p className="text-sm font-semibold leading-snug">{t.bubbleHi}</p>
-            <p className="mt-0.5 text-xs text-ink-2">{t.bubbleLead}</p>
+            <p className="text-sm font-semibold leading-snug">{seen && hint ? hint[0] : t.bubbleHi}</p>
+            <p className="mt-0.5 text-xs text-ink-2">{seen && hint ? t.hintLead : t.bubbleLead}</p>
             <div className="mt-2 space-y-1.5">
-              <button onClick={() => openAsk()} className={`${svc} border-accent/50 bg-accent/15`}>{t.svcAsk}</button>
-              <button onClick={() => setOn(!on)} className={svc}>{on ? t.stop : t.svcTour}</button>
+              <button onClick={() => { markSeen(); openAsk(hint?.[1]); }} className={`${svc} border-accent/50 bg-accent/15`}>{hint ? t.hintBtn : t.svcAsk}</button>
+              <button onClick={toggleTour} className={svc}>{on ? t.stop : t.svcTour}</button>
             </div>
           </section>
         )}
       </div>
 
       <div className="relative">
-        <button data-pax onClick={() => setOpen((v) => !v)} aria-label={t.open} aria-expanded={open} className="block rounded-full p-1 transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-accent">
-          <PaxFace talking={talking} sleeping={asleep && !open} size={size} />
+        <button data-pax onPointerEnter={() => !asleep && mood === "idle" && setPaxMood("happy", 1500)} onClick={() => { markSeen(); setOpen((v) => !v); }} aria-label={t.open} aria-expanded={open} className="block rounded-full p-1 transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-accent">
+          <PaxFace talking={talking} sleeping={asleep && !open} size={size} mood={mood} />
         </button>
       </div>
     </div>
