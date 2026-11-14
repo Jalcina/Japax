@@ -1,4 +1,4 @@
-# FireCompass — Guía de setup para el hackathon
+# JaPax — Guía de setup para el hackathon
 
 Guía completa para llegar al hackathon y trabajar con Claude Code + ECC desde cero.
 
@@ -13,7 +13,7 @@ Guía completa para llegar al hackathon y trabajar con Claude Code + ECC desde c
 - **Comandos rápidos** — `/tdd`, `/code-review`, `/build-fix`, `/ecc:plan`
 - **Hooks automáticos** — detectan problemas sin que los pidas
 
-**El repo de FireCompass** añade encima el contexto específico del hackathon: qué es el proyecto, los datos de la NASA, qué criterios valoran los jueces, cómo citar investigaciones PSI.
+**El repo de JaPax** añade encima el contexto específico del hackathon: qué es el proyecto, los datos de la NASA, qué criterios valoran los jueces, cómo citar investigaciones PSI.
 
 Los dos juntos = trabajas como si tuvieras un equipo completo.
 
@@ -41,8 +41,8 @@ npm install -g @anthropic-ai/claude-code
 ## Paso 2 — Clonar el repositorio
 
 ```bash
-git clone https://github.com/Jalcina/firecompass.git
-cd firecompass
+git clone https://github.com/ptricha/japax.git
+cd japax
 ```
 
 ---
@@ -111,7 +111,7 @@ claude
 ```
 
 Esto abre Claude Code. Al arrancar carga automáticamente:
-- El `CLAUDE.md` del proyecto → Claude sabe todo sobre FireCompass, los datos NASA, el stack, los criterios del jurado
+- El `CLAUDE.md` del proyecto → Claude sabe todo sobre JaPax, los datos NASA, el stack, los criterios del jurado
 - Las skills específicas → `hackathon-mode`, `fire-science`, `psi-expert`
 - ECC global → todos los agentes y comandos
 
@@ -130,7 +130,7 @@ Bien: "quiero una página que muestre el comparador de entornos (Tierra, ISS, Lu
 
 ---
 
-### Comandos ECC más útiles para FireCompass
+### Comandos ECC más útiles para JaPax
 
 | Comando | Para qué |
 |---|---|
@@ -194,11 +194,11 @@ Además de ECC, el repo tiene 3 skills propios del proyecto:
 
 Gracias al `CLAUDE.md` del proyecto, Claude sabe desde el primer mensaje:
 
-- Qué es FireCompass y para qué sirve
+- Qué es JaPax y para qué sirve
 - Stack: Next.js 16, TypeScript, Tailwind CSS 4, Claude API
 - Los 20 datasets NASA con sus PSI IDs y DOIs
 - Que Luna Base es 40% más inflamable que la Tierra
-- Que NO existen datos experimentales de gravedad parcial
+- Que los datos de gravedad parcial son muy limitados (PSI no tiene ninguno; LUCI 2025 aportó los primeros)
 - Los 5 criterios del jurado (Impact, Creativity, Validity, Relevance, Presentation)
 - Que todo dato científico debe citar PSI ID + DOI
 
@@ -239,8 +239,8 @@ git push
 ## Resumen de setup en 5 comandos
 
 ```bash
-git clone https://github.com/Jalcina/firecompass.git
-cd firecompass
+git clone https://github.com/ptricha/japax.git
+cd japax
 npx ecc-universal@2.2.3 setup     # solo la primera vez
 cp .env.example .env.local         # luego añade la API key
 npm install && npm run dev

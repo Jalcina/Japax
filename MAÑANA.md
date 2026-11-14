@@ -3,14 +3,14 @@
 ## Al llegar al hackathon (5 minutos)
 
 ```bash
-cd /home/jaime/firecompass
+cd /home/jaime/japax
 npm run dev
 ```
 
 Abre otra terminal en la misma carpeta:
 
 ```bash
-cd /home/jaime/firecompass
+cd /home/jaime/japax
 claude
 ```
 
@@ -46,7 +46,7 @@ Eso es todo. No necesitas saber más comandos.
 Copia y pega esto tal cual:
 
 ```
-Vamos a construir FireCompass. Lee el CLAUDE.md y empieza por la Fase 1:
+Vamos a construir JaPax. Lee el CLAUDE.md y empieza por la Fase 1:
 
 1. app/page.tsx — Home con la frase del jurado y contexto del proyecto
 2. app/simulator/page.tsx — Comparador de entornos (Tierra/ISS/Luna/Marte) con datos estáticos
@@ -114,6 +114,6 @@ Después cada `git push` actualiza la URL automáticamente.
 
 ## Resumen en 3 líneas
 
-1. `cd /home/jaime/firecompass` → `claude`
+1. `cd /home/jaime/japax` → `claude`
 2. Pega el primer mensaje, Claude construye todo
 3. Si algo falla: `/build-fix`. Cada 45 min: `/compact`

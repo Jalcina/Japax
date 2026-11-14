@@ -1,4 +1,4 @@
-# ECC — Referencia de comandos para FireCompass
+# ECC — Referencia de comandos para JaPax
 
 Todos los comandos disponibles organizados por situación.
 Claude los conoce automáticamente — puedes pedírselos por nombre o usarlos tú directamente.
@@ -31,7 +31,7 @@ Claude los conoce automáticamente — puedes pedírselos por nombre o usarlos t
 | `/orch-add-feature` | Feature completa end-to-end: research → plan → TDD → review → commit |
 | `/orch-build-mvp` | Construye un MVP completo desde un doc de diseño/spec |
 
-**Para FireCompass usar:**
+**Para JaPax usar:**
 ```
 /plan construir la página del comparador de entornos con Tierra, ISS, Luna y Marte
 ```
@@ -46,7 +46,7 @@ Claude los conoce automáticamente — puedes pedírselos por nombre o usarlos t
 | `/build-fix` | Detecta el sistema de build y arregla errores de compilación/tipos |
 | `/orch-fix-defect` | Bug concreto: reproduce como test fallido → arregla → confirma verde |
 
-**Para FireCompass usar primero `/react-build`** (es específico de Next.js).
+**Para JaPax usar primero `/react-build`** (es específico de Next.js).
 
 ---
 
@@ -91,7 +91,7 @@ Claude los conoce automáticamente — puedes pedírselos por nombre o usarlos t
 | `/orch-change-feature` | Modifica una feature existente de forma controlada |
 | `/orch-refine-code` | Refina y mejora código ya existente |
 
-**Para FireCompass usar cuando quieras una feature sólida:**
+**Para JaPax usar cuando quieras una feature sólida:**
 ```
 /orch-add-feature construir el chat Ask the Data con citations a PSI IDs
 ```
@@ -141,7 +141,7 @@ Guarda la sesión antes de que nos vayamos
 
 ## Comandos que NO necesitas en este hackathon
 
-Estos existen en ECC pero no son relevantes para FireCompass:
+Estos existen en ECC pero no son relevantes para JaPax:
 `/cpp-build`, `/go-build`, `/rust-build`, `/kotlin-build`, `/flutter-build` — son para otros lenguajes
 `/marketing-campaign`, `/jira`, `/epic-*` — gestión de proyectos empresariales
 `/multi-plan` — requiere runtime externo no instalado

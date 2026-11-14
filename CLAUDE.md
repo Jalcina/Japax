@@ -46,11 +46,11 @@ GET https://ntrs.nasa.gov/api/citations/search?q=microgravity+fire&rows=20
 |---------|-----|---------|----------|
 | Tierra | 21% | 14.7 psi | 1g |
 | ISS | 21% | 14.7 psi | 0g — llamas esféricas azules |
-| Base Lunar | ~30% | ~10.2 psi | 0.16g — 40% más inflamable |
+| Base Lunar | ~30% | ~10.2 psi | 0.16g (la cifra "40% más inflamable" es del enunciado del reto, sin tabla ni fuente: no mostrarla como dato medido) |
 | Marte | ~0.13% | baja | 0.38g |
 | Traje EVA | 100% | 4.3 psi | extremadamente inflamable |
 
-GAP crítico: NO existen datos experimentales de gravedad parcial. LUCI y FM2 los medirán.
+GAP crítico: datos de gravedad parcial muy limitados. LUCI voló el 4-feb-2025 (gravedad lunar simulada por rotación, NTRS 20250010653) y FM2 medirá en la Luna real (previsto fines de 2026); el archivo PSI no contiene ninguno. Todo lo lunar sin dato experimental es extrapolación y debe verse marcado.
 
 ## Áreas del reto
 - **Prevención** — BASS, BASS-II, FLEX, ACME
@@ -79,5 +79,6 @@ BRAVE_SEARCH_API_KEY=
 
 ## Orden de build
 Fase 1 (sin API key): page.tsx → simulator → explorer → dashboard
+`/simulator` es la ÚNICA experiencia de simulación: pestañas por hash `#fire` (Touch to burn), `#evidence` y `#data`; `/lab` y `/simulacion-en-progreso` redirigen allí. Solo una escena WebGL montada a la vez.
 Fase 2 (con API key): ask/page.tsx (chat Claude) → Claude Vision (opcional)
 Regla: Fase 1 desplegada en Vercel antes de tocar Fase 2.

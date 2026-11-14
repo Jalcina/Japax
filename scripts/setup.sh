@@ -1,11 +1,11 @@
 #!/bin/bash
 # ============================================
-# FireCompass — Setup rápido en portátil
+# JaPax — Setup rápido en portátil
 # Ejecutar UNA vez cuando llegas al hackathon
 # Lee HACKATHON_SETUP.md para la guía completa
 # ============================================
 
-echo "FireCompass Setup"
+echo "JaPax Setup"
 echo "================="
 
 # 1. Instalar ECC (si no está instalado)
