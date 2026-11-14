@@ -260,9 +260,9 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
 
       <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         {/* ---- 3D scene ---- */}
-        <div>
-          <div className="relative" role="region" aria-label={t("Interactive 3D scene. Tap a surface to start a fire; or use the button below the scene to start one at the centre of the view.")}>
-            <ImmersiveScene env={env as ImmersiveEnv} wide overview={view === "overview"} onReady={onReady} onPick={onPick} className="h-[52vh] min-h-[320px] lg:h-[66vh]" />
+        <div className="flex flex-col">
+          <div className="relative lg:min-h-[66vh] lg:flex-1" role="region" aria-label={t("Interactive 3D scene. Tap a surface to start a fire; or use the button below the scene to start one at the centre of the view.")}>
+            <ImmersiveScene env={env as ImmersiveEnv} wide overview={view === "overview"} onReady={onReady} onPick={onPick} className="h-[52vh] min-h-[320px] lg:absolute lg:inset-0 lg:h-full" />
             {ready && !lit && view === "site" && (
               <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center px-3">
                 <span className="rounded-full bg-black/65 px-4 py-2 text-center text-sm text-white backdrop-blur">{t("Tap a panel, cable, fabric or piece of equipment to start a fire there")}</span>
@@ -306,8 +306,50 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
           </label>
         </div>
 
-        {/* ---- right column ---- */}
+        {/* ---- right column: live data next to the scene ---- */}
         <div className="space-y-4">
+          <div className="card p-4">
+            <div className="flex items-baseline justify-between">
+              <h3 className="font-semibold">{t("Live data")}</h3>
+              <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${SIM}`}>{t("all values simulated")}</span>
+            </div>
+            <p className="mt-1 text-sm" aria-live="polite"><strong>{t(live ? PHASE_LABEL[live.phase] : PHASE_LABEL.idle)}</strong></p>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <Tile label={t("Time")} value={live ? `${fmt(live.simT, 0)} s` : "—"} tag={t("simulated")} eli5={live ? t("Wall clock. The same spread would take about {m} min for real.", { m: fmt(live.realT / 60, 1) }) : t("Starts when you tap a surface.")} />
+              <Tile label={t("Spread speed")} value={live ? `${fmt(live.speedMmS, 2)} mm/s` : "—"} tag={t("simulated")} eli5={live ? `${t(live.speedNote)}.` : t("How fast the flame front eats the surface.")} />
+              <Tile label={t("Flame front")} value={live ? `${fmt(live.frontM * 100, 0)} cm` : "—"} tag={t("simulated")} eli5={t("Distance from the ignition point to the edge of the burning ring.")} />
+              <Tile label={t("Burned area")} value={live ? `${fmt(live.areaM2 * 10000, 0)} cm²` : "—"} tag={t("simulated")} eli5={t("Surface already charred or glowing. Scene units are about metres.")} />
+              <Tile label={t("Smoke / soot")} value={live ? `${live.particles}` : "—"} tag={t("simulated particles")} eli5={live ? t(atm.gravityG < 0.05 ? "No gravity: smoke hangs around the fire instead of rising." : "Gravity: smoke rises in a plume.") : t("Tiny soot grains drawn on screen.")} />
+              <Tile label={t("Burning spots")} value={live ? t("{f} flames · {c} cells", { f: live.flames, c: live.cells }) : "—"} tag={t("simulated")} eli5={t("Flames shown on the front and cells of surface already involved.")} />
+              <Tile label={t("Surfaces reached")} value={live ? `${live.surfaces}` : "—"} tag={t("simulated")} eli5={t("How many different parts of the model the fire has touched.")} />
+              <Tile label={t("Intensity")} value={live ? `${Math.round(live.intensity * 100)} %` : "—"} tag={t("simulated")} eli5={t("How alive the flame is (not a temperature).")} />
+            </div>
+            <dl className="mt-3 space-y-1 text-sm">
+              <div className="flex justify-between gap-3"><dt className="text-ink-2">{t("Detection")}</dt><dd className="text-right">{detection}<span className="block text-[11px] text-muted">{t("No dataset gives detector response times. The delay below is yours, not a measured time.")}</span></dd></div>
+              <div className="flex justify-between gap-3"><dt className="text-ink-2">{t("Extinction")}</dt><dd className="text-right">{suppression}{supTag && <span className="ml-1.5 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] text-amber-300">{supTag}</span>}</dd></div>
+              {delayMode === "auto" && ext !== "none" && live && activated === null && live.delayLeftS !== null && (
+                <div className="flex justify-between gap-3"><dt className="text-ink-2">{t("System acts in")}</dt><dd className="tabular-nums">{t("{n} s (real-equivalent)", { n: fmt(live.delayLeftS, 0) })}</dd></div>
+              )}
+            </dl>
+            <details className="mt-3 text-sm">
+              <summary className="cursor-pointer text-ink-2 hover:text-ink">{t("How is the spread speed built?")}</summary>
+              <p className="mt-1 text-xs text-muted">{t("Speed = anchor × oxygen × airflow × gravity × material. Only the anchor is measured; the rest are modelling choices, shown here so you can judge them.")}</p>
+              <ul className="mt-2 space-y-2">
+                {spreadFactors(atm, material).factors.map((f) => (
+                  <li key={f.key} className="text-xs">
+                    <div className="flex items-baseline justify-between gap-2"><span className="text-ink">{t(f.label)}</span><span className="flex items-center gap-1.5"><strong className="tabular-nums text-ink">{f.key === "anchor" ? `${f.value.toFixed(1)} mm/s` : `×${f.value.toFixed(2)}`}</strong><span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${TAG[f.tag]}`}>{t(f.tag)}</span></span></div>
+                    <p className="text-ink-2">{t(f.why)}</p>
+                    <p className="text-[11px] text-muted">{t("Source:")} {t(f.src)}</p>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      {/* ---- conditions, material and suppression below ---- */}
+      <div className="mt-5 grid items-start gap-4 md:grid-cols-2 lg:grid-cols-3">
           {!custom ? (
             <div className="card p-4">
               <h3 className="font-semibold">{t("{env}: fixed conditions", { env: t(ENV_NAME[env]) })}</h3>
@@ -365,44 +407,6 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
           </div>
 
           <div className="card p-4">
-            <div className="flex items-baseline justify-between">
-              <h3 className="font-semibold">{t("Live data")}</h3>
-              <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${SIM}`}>{t("all values simulated")}</span>
-            </div>
-            <p className="mt-1 text-sm" aria-live="polite"><strong>{t(live ? PHASE_LABEL[live.phase] : PHASE_LABEL.idle)}</strong></p>
-            <div className="mt-2 grid grid-cols-2 gap-2">
-              <Tile label={t("Time")} value={live ? `${fmt(live.simT, 0)} s` : "—"} tag={t("simulated")} eli5={live ? t("Wall clock. The same spread would take about {m} min for real.", { m: fmt(live.realT / 60, 1) }) : t("Starts when you tap a surface.")} />
-              <Tile label={t("Spread speed")} value={live ? `${fmt(live.speedMmS, 2)} mm/s` : "—"} tag={t("simulated")} eli5={live ? `${t(live.speedNote)}.` : t("How fast the flame front eats the surface.")} />
-              <Tile label={t("Flame front")} value={live ? `${fmt(live.frontM * 100, 0)} cm` : "—"} tag={t("simulated")} eli5={t("Distance from the ignition point to the edge of the burning ring.")} />
-              <Tile label={t("Burned area")} value={live ? `${fmt(live.areaM2 * 10000, 0)} cm²` : "—"} tag={t("simulated")} eli5={t("Surface already charred or glowing. Scene units are about metres.")} />
-              <Tile label={t("Smoke / soot")} value={live ? `${live.particles}` : "—"} tag={t("simulated particles")} eli5={live ? t(atm.gravityG < 0.05 ? "No gravity: smoke hangs around the fire instead of rising." : "Gravity: smoke rises in a plume.") : t("Tiny soot grains drawn on screen.")} />
-              <Tile label={t("Burning spots")} value={live ? t("{f} flames · {c} cells", { f: live.flames, c: live.cells }) : "—"} tag={t("simulated")} eli5={t("Flames shown on the front and cells of surface already involved.")} />
-              <Tile label={t("Surfaces reached")} value={live ? `${live.surfaces}` : "—"} tag={t("simulated")} eli5={t("How many different parts of the model the fire has touched.")} />
-              <Tile label={t("Intensity")} value={live ? `${Math.round(live.intensity * 100)} %` : "—"} tag={t("simulated")} eli5={t("How alive the flame is (not a temperature).")} />
-            </div>
-            <dl className="mt-3 space-y-1 text-sm">
-              <div className="flex justify-between gap-3"><dt className="text-ink-2">{t("Detection")}</dt><dd className="text-right">{detection}<span className="block text-[11px] text-muted">{t("No dataset gives detector response times. The delay below is yours, not a measured time.")}</span></dd></div>
-              <div className="flex justify-between gap-3"><dt className="text-ink-2">{t("Extinction")}</dt><dd className="text-right">{suppression}{supTag && <span className="ml-1.5 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] text-amber-300">{supTag}</span>}</dd></div>
-              {delayMode === "auto" && ext !== "none" && live && activated === null && live.delayLeftS !== null && (
-                <div className="flex justify-between gap-3"><dt className="text-ink-2">{t("System acts in")}</dt><dd className="tabular-nums">{t("{n} s (real-equivalent)", { n: fmt(live.delayLeftS, 0) })}</dd></div>
-              )}
-            </dl>
-            <details className="mt-3 text-sm">
-              <summary className="cursor-pointer text-ink-2 hover:text-ink">{t("How is the spread speed built?")}</summary>
-              <p className="mt-1 text-xs text-muted">{t("Speed = anchor × oxygen × airflow × gravity × material. Only the anchor is measured; the rest are modelling choices, shown here so you can judge them.")}</p>
-              <ul className="mt-2 space-y-2">
-                {spreadFactors(atm, material).factors.map((f) => (
-                  <li key={f.key} className="text-xs">
-                    <div className="flex items-baseline justify-between gap-2"><span className="text-ink">{t(f.label)}</span><span className="flex items-center gap-1.5"><strong className="tabular-nums text-ink">{f.key === "anchor" ? `${f.value.toFixed(1)} mm/s` : `×${f.value.toFixed(2)}`}</strong><span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${TAG[f.tag]}`}>{t(f.tag)}</span></span></div>
-                    <p className="text-ink-2">{t(f.why)}</p>
-                    <p className="text-[11px] text-muted">{t("Source:")} {t(f.src)}</p>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          </div>
-
-          <div className="card p-4">
             <h3 className="font-semibold">{t("Fire suppression")}</h3>
             <p className="text-xs text-muted">{t("Choose how to fight this fire, then activate it. The effect is applied to the fire you started.")}</p>
             <label className="mt-3 block text-sm">
@@ -432,7 +436,6 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
             </div>
             <p className="mt-3 text-sm font-medium" aria-live="polite">{t(active || ext === "none" ? sc.headline : "Press Activate to apply it.")}</p>
           </div>
-        </div>
       </div>
 
       <div className="card mt-5 p-4">
