@@ -2,9 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import { useLang, useT } from "@/lib/i18n";
-import type { Lang } from "@/lib/data";
 import { Pending, Section } from "@/components/ui";
 
 // Fill these in when available. Anything left empty is shown as "pending", never invented.
@@ -14,10 +12,12 @@ const TEAM: { name: string; initials: string; github: string; linkedin?: string;
   { name: "Pablo Triguero", initials: "PT", github: "ptricha", linkedin: "https://www.linkedin.com/in/pablotriguerochamizo/", photo: "/team/pablo.jpg" },
 ];
 
+/** Bump when the files in /public/about are re-rendered: they are cached for 7 days, so the URL must change. */
+const VIDEO_V = 3;
+
 const T = {
   en: {
     videoLabel: "JaPax introduction video (about 70 seconds, with narration)",
-    videoLang: "Video language:",
     eyebrow: "About us",
     title: "The team behind JaPax",
     intro: "JaPax was built by two people for the NASA Space Apps Challenge 2026 (Seville), answering the challenge “Flame in Freefall”.",
@@ -51,7 +51,6 @@ const T = {
   },
   es: {
     videoLabel: "Vídeo de presentación de JaPax (unos 70 segundos, con locución)",
-    videoLang: "Idioma del vídeo:",
     eyebrow: "Sobre nosotros",
     title: "El equipo detrás de JaPax",
     intro: "JaPax lo hemos creado dos personas para el NASA Space Apps Challenge 2026 (Sevilla), respondiendo al reto “Flame in Freefall”.",
@@ -88,8 +87,7 @@ const T = {
 export default function AboutPage() {
   const t = useT(T);
   const { lang } = useLang();
-  const [pick, setPick] = useState<Lang | null>(null);
-  const vl = pick ?? lang; // follows the site language until the visitor picks a video language
+  const vl = lang; // the video always matches the site language
   return (
     <div className="pb-8">
       <div className="mx-auto max-w-6xl px-4 pt-10">
@@ -104,29 +102,16 @@ export default function AboutPage() {
       </div>
 
       <div className="mx-auto mt-8 max-w-6xl px-4">
-        <div role="group" aria-label={t.videoLang} className="mb-3 flex items-center gap-2 text-sm">
-          <span className="text-muted">{t.videoLang}</span>
-          {(["en", "es"] as const).map((l) => (
-            <button
-              key={l}
-              onClick={() => setPick(l)}
-              aria-pressed={vl === l}
-              className={`rounded-full border px-3 py-1 transition-colors ${vl === l ? "border-accent bg-accent/25 text-ink" : "border-line-2 text-ink-2 hover:text-ink"}`}
-            >
-              {l === "en" ? "English" : "Español"}
-            </button>
-          ))}
-        </div>
         <video
           key={vl}
           controls
           playsInline
           preload="metadata"
-          poster={`/about/japax-about-${vl}.jpg`}
+          poster={`/about/japax-about-${vl}.jpg?v=${VIDEO_V}`}
           className="aspect-video w-full rounded-xl border border-line-2 bg-black"
           aria-label={t.videoLabel}
         >
-          <source src={`/about/japax-about-${vl}.mp4`} type="video/mp4" />
+          <source src={`/about/japax-about-${vl}.mp4?v=${VIDEO_V}`} type="video/mp4" />
         </video>
       </div>
 
