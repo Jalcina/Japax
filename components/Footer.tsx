@@ -11,6 +11,7 @@ const T = {
     d: "page for every source and library used.",
     e: "An independent project, not affiliated with or endorsed by NASA. Every data point shows its source; anything unverified is marked as pending and never invented.",
     refs: "References",
+    about: "About us",
   },
   es: {
     a: "JaPax · NASA Space Apps Challenge 2026 · reto",
@@ -19,6 +20,7 @@ const T = {
     d: "para ver todas las fuentes y bibliotecas utilizadas.",
     e: "Un proyecto independiente, sin afiliación ni respaldo de NASA. Cada dato muestra su fuente; lo que no está verificado se marca como pendiente y nunca se inventa.",
     refs: "Referencias",
+    about: "Sobre nosotros",
   },
 };
 
@@ -39,6 +41,11 @@ export default function Footer() {
           {t.d}
         </p>
         <p className="mt-2">{t.e}</p>
+        <p className="mt-2">
+          <Link className="link" href="/about">
+            {t.about}
+          </Link>
+        </p>
       </div>
     </footer>
   );
