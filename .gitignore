@@ -49,3 +49,9 @@ data/frames/
 /data/raw/
 /data/video/
 .vercel
+
+# Internal working notes, AI prompts and review reports (not part of the product)
+/INFORME-*.txt
+/prompt_*.md
+/capturas-lab/
+/.claude/skills/jurado-nasa.md
