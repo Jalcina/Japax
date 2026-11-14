@@ -32,6 +32,7 @@ const T = {
     age: "years old",
     ageLabel: "Age",
     role: "Role",
+    roleValue: "Founder & Developer",
     bio: "Bio",
     linkedin: "LinkedIn",
     github: "GitHub",
@@ -67,6 +68,7 @@ const T = {
     age: "años",
     ageLabel: "Edad",
     role: "Rol",
+    roleValue: "Fundador y desarrollador",
     bio: "Bio",
     linkedin: "LinkedIn",
     github: "GitHub",
@@ -162,7 +164,7 @@ export default function AboutPage() {
                 </div>
                 <div className="flex items-baseline gap-2">
                   <dt className="w-14 shrink-0 text-muted">{t.role}</dt>
-                  <dd><Pending>{t.pending}</Pending></dd>
+                  <dd>{t.roleValue}</dd>
                 </div>
                 <div className="flex items-baseline gap-2">
                   <dt className="w-14 shrink-0 text-muted">{t.bio}</dt>
