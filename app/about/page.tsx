@@ -16,7 +16,7 @@ const TEAM: { name: string; initials: string; github: string; linkedin?: string;
 
 const T = {
   en: {
-    videoLabel: "JaPax introduction video (28 seconds, with sound)",
+    videoLabel: "JaPax introduction video (about 70 seconds, with narration)",
     videoLang: "Video language:",
     eyebrow: "About us",
     title: "The team behind JaPax",
@@ -49,7 +49,7 @@ const T = {
     back: "Back to home",
   },
   es: {
-    videoLabel: "Vídeo de presentación de JaPax (28 segundos, con sonido)",
+    videoLabel: "Vídeo de presentación de JaPax (unos 70 segundos, con locución)",
     videoLang: "Idioma del vídeo:",
     eyebrow: "Sobre nosotros",
     title: "El equipo detrás de JaPax",
