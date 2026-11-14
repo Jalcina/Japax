@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLang, useT } from "@/lib/i18n";
 import type { Lang } from "@/lib/data";
 import { Pending, Section } from "@/components/ui";
@@ -14,9 +14,8 @@ const TEAM: { name: string; initials: string; github: string; linkedin?: string;
   { name: "Pablo Triguero", initials: "PT", github: "ptricha", linkedin: "https://www.linkedin.com/in/pablotriguerochamizo/", photo: "/team/pablo.jpg", born: [2008, 6, 23] },
 ];
 
-/** Age in whole years today; recomputed on every visit, so it rolls over by itself on each birthday. */
-function ageOf([y, m, d]: [number, number, number]) {
-  const n = new Date();
+/** Age in whole years on the given day; the day is read in the browser after mount (not during prerender), so it rolls over by itself on each birthday. */
+function ageOf([y, m, d]: [number, number, number], n: Date) {
   return n.getFullYear() - y - (n.getMonth() + 1 < m || (n.getMonth() + 1 === m && n.getDate() < d) ? 1 : 0);
 }
 
@@ -99,6 +98,8 @@ export default function AboutPage() {
   const t = useT(T);
   const { lang } = useLang();
   const [pick, setPick] = useState<Lang | null>(null);
+  const [today, setToday] = useState<Date | null>(null);
+  useEffect(() => setToday(new Date()), []);
   const vl = pick ?? lang; // follows the site language until the visitor picks a video language
   return (
     <div className="pb-8">
@@ -160,7 +161,7 @@ export default function AboutPage() {
               <dl className="mt-4 space-y-2 text-sm">
                 <div className="flex items-baseline gap-2">
                   <dt className="w-14 shrink-0 text-muted">{t.ageLabel}</dt>
-                  <dd suppressHydrationWarning>{ageOf(m.born)} {t.age}</dd>
+                  <dd>{today ? `${ageOf(m.born, today)} ${t.age}` : " "}</dd>
                 </div>
                 <div className="flex items-baseline gap-2">
                   <dt className="w-14 shrink-0 text-muted">{t.role}</dt>
