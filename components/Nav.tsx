@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -20,6 +20,84 @@ const T = {
     hints: ["Empieza aquí", "¿Nuevo? Lo básico", "Incendios reales e historia", "Simula fuego en cualquier lugar", "Cinco lugares en 3D", "Juega con las condiciones", "Cada experimento NASA", "Prioriza lo importante", "Fuentes y licencias"],
   },
 };
+
+function Flag({ lang }: { lang: Lang }) {
+  return (
+    <svg viewBox="0 0 24 16" width="24" height="16" className="rounded-[3px]" aria-hidden="true">
+      {lang === "es" ? (
+        <>
+          <rect width="24" height="16" fill="#c60b1e" />
+          <rect y="4" width="24" height="8" fill="#ffc400" />
+        </>
+      ) : (
+        <>
+          <rect width="24" height="16" fill="#012169" />
+          <path d="M0 0l24 16M24 0 0 16" stroke="#fff" strokeWidth="3.2" />
+          <path d="M0 0l24 16M24 0 0 16" stroke="#c8102e" strokeWidth="1.2" />
+          <path d="M12 0v16M0 8h24" stroke="#fff" strokeWidth="5.2" />
+          <path d="M12 0v16M0 8h24" stroke="#c8102e" strokeWidth="3" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+const LANGS: { code: Lang; name: string }[] = [
+  { code: "en", name: "English" },
+  { code: "es", name: "Español" },
+];
+
+function LangMenu({ lang, setLang, label }: { lang: Lang; setLang: (l: Lang) => void; label: string }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative shrink-0">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        aria-label={`${label}: ${LANGS.find((l) => l.code === lang)?.name}`}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="flex h-9 w-11 items-center justify-center rounded-md border border-line-2 transition-colors hover:border-ink-2"
+      >
+        <Flag lang={lang} />
+      </button>
+      {open && (
+        <ul role="menu" className="absolute left-0 top-full z-50 mt-2 min-w-36 overflow-hidden rounded-lg border border-line-2 bg-surface p-1 shadow-xl">
+          {LANGS.map((l) => (
+            <li key={l.code} role="none">
+              <button
+                role="menuitemradio"
+                aria-checked={l.code === lang}
+                onClick={() => {
+                  setLang(l.code);
+                  setOpen(false);
+                }}
+                className={`flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm ${l.code === lang ? "bg-surface-2 text-ink" : "text-ink-2 hover:bg-surface-2 hover:text-ink"}`}
+              >
+                <Flag lang={l.code} />
+                {l.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 export default function Nav() {
   const path = usePathname();
@@ -60,21 +138,7 @@ export default function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-bg/85 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4">
-        <div className="relative h-9 w-9 shrink-0" title="English · Español">
-          <svg className="pointer-events-none absolute inset-0 m-auto text-ink-2" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18" />
-          </svg>
-          <select
-            value={lang}
-            onChange={(e) => setLang(e.target.value as Lang)}
-            aria-label={t.language}
-            className="absolute inset-0 h-full w-full cursor-pointer appearance-none rounded-md border border-line-2 bg-transparent text-transparent transition-colors hover:border-ink-2"
-          >
-            <option value="en" className="bg-surface text-ink">English</option>
-            <option value="es" className="bg-surface text-ink">Español</option>
-          </select>
-        </div>
+        <LangMenu lang={lang} setLang={setLang} label={t.language} />
         <Link href="/" className="flex shrink-0 items-center gap-2 text-lg font-semibold tracking-tight">
           <Image src="/brand/japax-isotipo.png" alt="" width={321} height={584} className="h-7 w-auto" priority />
           JaPax
