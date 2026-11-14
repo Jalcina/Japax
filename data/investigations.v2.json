@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-14T13:10:18.539Z",
+  "generatedAt": "2026-11-14T18:36:43.683Z",
   "sources": {
     "GUIDE": {
       "label": "A Researcher's Guide to Combustion Science (NASA, 2015)",
@@ -36,6 +36,10 @@
     "NTRS": {
       "label": "NASA Technical Reports Server (NTRS)",
       "url": "https://ntrs.nasa.gov"
+    },
+    "MARSFACT": {
+      "label": "NASA Planetary Fact Sheet: Mars (surface gravity about 0.38 g)",
+      "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html"
     }
   },
   "investigations": [
@@ -6448,6 +6452,16 @@
       "gravityG": 0.166,
       "src": "CHALLENGE",
       "note": "30% O2 or more at 10.2 psi or less (challenge statement). FM2 will test 21% O2 at 14.7 psia and 34% O2 at 8.2 psia, atmospheres of interest to the Human Landing System and Lunar Rover (NASA NTRS 20240015307). Lunar gravity: no data in PSI; LUCI reported first simulated-lunar-gravity burns in 2025."
+    },
+    {
+      "id": "mars-habitat",
+      "name": "Mars base (habitat)",
+      "o2": 0.3,
+      "pressureAtm": 0.694,
+      "pressurePsi": 10.2,
+      "gravityG": 0.38,
+      "src": "MARSFACT",
+      "note": "ESTIMATED, not measured. Gravity is Mars surface gravity, about 0.38 g (NASA Mars Fact Sheet). No Mars-specific habitat atmosphere is published in the sources used here, so the cabin atmosphere is ASSUMED equal to the planned lunar-base atmosphere (30% O2 at 10.2 psi, challenge statement). The thin CO2 air outside (about 0.13% O2) is not a place a flame could burn. No partial-gravity combustion data exist yet; see the Lunar base."
     },
     {
       "id": "suit",

@@ -340,6 +340,10 @@
       "name": "Base lunar (hábitat)",
       "note": "30% de O2 o más a 10,2 psi o menos (enunciado del reto). FM2 ensayará 21% de O2 a 14,7 psia y 34% de O2 a 8,2 psia, atmósferas de interés para el Human Landing System y el Lunar Rover (NASA NTRS 20240015307). Gravedad lunar: sin datos en PSI; LUCI comunicó en 2025 las primeras combustiones en gravedad lunar simulada."
     },
+    "mars-habitat": {
+      "name": "Base marciana (hábitat)",
+      "note": "ESTIMADO, no medido. La gravedad es la de la superficie de Marte, de unos 0,38 g (hoja de datos planetarios de NASA). Las fuentes usadas aquí no publican ninguna atmósfera de hábitat específica para Marte, así que se ASUME la misma que la de la base lunar prevista (30% de O2 a 10,2 psi, enunciado del reto). El aire fino de CO2 del exterior (alrededor de 0,13% de O2) no es un lugar donde pueda arder una llama. Aún no hay datos de combustión en gravedad parcial; véase la base lunar."
+    },
     "suit": {
       "name": "Traje espacial"
     }

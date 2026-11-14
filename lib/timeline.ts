@@ -282,8 +282,8 @@ export const TIMELINE: TimelineEvent[] = [
   },
   {
     id: 'next-moon', year: null, when: { en: 'Next', es: 'Próximamente' }, cat: 'next',
-    en: { title: 'The first fire experiments in lunar gravity', text: 'FM2 will burn materials such as SIBAL on the Moon at 1/6 g, LUCI will measure partial-gravity combustion, SoFIE will test whether the 1-g flame test is conservative, and FLARE will relate ground limits to microgravity. Today, PSI holds zero partial-gravity data.' },
-    es: { title: 'Los primeros experimentos de fuego en gravedad lunar', text: 'FM2 quemará materiales como SIBAL en la Luna a 1/6 g, LUCI medirá la combustión en gravedad parcial, SoFIE comprobará si el test de llama de 1 g es conservador y FLARE relacionará los límites de tierra con la microgravedad. Hoy, PSI no tiene ningún dato de gravedad parcial.' },
+    en: { title: 'The first fire experiments in lunar gravity', text: 'FM2 will burn materials such as SIBAL on the Moon at 1/6 g, LUCI (2025) gave the first limited partial-gravity data, SoFIE will test whether the 1-g flame test is conservative, and FLARE will relate ground limits to microgravity. Today, PSI holds zero partial-gravity data.' },
+    es: { title: 'Los primeros experimentos de fuego en gravedad lunar', text: 'FM2 quemará materiales como SIBAL en la Luna a 1/6 g, LUCI (2025) aportó los primeros datos limitados de gravedad parcial, SoFIE comprobará si el test de llama de 1 g es conservador y FLARE relacionará los límites de tierra con la microgravedad. Hoy, PSI no tiene ningún dato de gravedad parcial.' },
     src: GLENN,
     link: { href: '/simulator', en: 'See what the Moon would change', es: 'Mira qué cambiaría en la Luna' },
   },

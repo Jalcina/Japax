@@ -33,6 +33,11 @@ const num = s => {
   return Number(t)
 }
 const txt = s => ((s ?? '').trim() || null)
+// Numero con unidad o prefijo ("145 s", "20 cm/s", "~ 21.5", ".33 cm"): primer numero del texto, o null.
+const numU = s => {
+  const m = /-?\d*\.?\d+/.exec((s ?? '').replace(/^[~\s]+/, ''))
+  return m ? Number(m[0]) : null
+}
 
 // ---------- FLEX (PSI-69) ----------
 const flex = await readCsv('PSI-69_Experimental table_FLEX.csv')
@@ -78,7 +83,7 @@ const cfigNRows = cfigN.rows.map(r => ({
   o2After: num(r[cn('XO2  after')]),
   pressureBar: num(r[cn('approx p (bar)')]),
   fuelMoleFrac: num(r[cn('Xf')]),
-  burnRateMgS: num(r[cn('mHC')]),
+  fuelFeedRateMgS: num(r[cn('mHC')]), // caudal de hidrocarburo ALIMENTADO (entrada del experimento), no un resultado medido
   hotIgnition: txt(r[cn('Hot ignition')]),
   burnTimeSec: num(r[cn('burn time')]),
   selfExt: txt(r[cn('Self-ext')]),
@@ -93,7 +98,7 @@ const cfigIRows = cfigI.rows.map(r => ({
   fuel: txt(r[ci('Fuel')]),
   o2: num(r[ci('XO2')]),
   pressureBar: num(r[ci('approx p (bar)')]),
-  burnRateMgS: num(r[ci('HC burnrate')]),
+  fuelFeedRateMgS: num(r[ci('HC burnrate')]), // cabecera PSI "HC burnrate (mg/s)": tasa fijada en el quemador, no medida
   hotIgnition: txt(r[ci('Hot ignition')]),
   burnTimeSec: num(r[ci('burn time')]),
   selfExt: txt(r[ci('Self -ext')]),
@@ -117,14 +122,21 @@ const cfiRows = cfi.rows.map(r => ({
 // ---------- SPICE (PSI-107) ----------
 const spice = await readCsv('PSI-107_Experimental table_Spice.csv')
 const sp_i = n => spice.head.findIndex(h => h.trim().startsWith(n))
-const spiceRows = spice.rows.map(r => ({
+const spiceSeen = new Set()
+const spiceRows = spice.rows.map(r => {
+  const key = r.join('|')
+  const duplicate = spiceSeen.has(key) // fila identica a una anterior en la tabla de PSI; se marca, no se borra (conserva las 469 filas publicadas)
+  spiceSeen.add(key)
+  return { duplicate, ...spiceRow(r) }
+})
+function spiceRow(r) { return ({
   date: txt(r[sp_i('GMT date')]),
   fuel: txt(r[sp_i('Fuel')]),
   nozzleMm: num(r[sp_i('Nozzle (mm)')]),
   fuelRateSccm: num(r[sp_i('Fuel Rate (sccm)')]),
   fuelRateMgS: num(r[sp_i('Fuel Rate (mg/s)')]),
   airRateCmS: num(r[sp_i('Air Rate (cm/s)')]),
-}))
+}) }
 
 // ---------- SAME-R (PSI-101) ----------
 const samer = await readCsv('PSI-101_Experimental table_SAME-R.csv')
@@ -191,13 +203,64 @@ const saff1Rows = saff1.rows.map(r => ({
 // ---------- SAFFIRE-II (PSI-99) ----------
 const saff2 = await readCsv('PSI-99_Experimental table_SAFFIRE-2.csv')
 const s2_i = n => saff2.head.findIndex(h => h.trim().startsWith(n))
-const saff2Rows = saff2.rows.map(r => ({
+// Las columnas "?-g Burn Length" y "?-g Spread Length" pierden el simbolo micro en el export de PSI.
+// La 2a contiene tasas en mm/s (confirmado contra Urban et al., NTRS 20180005168, Tabla 1: "ug Spread Rate").
+const s2_re = re => saff2.head.findIndex(h => re.test(h))
+const S2 = {
+  ugBurn: s2_re(/-g Burn Length/), ugRate: s2_re(/-g Spread Length/),
+  g1Burn: s2_re(/^1-g Burn Length/), g1Rate: s2_re(/^1-g Spread Rate/),
+}
+if (Object.values(S2).some(v => v < 0)) throw new Error('SAFFIRE-II: columna no encontrada ' + JSON.stringify(S2))
+const saff2Rows = saff2.rows.filter(r => /^2-\d/.test(r[0] ?? '')).map(r => ({
   sample: txt(r[s2_i('Sample Number')]),
   material: (txt(r[s2_i('Material')]) ?? '').replace(/\s+/g, ' '),
-  airFlowCmS: num(r[s2_i('Air Flow')]),
-  o2Pct: num(r[s2_i('Percent O2')]),
-  burnTimeSec: num(r[s2_i('Burn Time')]),
+  thicknessText: txt(r[s2_i('Samle Thickness')]),
+  airFlowCmS: numU(r[s2_i('Air Flow')]),
+  o2PctText: txt(r[s2_i('Percent O2')]),
+  burnTimeText: txt(r[s2_i('Burn Time')]),
+  burnTimeSec: numU(r[s2_i('Burn Time')]),
+  direction: txt(r[s2_i('Flow Direction')]),
+  ugBurnLength: txt(r[S2.ugBurn]),
+  ugSpreadRateMmS: /mm\/s/.test(r[S2.ugRate] ?? '') ? numU(r[S2.ugRate]) : null,
+  ugSpreadRateText: txt(r[S2.ugRate]),
+  g1BurnLength: txt(r[S2.g1Burn]),
+  g1SpreadRateMmS: /mm\/s/.test(r[S2.g1Rate] ?? '') ? numU(r[S2.g1Rate]) : null,
+  g1SpreadRateText: txt(r[S2.g1Rate]),
 }))
+
+// ---------- Tablas pequenas (filas en bruto, cabecera -> texto) ----------
+// Sin inferir numeros: son tablas de diseno/inventario; los valores se muestran tal cual los publica PSI.
+async function rawTable(file, keep = () => true) {
+  const t = await readCsv(file)
+  const head = t.head.map(h => h.replace(/\s+/g, ' ').trim())
+  return t.rows
+    .filter(r => r.some(c => c.trim() !== '') && keep(r))
+    .map(r => Object.fromEntries(head.map((h, i) => [h, (r[i] ?? '').replace(/\s+/g, ' ').trim() || null])))
+}
+const small = {
+  saffire3: { psiId: 'PSI-100', doi: '10.60555/040q-4h36', file: 'PSI-100_Experimental table_SAFFIRE-3.csv', keep: r => /^S\d/.test(r[0]),
+    note: 'Spacecraft Fire Experiment III. The PSI table lists conditions only; results (e.g. spread rates) are in the NASA publication, not in this table.' },
+  same: { psiId: 'PSI-102', doi: '10.60555/gd4k-8h62', file: 'PSI-102_Experimental table_SAME.csv',
+    note: 'Smoke Aerosol Measurement Experiment. Only the Teflon rows carry values; the other rows say "same conditions as 1-4".' },
+  daft: { psiId: 'PSI-47', doi: '10.60555/ztgj-d202', file: 'PSI-47_Experimental table_DAFT.csv',
+    note: 'Two sessions of smoke-sensor tests on the ISS (2005); description of tests, no performance figures.' },
+  slice: { psiId: 'PSI-106', doi: '10.60555/pm12-rg61', file: 'PSI-106_Experimental table_Slice.csv',
+    note: 'Test dates and fuel mixtures only. Some rows are notes (calibrations), not tests.' },
+  acmeBre: { psiId: 'PSI-20', doi: '10.60555/vb93-3y72', file: 'PSI-20_Experimental table_ACME BRE.csv',
+    note: 'Flames ignited per day. Oxygen is a text list; some cells contain typos ("3400%", "2100%").' },
+  acmeCld: { psiId: 'PSI-21', doi: '10.60555/23e1-9950', file: 'PSI-21_Experimental table_CLD Flame.csv',
+    note: 'Flames ignited per test day. Fuel-bottle names look auto-numbered (e.g. "40% CH5").' },
+  acmeEfield: { psiId: 'PSI-22', doi: '10.60555/se5a-8c73', file: 'PSI-22_Experimental table_ACME E-FIELD Flames.csv', keep: r => (r[1] ?? '').trim() !== '',
+    note: 'Electric-field flames: an analogue of partial gravity, not real partial gravity. Counts of flames ignited only.' },
+  flex2: { psiId: 'PSI-68', doi: '10.60555/byp8-h018', file: 'PSI-68_Experimental table_Flex2.csv',
+    note: 'FLEX-2 test PLAN (ranges), not results.' },
+}
+const smallOut = {}
+for (const [k, s] of Object.entries(small)) {
+  const rows = await rawTable(s.file, s.keep)
+  smallOut[k] = { psiId: s.psiId, doi: s.doi, license: 'CC0-1.0', file: s.file, note: s.note, rows }
+  console.log(`${s.psiId} ${k}: ${rows.length} rows`)
+}
 
 // ---------- verificaciones ----------
 const bad = flexRows.filter(r => r.o2 == null || r.pAtm == null || !r.end || !r.fuel)
@@ -288,6 +351,7 @@ const out = {
     note: 'Spacecraft Fire Experiment II. 9 materials tested simultaneously.',
     rows: saff2Rows,
   },
+  ...smallOut,
 }
 
 await writeFile(OUT, JSON.stringify(out))
