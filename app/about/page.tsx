@@ -9,10 +9,16 @@ import { Pending, Section } from "@/components/ui";
 
 // Fill these in when available. Anything left empty is shown as "pending", never invented.
 // Photos: put a file in /public/team/ and set `photo` (e.g. "/team/jaime.jpg").
-const TEAM: { name: string; initials: string; github: string; linkedin?: string; photo?: string }[] = [
-  { name: "Jaime Alcina", initials: "JA", github: "Jalcina" },
-  { name: "Pablo", initials: "P", github: "ptricha" },
+const TEAM: { name: string; initials: string; github: string; linkedin?: string; photo?: string; born: [number, number, number] }[] = [
+  { name: "Jaime Alcina", initials: "JA", github: "Jalcina", linkedin: "https://www.linkedin.com/in/jaimealcina/", photo: "/team/jaime.jpg", born: [2007, 3, 12] },
+  { name: "Pablo Triguero", initials: "PT", github: "ptricha", linkedin: "https://www.linkedin.com/in/pablotriguerochamizo/", photo: "/team/pablo.jpg", born: [2008, 6, 23] },
 ];
+
+/** Age in whole years today; recomputed on every visit, so it rolls over by itself on each birthday. */
+function ageOf([y, m, d]: [number, number, number]) {
+  const n = new Date();
+  return n.getFullYear() - y - (n.getMonth() + 1 < m || (n.getMonth() + 1 === m && n.getDate() < d) ? 1 : 0);
+}
 
 const T = {
   en: {
@@ -23,6 +29,8 @@ const T = {
     intro: "JaPax was built by two people for the NASA Space Apps Challenge 2026 (Seville), answering the challenge “Flame in Freefall”.",
     teamEyebrow: "The creators",
     teamTitle: "Jaime and Pablo",
+    age: "years old",
+    ageLabel: "Age",
     role: "Role",
     bio: "Bio",
     linkedin: "LinkedIn",
@@ -56,6 +64,8 @@ const T = {
     intro: "JaPax lo hemos creado dos personas para el NASA Space Apps Challenge 2026 (Sevilla), respondiendo al reto “Flame in Freefall”.",
     teamEyebrow: "Los creadores",
     teamTitle: "Jaime y Pablo",
+    age: "años",
+    ageLabel: "Edad",
     role: "Rol",
     bio: "Bio",
     linkedin: "LinkedIn",
@@ -134,9 +144,9 @@ export default function AboutPage() {
             <article key={m.github} className="card p-5">
               <div className="flex items-center gap-4">
                 {m.photo ? (
-                  <Image src={m.photo} alt={m.name} width={72} height={72} className="h-[72px] w-[72px] rounded-full object-cover" />
+                  <Image src={m.photo} alt={m.name} width={96} height={96} className="h-24 w-24 rounded-full border border-line-2 object-cover" />
                 ) : (
-                  <div className="flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-full border border-line-2 bg-surface-2 text-xl font-semibold text-ink-2" aria-hidden="true">
+                  <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-line-2 bg-surface-2 text-xl font-semibold text-ink-2" aria-hidden="true">
                     {m.initials}
                   </div>
                 )}
@@ -146,6 +156,10 @@ export default function AboutPage() {
                 </div>
               </div>
               <dl className="mt-4 space-y-2 text-sm">
+                <div className="flex items-baseline gap-2">
+                  <dt className="w-14 shrink-0 text-muted">{t.ageLabel}</dt>
+                  <dd suppressHydrationWarning>{ageOf(m.born)} {t.age}</dd>
+                </div>
                 <div className="flex items-baseline gap-2">
                   <dt className="w-14 shrink-0 text-muted">{t.role}</dt>
                   <dd><Pending>{t.pending}</Pending></dd>
