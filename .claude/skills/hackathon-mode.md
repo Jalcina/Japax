@@ -26,7 +26,7 @@ description: Activate during hackathon to get maximum speed, minimal explanation
 ## Orden de prioridad en el hackathon
 1. URL de Vercel funcionando (aunque esté vacío)
 2. Environment Comparator con datos reales
-3. Investigation Explorer con 20 investigaciones
+3. Investigation Explorer con 19 investigaciones
 4. Ask the Data con Claude
 5. Video frame analysis (bonus si hay tiempo)
 6. Pulir diseño

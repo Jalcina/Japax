@@ -196,7 +196,7 @@ Gracias al `CLAUDE.md` del proyecto, Claude sabe desde el primer mensaje:
 
 - Qué es JaPax y para qué sirve
 - Stack: Next.js 16, TypeScript, Tailwind CSS 4, Claude API
-- Los 20 datasets NASA con sus PSI IDs y DOIs
+- Los 19 datasets NASA con sus PSI IDs y DOIs
 - Que Luna Base es 40% más inflamable que la Tierra
 - Que los datos de gravedad parcial son muy limitados (PSI no tiene ninguno; LUCI 2025 aportó los primeros)
 - Los 5 criterios del jurado (Impact, Creativity, Validity, Relevance, Presentation)
@@ -208,7 +208,7 @@ Gracias al `CLAUDE.md` del proyecto, Claude sabe desde el primer mensaje:
 
 1. **URL de Vercel funcionando** — el jurado necesita una URL pública
 2. **Comparador de entornos** — Tierra vs ISS vs Luna vs Marte
-3. **Investigation Explorer** — explorar los 20 datasets NASA
+3. **Investigation Explorer** — explorar los 19 datasets NASA
 4. **Ask the Data** — chat con Claude que cita investigaciones PSI
 5. *(opcional)* Análisis de vídeos con Claude Vision
 

@@ -2,22 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLang, useT } from "@/lib/i18n";
 import type { Lang } from "@/lib/data";
 import { Pending, Section } from "@/components/ui";
 
 // Fill these in when available. Anything left empty is shown as "pending", never invented.
 // Photos: put a file in /public/team/ and set `photo` (e.g. "/team/jaime.jpg").
-const TEAM: { name: string; initials: string; github: string; linkedin?: string; photo?: string; born: [number, number, number] }[] = [
-  { name: "Jaime Alcina", initials: "JA", github: "Jalcina", linkedin: "https://www.linkedin.com/in/jaimealcina/", photo: "/team/jaime.jpg", born: [2007, 3, 12] },
-  { name: "Pablo Triguero", initials: "PT", github: "ptricha", linkedin: "https://www.linkedin.com/in/pablotriguerochamizo/", photo: "/team/pablo.jpg", born: [2008, 6, 23] },
+const TEAM: { name: string; initials: string; github: string; linkedin?: string; photo?: string }[] = [
+  { name: "Jaime Alcina", initials: "JA", github: "Jalcina", linkedin: "https://www.linkedin.com/in/jaimealcina/", photo: "/team/jaime.jpg" },
+  { name: "Pablo Triguero", initials: "PT", github: "ptricha", linkedin: "https://www.linkedin.com/in/pablotriguerochamizo/", photo: "/team/pablo.jpg" },
 ];
-
-/** Age in whole years on the given day; the day is read in the browser after mount (not during prerender), so it rolls over by itself on each birthday. */
-function ageOf([y, m, d]: [number, number, number], n: Date) {
-  return n.getFullYear() - y - (n.getMonth() + 1 < m || (n.getMonth() + 1 === m && n.getDate() < d) ? 1 : 0);
-}
 
 const T = {
   en: {
@@ -28,8 +23,6 @@ const T = {
     intro: "JaPax was built by two people for the NASA Space Apps Challenge 2026 (Seville), answering the challenge “Flame in Freefall”.",
     teamEyebrow: "The creators",
     teamTitle: "Jaime and Pablo",
-    age: "years old",
-    ageLabel: "Age",
     role: "Role",
     roleValue: "Founder & Developer",
     bio: "Bio",
@@ -64,8 +57,6 @@ const T = {
     intro: "JaPax lo hemos creado dos personas para el NASA Space Apps Challenge 2026 (Sevilla), respondiendo al reto “Flame in Freefall”.",
     teamEyebrow: "Los creadores",
     teamTitle: "Jaime y Pablo",
-    age: "años",
-    ageLabel: "Edad",
     role: "Rol",
     roleValue: "Fundador y desarrollador",
     bio: "Bio",
@@ -98,8 +89,6 @@ export default function AboutPage() {
   const t = useT(T);
   const { lang } = useLang();
   const [pick, setPick] = useState<Lang | null>(null);
-  const [today, setToday] = useState<Date | null>(null);
-  useEffect(() => setToday(new Date()), []);
   const vl = pick ?? lang; // follows the site language until the visitor picks a video language
   return (
     <div className="pb-8">
@@ -159,10 +148,6 @@ export default function AboutPage() {
                 </div>
               </div>
               <dl className="mt-4 space-y-2 text-sm">
-                <div className="flex items-baseline gap-2">
-                  <dt className="w-14 shrink-0 text-muted">{t.ageLabel}</dt>
-                  <dd>{today ? `${ageOf(m.born, today)} ${t.age}` : " "}</dd>
-                </div>
                 <div className="flex items-baseline gap-2">
                   <dt className="w-14 shrink-0 text-muted">{t.role}</dt>
                   <dd>{t.roleValue}</dd>

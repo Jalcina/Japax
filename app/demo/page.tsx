@@ -9,7 +9,7 @@ const DURATION = 30;
 const SCENES = [
   { from: 0, to: 6, line: "In 1967, a cabin fire in pure oxygen took three Apollo 1 astronauts. Fire is the one thing a crew cannot outrun." },
   { from: 6, to: 12, line: "In space, flames change: no gravity, no convection. They turn round, blue and strange, and nobody could predict them." },
-  { from: 12, to: 19, line: "So NASA burned things on the space station. I read 20 investigations, up to 274 tests in a single one." },
+  { from: 12, to: 19, line: "So NASA burned things on the space station. I read 19 investigations, up to 274 tests in a single one." },
   { from: 19, to: 25, line: "Moon bases will have more oxygen and lunar gravity. But there is no partial-gravity fire data yet. That gap is the real risk." },
   { from: 25, to: 30, line: "JaPax turns it all into clear answers. Simulate it, explore it, or just ask me!" },
 ] as const;
@@ -42,7 +42,7 @@ function Visual({ i, local }: { i: number; local: number }) {
     const k = Math.min(1, local * 1.6);
     return (
       <div className="flex gap-10 text-center">
-        {[["20", "NASA investigations"], ["274", "FLEX extinction tests"], ["129", "BASS-II tests on the ISS"]].map(([n, l]) => (
+        {[["19", "NASA investigations"], ["274", "FLEX extinction tests"], ["129", "BASS-II tests on the ISS"]].map(([n, l]) => (
           <div key={l}><p className="text-6xl font-bold text-accent">{Math.round(Number(n) * k)}</p><p className="mt-1 text-sm text-ink-2">{l}</p></div>
         ))}
       </div>
