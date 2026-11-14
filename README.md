@@ -47,3 +47,7 @@ See [DEPLOY.md](DEPLOY.md) to publish on Vercel.
 Next.js 16 (App Router, TypeScript), Tailwind CSS 4, three.js (WebGL 3D flame lab and simulator, with an automatic 2D fallback), hand-written SVG charts, Anthropic SDK (optional). Full list in the in-app **References** page.
 
 JaPax is an independent project and is not affiliated with or endorsed by NASA.
+
+## License
+
+© 2026 JaPax by Jaime Alcina & Pablo Triguero. Original code and design are released under the [Apache License 2.0](LICENSE). NASA data (PSI / NTRS) is public and is not covered by this license. JaPax is an independent project, not affiliated with or endorsed by NASA.

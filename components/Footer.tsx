@@ -12,6 +12,7 @@ const T = {
     e: "An independent project, not affiliated with or endorsed by NASA. Every data point shows its source; anything unverified is marked as pending and never invented.",
     refs: "References",
     about: "About us",
+    license: "Original code and design under the Apache 2.0 license. NASA data remains public domain.",
   },
   es: {
     a: "JaPax · NASA Space Apps Challenge 2026 · reto",
@@ -21,6 +22,7 @@ const T = {
     e: "Un proyecto independiente, sin afiliación ni respaldo de NASA. Cada dato muestra su fuente; lo que no está verificado se marca como pendiente y nunca se inventa.",
     refs: "Referencias",
     about: "Sobre nosotros",
+    license: "Código y diseño originales bajo licencia Apache 2.0. Los datos de NASA siguen siendo de dominio público.",
   },
 };
 
@@ -41,6 +43,9 @@ export default function Footer() {
           {t.d}
         </p>
         <p className="mt-2">{t.e}</p>
+        <p className="mt-2">
+          © 2026 JaPax by Jaime Alcina &amp; Pablo Triguero. {t.license}
+        </p>
         <p className="mt-2">
           <Link className="link" href="/about">
             {t.about}
