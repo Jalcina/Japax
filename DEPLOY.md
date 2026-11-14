@@ -23,6 +23,7 @@ vercel --prod           # redeploy after adding the key
 
 - [ ] Public URL opens `/`, `/explorer`, `/simulator`, `/dashboard`, `/ask`, `/references`.
 - [ ] `/ask` answers a question with citations.
+- [ ] Third-party licenses and attribution audit done: see `TODO-PRE-SUBMISSION.md`.
 - [ ] The References field of the submission form lists everything on the in-app `/references` page.
 - [ ] Demo uploaded: max 7 slides OR a video of max 30 seconds, in English (or English subtitles).
 - [ ] All team members are registered for the same local event (max 6).
