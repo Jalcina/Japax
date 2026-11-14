@@ -263,14 +263,9 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
         <div className="flex flex-col">
           <div className="relative lg:min-h-[66vh] lg:flex-1" role="region" aria-label={t("Interactive 3D scene. Tap a surface to start a fire; or use the button below the scene to start one at the centre of the view.")}>
             <ImmersiveScene env={env as ImmersiveEnv} wide overview={view === "overview"} onReady={onReady} onPick={onPick} className="h-[52vh] min-h-[320px] lg:absolute lg:inset-0 lg:h-full" />
-            {ready && !lit && view === "site" && (
+            {ready && !lit && (
               <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center px-3">
                 <span className="rounded-full bg-black/65 px-4 py-2 text-center text-sm text-white backdrop-blur">{t("Tap a panel, cable, fabric or piece of equipment to start a fire there")}</span>
-              </div>
-            )}
-            {view === "overview" && ready && (
-              <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center px-3">
-                <span className="rounded-full bg-black/65 px-4 py-2 text-center text-sm text-white backdrop-blur">{t("Whole-place view for orientation. Switch to “Fire site” to start a fire.")}</span>
               </div>
             )}
             {lit && (
@@ -293,7 +288,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
                 <button onClick={() => switchView("overview")} aria-pressed={view === "overview"} className={`rounded-lg border px-3 py-1.5 ${view === "overview" ? "border-accent bg-accent/15" : "border-line-2 text-ink-2 hover:text-ink"}`}>{t(env === "iss" ? "Whole station" : "Whole Earth")}</button>
               </div>
             )}
-            <button onClick={igniteCentre} disabled={!ready || view === "overview"} className="rounded-lg border border-line-2 px-3 py-1.5 text-ink-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-40">{t("Start a fire at the centre of the view")}</button>
+            <button onClick={igniteCentre} disabled={!ready} className="rounded-lg border border-line-2 px-3 py-1.5 text-ink-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-40">{t("Start a fire at the centre of the view")}</button>
             <span className="text-xs text-muted">{t("No mouse or touch? Frame the view first, then use this button.")}</span>
           </div>
 

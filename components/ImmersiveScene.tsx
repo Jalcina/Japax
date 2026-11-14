@@ -51,6 +51,8 @@ type Built = {
   bloom: [number, number, number]; // strength, radius, threshold
   exposure: number;
   shadows?: boolean;
+  /** freeze any slow motion of the scene (a fire started by touch must stay on the part that was touched) */
+  pin?: () => void;
   /** where the fire burns in this place, and where the camera goes to look at it */
   fire?: { pos: [number, number, number]; scale: number; mount: FireMount; light?: number; bloom?: number; cam: { pos: [number, number, number]; target: [number, number, number] } };
 };
@@ -67,8 +69,10 @@ async function buildEarth({ scene }: Ctx): Promise<Built> {
   scene.add(sun);
   const { group, earth, clouds } = await makeEarth(5);
   scene.add(group);
+  let pinned = false;
   return {
-    update: (dt) => { earth.rotation.y += dt * 0.04; clouds.rotation.y += dt * 0.052; },
+    update: (dt) => { if (pinned) return; earth.rotation.y += dt * 0.04; clouds.rotation.y += dt * 0.052; },
+    pin: () => { pinned = true; },
     cam: { pos: [0, 2.5, 15], target: [0, 0, 0], min: 7.5, max: 40, autoRotate: 0.25 },
     bloom: [0.3, 0.6, 0.85], exposure: 1.05,
   };
@@ -195,9 +199,11 @@ async function buildIss({ scene, progress }: Ctx): Promise<Built> {
   m.position.y -= new THREE.Box3().setFromObject(m).getCenter(new THREE.Vector3()).y;
   shade(m, 0.6);
   scene.add(m);
+  let pinned = false;
 
   return {
-    update: (dt, t) => { m.rotation.y = t * 0.03; m.rotation.z = Math.sin(t * 0.05) * 0.03; earth.earth.rotation.y += dt * 0.006; earth.clouds.rotation.y += dt * 0.008; },
+    update: (dt, t) => { if (!pinned) { m.rotation.y = t * 0.03; m.rotation.z = Math.sin(t * 0.05) * 0.03; } earth.earth.rotation.y += dt * 0.006; earth.clouds.rotation.y += dt * 0.008; },
+    pin: () => { pinned = true; },
     cam: { pos: [19, 3, 27], target: [0, -3.5, 0], min: 8, max: 120, autoRotate: 0.18 },
     bloom: [0.32, 0.6, 0.9], exposure: 1.0, shadows: true,
   };
@@ -636,10 +642,11 @@ export default function ImmersiveScene({ env, fire, className = "h-[68vh] min-h-
     const onUp = (e: PointerEvent) => {
       const d = down; down = null;
       const cb = pickRef.current;
-      if (!d || !cb || !built?.fire || Math.hypot(e.clientX - d.x, e.clientY - d.y) > 6 || performance.now() - d.t > 500) return;
+      if (!d || !cb || !(built?.fire || wide) || Math.hypot(e.clientX - d.x, e.clientY - d.y) > 6 || performance.now() - d.t > 500) return;
       const hit = hitAt(e.clientX, e.clientY);
       if (!hit) return;
       hf?.group.position.copy(hit.point);
+      built?.pin?.();
       cb([hit.point.x, hit.point.y, hit.point.z], { normal: [hit.normal.x, hit.normal.y, hit.normal.z], name: hit.name });
     };
     renderer.domElement.addEventListener("pointerdown", onDown);
