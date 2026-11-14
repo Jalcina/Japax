@@ -14,6 +14,7 @@ const TEAM: { name: string; initials: string; github: string; linkedin?: string;
 
 const T = {
   en: {
+    videoLabel: "JaPax introduction video (36 seconds, in English)",
     eyebrow: "About us",
     title: "The team behind JaPax",
     intro: "JaPax was built by two people for the NASA Space Apps Challenge 2026 (Seville), answering the challenge “Flame in Freefall”.",
@@ -45,6 +46,7 @@ const T = {
     back: "Back to home",
   },
   es: {
+    videoLabel: "Vídeo de presentación de JaPax (36 segundos, en inglés)",
     eyebrow: "Sobre nosotros",
     title: "El equipo detrás de JaPax",
     intro: "JaPax lo hemos creado dos personas para el NASA Space Apps Challenge 2026 (Sevilla), respondiendo al reto “Flame in Freefall”.",
@@ -90,6 +92,19 @@ export default function AboutPage() {
           </div>
         </div>
         <p className="mt-4 max-w-3xl text-ink-2">{t.intro}</p>
+      </div>
+
+      <div className="mx-auto mt-8 max-w-6xl px-4">
+        <video
+          controls
+          playsInline
+          preload="metadata"
+          poster="/about/japax-about-poster.jpg"
+          className="aspect-video w-full rounded-xl border border-line-2 bg-black"
+          aria-label={t.videoLabel}
+        >
+          <source src="/about/japax-about.mp4" type="video/mp4" />
+        </video>
       </div>
 
       <Section eyebrow={t.teamEyebrow} title={t.teamTitle}>
