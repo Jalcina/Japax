@@ -156,6 +156,7 @@ const ES: Record<string, string> = {
   "Activate": "Activar",
   "Cancel": "Cancelar",
   "Press Activate to apply it.": "Pulsa Activar para aplicarlo.",
+  "Start a fire first: tap a surface in the 3D scene, then Activate unlocks.": "Primero inicia un fuego: toca una superficie de la escena 3D y Activar se desbloquea.",
   "Why is this happening?": "¿Por qué ocurre esto?",
   "Each statement carries its evidence tag and source. Counts for CO₂ and helium come from measured FLEX droplet tests (PSI-69, DOI 10.60555/mbq8-0451, 274 tests); FLEX burned droplets, not fabric, plastic or cables.": "Cada afirmación lleva su etiqueta de evidencia y su fuente. Los recuentos de CO₂ y helio salen de ensayos medidos de gotas de FLEX (PSI-69, DOI 10.60555/mbq8-0451, 274 ensayos); FLEX quemó gotas, no tela, plástico ni cables.",
   "ELI5:": "Explicado fácil:",

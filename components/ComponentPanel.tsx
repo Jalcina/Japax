@@ -504,6 +504,11 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
 
       <h4 className="mt-3 text-sm font-semibold">Measures</h4>
       <p className="text-[11px] text-muted">Applied at the current simulated time. Every measure here is an engineering proposal (hypothesis); none has test data for this model.</p>
+      {(!source || ended) && (
+        <p className="mt-1 rounded border border-amber-400/40 px-2 py-1 text-[11px] text-amber-300" role="status" data-testid="measures-locked">
+          {ended ? "The simulation ended, so measures are locked. Press “Light it again” to try another one." : "Measures unlock once a fire is burning: tap a part of the model (or use the button under the scene) to start one."}
+        </p>
+      )}
       <ul className="mt-1 space-y-2">
         {allMeasures.map((m) => (
           <li key={m.id} className="rounded-lg border border-line p-2 text-xs">

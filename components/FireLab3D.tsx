@@ -438,7 +438,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
               <button onClick={activate} disabled={ext === "none" || !lit || active} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-40">{t(active ? "Activated" : "Activate")}</button>
               {active && <button onClick={() => setActivated(null)} className="rounded-lg border border-line-2 px-3 py-2 text-sm text-ink-2 hover:text-ink">{t("Cancel")}</button>}
             </div>
-            <p className="mt-3 text-sm font-medium" aria-live="polite">{t(active || ext === "none" ? sc.headline : "Press Activate to apply it.")}</p>
+            <p className="mt-3 text-sm font-medium" aria-live="polite">{t(active || ext === "none" ? sc.headline : !lit ? "Start a fire first: tap a surface in the 3D scene, then Activate unlocks." : "Press Activate to apply it.")}</p>
           </div>
       </div>
 
