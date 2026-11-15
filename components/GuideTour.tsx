@@ -55,6 +55,9 @@ export default function GuideTour() {
   const [box, setBox] = useState<Box | null>(null);
   const [cardH, setCardH] = useState(220);
   const [gesture, setGesture] = useState<{ g: PaxGesture | null; key: number }>({ g: null, key: 0 });
+  const [hidden, setHidden] = useState(false); // user scrolled: tip folds into the side button
+  const [bump, setBump] = useState(0);
+  const lockUntil = useRef(0);
   const cardRef = useRef<HTMLDivElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
   const wasOn = useRef(false);
@@ -82,6 +85,10 @@ export default function GuideTour() {
     if (!on) wasOn.current = false;
   }, [on]);
 
+  useEffect(() => {
+    setHidden(false);
+  }, [i, key, on]);
+
   const step = steps?.[Math.min(i, (steps?.length ?? 1) - 1)];
   const active = on && !!step && readyKey === key;
 
@@ -107,6 +114,7 @@ export default function GuideTour() {
         if (!scrolled) {
           scrolled = true;
           const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+          lockUntil.current = performance.now() + 1400; // our own scrolling must not fold the tip
           if (tall) window.scrollTo({ top: window.scrollY + r.top - 110, behavior });
           else el.scrollIntoView({ block: "center", behavior });
         }
@@ -117,7 +125,34 @@ export default function GuideTour() {
     setBox(null);
     raf = requestAnimationFrame(measure);
     return () => cancelAnimationFrame(raf);
-  }, [active, step]);
+  }, [active, step, bump]);
+
+  // The user scrolls the page: fold the tip away so the content is free
+  useEffect(() => {
+    if (!active) return;
+    let y = window.scrollY;
+    const fold = () => setHidden(true);
+    const onScroll = () => {
+      const ny = window.scrollY;
+      if (performance.now() > lockUntil.current && Math.abs(ny - y) > 30) fold();
+      y = ny;
+    };
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      if (["PageDown", "PageUp", "Home", "End", " "].includes(e.key)) fold();
+    };
+    window.addEventListener("wheel", fold, { passive: true });
+    window.addEventListener("touchmove", fold, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("wheel", fold);
+      window.removeEventListener("touchmove", fold);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [active, i, key]);
 
   // Pax reads the step out: the text types in while its mouth moves.
   const typed = useTyped(active && step ? step.body : "");
@@ -203,6 +238,22 @@ export default function GuideTour() {
   // Pax looks at what the spotlight is showing.
   const look = box ? { x: (box.left + box.width / 2 - paxCx) / 300, y: (box.top + box.height / 2 - paxCy) / 300 } : { x: paxSide === "left" ? 0.6 : -0.6, y: 0 };
 
+  if (hidden) {
+    const btn = "block w-full whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm";
+    return (
+      <div role="group" aria-label={t.tourMenu} className="pax-pop fixed left-0 top-1/2 z-[70] w-56 -translate-y-1/2 rounded-r-2xl border border-l-0 border-line-2 bg-surface p-2 shadow-2xl">
+        <div className="mb-1 flex items-center gap-2 px-1.5 pb-1">
+          <PaxCharacter size={28} talking={false} />
+          <span className="text-xs font-semibold">{t.tour}</span>
+          <span className="ml-auto text-[11px] text-muted">{t.page(pageIdx + 1, TOUR.length)}</span>
+        </div>
+        <button onClick={() => { setHidden(false); setBump((b) => b + 1); }} className={`${btn} border border-accent/50 bg-accent/15 font-semibold hover:bg-accent/25`}>{t.showTip}</button>
+        <button onClick={goNext} className={`${btn} mt-1.5 bg-accent font-semibold text-black hover:brightness-110`}>{last ? t.finish : nextLabel}</button>
+        <button onClick={() => setOn(false)} className={`${btn} mt-1.5 border border-line-2 text-ink-2 hover:bg-surface-2 hover:text-ink`}>{t.skip}</button>
+      </div>
+    );
+  }
+
   return (
     <>
       {box && (
@@ -251,8 +302,10 @@ export default function GuideTour() {
             <span className="font-semibold text-accent">{t.tryLabel}:</span> {step.tryIt}
           </p>
         )}
-        <div className="mt-4 h-1 overflow-hidden rounded-full bg-line" role="progressbar" aria-label={t.page(pageIdx + 1, TOUR.length)} aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100}>
-          <div className="h-full bg-accent transition-all duration-300" style={{ width: `${progress}%` }} />
+        <div className="mt-4 flex items-center gap-2">
+          <div className="h-1 flex-1 overflow-hidden rounded-full bg-line" role="progressbar" aria-label={t.page(pageIdx + 1, TOUR.length)} aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100}>
+            <div className="h-full bg-accent transition-all duration-300" style={{ width: `${progress}%` }} />
+          </div>
         </div>
         <div className="mt-3 flex items-center gap-2">
           <span className="text-[11px] text-muted">{t.page(pageIdx + 1, TOUR.length)}</span>

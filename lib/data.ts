@@ -7,6 +7,8 @@ export interface Conditions {
   o2: [number | null, number | null] | null
   pressureAtm: [number, number] | null
   flowCmS: [number, number] | null
+  /** Why there is no airflow figure (e.g. quiescent ambient), per language. */
+  flowNote?: { en: string; es: string } | null
   note?: string
   atmospheres?: string[]
   suppressants?: string[]

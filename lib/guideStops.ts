@@ -15,6 +15,9 @@ export const GUIDE_T = {
     restart: "Start over",
     resumed: "Welcome back. Resuming where you left off.",
     tryLabel: "Try it",
+    tour: "Tour",
+    showTip: "Back to this step",
+    tourMenu: "Tour options",
     pageNames: { "/": "Overview", "/history": "Chronology", "/simulator": "Simulator", "/explorer": "Investigations", "/dashboard": "Ranking", "/references": "Sources" } as Record<string, string>,
     steps: {
       "/": [
@@ -57,6 +60,9 @@ export const GUIDE_T = {
     restart: "Empezar de nuevo",
     resumed: "Bienvenido de nuevo. Retomamos donde lo dejaste.",
     tryLabel: "Pruébalo",
+    tour: "Recorrido",
+    showTip: "Volver a este paso",
+    tourMenu: "Opciones del recorrido",
     pageNames: { "/": "Inicio", "/history": "Cronología", "/simulator": "Simulador", "/explorer": "Investigaciones", "/dashboard": "Ranking", "/references": "Fuentes" } as Record<string, string>,
     steps: {
       "/": [

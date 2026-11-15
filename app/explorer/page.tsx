@@ -16,6 +16,8 @@ const T = {
     eyebrow: "Investigations",
     title: "NASA combustion investigations",
     intro1: "investigations from the PSI repository, with their test conditions, findings and sources. Select up to three to compare them side by side.",
+    intro2: "Values marked \"assumed\" use the standard ISS cabin atmosphere because PSI does not state them.",
+    assumed: "assumed",
     filter: "Filter by area",
     all: "All",
     search: "Search: PMMA, smoke, heptane…",
@@ -56,6 +58,8 @@ const T = {
     eyebrow: "Investigaciones",
     title: "Investigaciones de combustión de NASA",
     intro1: "investigaciones del repositorio PSI, con sus condiciones de ensayo, hallazgos y fuentes. Selecciona hasta tres para compararlas lado a lado.",
+    intro2: "Los valores marcados como \"supuesto\" usan la atmósfera estándar de la cabina de la ISS porque PSI no los indica.",
+    assumed: "supuesto",
     filter: "Filtrar por área",
     all: "Todas",
     search: "Buscar: PMMA, humo, heptano…",
@@ -302,13 +306,15 @@ function Cell({ inv }: { inv: Investigation }) {
   const { lang } = useLang();
   const o2 = fmtRange(inv.conditions.o2, "", 100, lang);
   const p = fmtRange(inv.conditions.pressureAtm, "atm", 1, lang);
-  const f = fmtRange(inv.conditions.flowCmS, "cm/s", 1, lang);
+  const f = fmtRange(inv.conditions.flowCmS, "cm/s", 1, lang) ?? inv.conditions.flowNote?.[lang] ?? null;
+  const assumed = /ASSUMED|SUPUESTO/.test(inv.conditions.note ?? "");
+  const tag = assumed ? <span className="ml-1 rounded border border-dashed border-line-2 px-1 text-[10px] text-muted">{t.assumed}</span> : null;
   return (
     <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
       <dt className="text-muted">O₂</dt>
-      <dd>{o2 ? `${o2.trim()}%` : <Pending />}</dd>
+      <dd>{o2 ? <>{`${o2.trim()}%`}{tag}</> : <Pending />}</dd>
       <dt className="text-muted">{t.pressure}</dt>
-      <dd>{p ?? <Pending />}</dd>
+      <dd>{p ? <>{p}{tag}</> : <Pending />}</dd>
       <dt className="text-muted">{t.airflow}</dt>
       <dd>{f ?? <Pending />}</dd>
     </dl>
@@ -366,7 +372,7 @@ export default function Explorer() {
       <p className="eyebrow">{t.eyebrow}</p>
       <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">{t.title}</h1>
       <p className="mt-3 max-w-3xl text-ink-2">
-        {data.investigations.length} {t.intro1}
+        {data.investigations.length} {t.intro1} {t.intro2}
       </p>
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
