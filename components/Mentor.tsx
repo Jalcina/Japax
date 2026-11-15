@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useGuide } from "@/lib/guide";
 import { setPaxMood, usePaxMood } from "@/lib/paxMood";
 import { useLang, useT } from "@/lib/i18n";
-import PaxFace from "@/components/PaxFace";
+import PaxCharacter from "@/components/PaxCharacter";
 import { openAsk } from "@/components/AskWindow";
 
 const NAME = "Pax";
@@ -39,6 +39,9 @@ const T = {
     bubbleLead: "I can help you:",
     svcAsk: "Ask me anything",
     svcTour: "Take a guided tour",
+    svcTourResume: "Continue the guided tour",
+    tourResume: "Continue the guided tour",
+    tourResumeSub: "I will pick up right where you left off",
     hintLead: "Tap below and I will explain it:",
     hintBtn: "Explain this to me",
   },
@@ -57,6 +60,9 @@ const T = {
     bubbleLead: "Puedo ayudarte a:",
     svcAsk: "Preguntarme lo que sea",
     svcTour: "Hacer un recorrido guiado",
+    svcTourResume: "Continuar el recorrido guiado",
+    tourResume: "Continuar el recorrido guiado",
+    tourResumeSub: "Seguimos justo donde lo dejaste",
     hintLead: "Pulsa abajo y te lo explico:",
     hintBtn: "Explícamelo",
   },
@@ -91,7 +97,7 @@ export default function Mentor() {
   const { lang } = useLang();
   const path = usePathname();
   const mood = usePaxMood();
-  const { on, setOn } = useGuide();
+  const { on, setOn, hasProgress } = useGuide();
   const [open, setOpen] = useState(false);
   const [asleep, setAsleep] = useState(false);
   const [tick, setTick] = useState(0);
@@ -142,7 +148,8 @@ export default function Mentor() {
   const svc = "block w-full rounded-lg border border-line-2 px-2.5 py-1 text-left text-xs transition-colors hover:bg-surface-2";
   const item = "block w-full rounded-xl border border-line-2 px-3 py-2.5 text-left transition-colors hover:bg-surface-2";
 
-  const size = open ? 80 : asleep ? 88 : 112;
+  // The new model leaves room around the planet for its ring and flame, so the canvas is a bit larger.
+  const size = open ? 104 : asleep ? 112 : 140;
   const tailH = Math.round(size * 0.18 + 9);
   const bubble = "pax-pop relative max-w-[calc(100vw-2rem)] rounded-2xl border border-accent/40 bg-surface shadow-2xl";
   // tail: the speech bubble hangs from Pax's head
@@ -168,8 +175,8 @@ export default function Mentor() {
                 <span className="block text-xs text-ink-2">{t.askSub}</span>
               </button>
               <button onClick={() => { setOpen(false); toggleTour(); }} className={item}>
-                <span className="block text-sm font-semibold">{on ? t.stop : t.tour}</span>
-                {!on && <span className="block text-xs text-ink-2">{t.tourSub}</span>}
+                <span className="block text-sm font-semibold">{on ? t.stop : hasProgress ? t.tourResume : t.tour}</span>
+                {!on && <span className="block text-xs text-ink-2">{hasProgress ? t.tourResumeSub : t.tourSub}</span>}
               </button>
             </div>
           </section>
@@ -191,7 +198,7 @@ export default function Mentor() {
             <p className="mt-0.5 text-xs text-ink-2">{seen && hint ? t.hintLead : t.bubbleLead}</p>
             <div className="mt-2 space-y-1.5">
               <button onClick={() => { markSeen(); openAsk(hint?.[1]); }} className={`${svc} border-accent/50 bg-accent/15`}>{hint ? t.hintBtn : t.svcAsk}</button>
-              <button onClick={toggleTour} className={svc}>{on ? t.stop : t.svcTour}</button>
+              <button onClick={toggleTour} className={svc}>{on ? t.stop : hasProgress ? t.svcTourResume : t.svcTour}</button>
             </div>
           </section>
         )}
@@ -199,7 +206,7 @@ export default function Mentor() {
 
       <div className="relative">
         <button data-pax onPointerEnter={() => !asleep && mood === "idle" && setPaxMood("happy", 1500)} onClick={() => { markSeen(); setOpen((v) => !v); }} aria-label={t.open} aria-expanded={open} className="block rounded-full p-1 transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-accent">
-          <PaxFace talking={talking} sleeping={asleep && !open} size={size} mood={mood} />
+          <PaxCharacter talking={talking} mood={asleep && !open ? "sleeping" : mood} size={size} />
         </button>
       </div>
     </div>

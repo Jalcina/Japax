@@ -50,7 +50,7 @@ Vamos a construir JaPax. Lee el CLAUDE.md y empieza por la Fase 1:
 
 1. app/page.tsx — Home con la frase del jurado y contexto del proyecto
 2. app/simulator/page.tsx — Comparador de entornos (Tierra/ISS/Luna/Marte) con datos estáticos
-3. app/explorer/page.tsx — Las 20 investigaciones NASA con filtros por dominio
+3. app/explorer/page.tsx — Las 19 investigaciones NASA con filtros por dominio
 4. app/dashboard/page.tsx — Vista general con acceso a las secciones
 
 Sin API key de momento. Todo con datos de data/investigations.json.

@@ -48,7 +48,7 @@ function Sparkle({ x, y, s, delay }: { x: number; y: number; s: number; delay: n
   return (
     <path
       className="pxc-twinkle"
-      style={{ animationDelay: `${delay}s`, transformOrigin: `${x}px ${y}px` }}
+      style={{ ["--d" as string]: `${delay}s`, transformOrigin: `${x}px ${y}px` }}
       d={`M ${x} ${y - s} Q ${x} ${y} ${x + s} ${y} Q ${x} ${y} ${x} ${y + s} Q ${x} ${y} ${x - s} ${y} Q ${x} ${y} ${x} ${y - s} Z`}
       fill="#fff4e0"
     />
@@ -155,19 +155,21 @@ export default function PaxCharacter({
       aria-label={`Pax, the JaPax planet guide (${talking ? "talking" : mood})`}
       className={`overflow-visible ${className}`}
     >
+      {/* Pax always animates, even with prefers-reduced-motion: its motion is gentle and part of the character.
+          !important beats the site-wide reduced-motion reset in globals.css; delays use --d so they survive it too. */}
       <style>{`
-        .pxc-float { animation: pxc-float 4.2s ease-in-out infinite; }
-        .pxc-shadow { animation: pxc-shadow 4.2s ease-in-out infinite; transform-origin: 150px 286px; }
-        .pxc-ring { animation: pxc-sway 7s ease-in-out infinite; transform-origin: 150px 198px; }
-        .pxc-flame { animation: pxc-orbit 5.5s ease-in-out infinite; }
-        .pxc-flicker { animation: pxc-flicker 0.9s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
-        .pxc-twinkle { animation: pxc-twinkle 2.6s ease-in-out infinite; }
-        .pxc-talkbob { animation: pxc-talkbob 0.32s ease-in-out infinite alternate; transform-origin: 150px 240px; }
-        .pxc-eye { transition: transform 90ms ease; transform-box: fill-box; transform-origin: center; }
-        .pxc-pupil { transition: transform 260ms cubic-bezier(.2,.8,.2,1); }
-        .pxc-dot { animation: pxc-dot 1.4s ease-in-out infinite; opacity: 0; }
-        .pxc-z { animation: pxc-z 3s ease-in infinite; opacity: 0; }
-        .pxc-drop { animation: pxc-drop 2.4s ease-in-out infinite; }
+        .pxc-float { animation: pxc-float 4.2s var(--d, 0s) ease-in-out infinite !important; }
+        .pxc-shadow { animation: pxc-shadow 4.2s var(--d, 0s) ease-in-out infinite !important; transform-origin: 150px 286px; }
+        .pxc-ring { animation: pxc-sway 7s var(--d, 0s) ease-in-out infinite !important; transform-origin: 150px 198px; }
+        .pxc-flame { animation: pxc-orbit 5.5s var(--d, 0s) ease-in-out infinite !important; }
+        .pxc-flicker { animation: pxc-flicker 0.9s var(--d, 0s) ease-in-out infinite alternate !important; transform-box: fill-box; transform-origin: center; }
+        .pxc-twinkle { animation: pxc-twinkle 2.6s var(--d, 0s) ease-in-out infinite !important; }
+        .pxc-talkbob { animation: pxc-talkbob 0.32s var(--d, 0s) ease-in-out infinite alternate !important; transform-origin: 150px 240px; }
+        .pxc-eye { transition: transform 90ms ease !important; transform-box: fill-box; transform-origin: center; }
+        .pxc-pupil { transition: transform 260ms cubic-bezier(.2,.8,.2,1) !important; }
+        .pxc-dot { animation: pxc-dot 1.4s var(--d, 0s) ease-in-out infinite !important; opacity: 0; }
+        .pxc-z { animation: pxc-z 3s var(--d, 0s) ease-in infinite !important; opacity: 0; }
+        .pxc-drop { animation: pxc-drop 2.4s var(--d, 0s) ease-in-out infinite !important; }
         @keyframes pxc-float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-7px) } }
         @keyframes pxc-shadow { 0%,100% { transform: scale(1); opacity: .55 } 50% { transform: scale(.86); opacity: .35 } }
         @keyframes pxc-sway { 0%,100% { transform: rotate(0deg) } 50% { transform: rotate(2.2deg) } }
@@ -178,12 +180,12 @@ export default function PaxCharacter({
         @keyframes pxc-dot { 0%,15% { opacity: 0; transform: translateY(4px) } 35%,80% { opacity: 1; transform: translateY(0) } 100% { opacity: 0 } }
         @keyframes pxc-z { 0% { opacity: 0; transform: translate(0,0) scale(.6) } 25% { opacity: 1 } 100% { opacity: 0; transform: translate(18px,-40px) scale(1.2) } }
         @keyframes pxc-drop { 0%,100% { transform: translateY(0) } 50% { transform: translateY(3px) } }
-        .pxc-g-hello { animation: pxc-hello 1.1s cubic-bezier(.3,.7,.4,1) both; transform-origin: 150px 240px; }
-        .pxc-g-wave { animation: pxc-wave 1.2s ease-in-out .45s both; transform-origin: 150px 198px; }
-        .pxc-g-spin { animation: pxc-spin 1.05s cubic-bezier(.4,.1,.3,1) both; transform-origin: 150px 158px; }
-        .pxc-g-oops { animation: pxc-oops .6s ease-out both; transform-origin: 150px 240px; }
-        .pxc-burst { animation: pxc-burst .8s ease-out .35s both; }
-        .pxc-pop { animation: pxc-pop 1.5s ease-out both; transform-box: fill-box; transform-origin: center bottom; }
+        .pxc-g-hello { animation: pxc-hello 1.1s var(--d, 0s) cubic-bezier(.3,.7,.4,1) both !important; transform-origin: 150px 240px; }
+        .pxc-g-wave { animation: pxc-wave 1.2s ease-in-out .45s both !important; transform-origin: 150px 198px; }
+        .pxc-g-spin { animation: pxc-spin 1.05s var(--d, 0s) cubic-bezier(.4,.1,.3,1) both !important; transform-origin: 150px 158px; }
+        .pxc-g-oops { animation: pxc-oops .6s var(--d, 0s) ease-out both !important; transform-origin: 150px 240px; }
+        .pxc-burst { animation: pxc-burst .8s ease-out .35s both !important; }
+        .pxc-pop { animation: pxc-pop 1.5s var(--d, 0s) ease-out both !important; transform-box: fill-box; transform-origin: center bottom; }
         @keyframes pxc-hello {
           0% { transform: translateY(-60px) scale(.55); opacity: 0 }
           40% { transform: translateY(0) scale(1.1,.88); opacity: 1 }
@@ -206,11 +208,6 @@ export default function PaxCharacter({
         }
         @keyframes pxc-burst { 0% { transform: translate(0,0) scale(.3); opacity: 0 } 25% { opacity: 1 } 100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0 } }
         @keyframes pxc-pop { 0% { transform: scale(0) rotate(-20deg); opacity: 0 } 15% { transform: scale(1.25) rotate(8deg); opacity: 1 } 28% { transform: scale(1) rotate(0) } 80% { opacity: 1 } 100% { transform: translateY(-6px); opacity: 0 } }
-        @media (prefers-reduced-motion: reduce) {
-          .pxc-float,.pxc-shadow,.pxc-ring,.pxc-flame,.pxc-flicker,.pxc-twinkle,.pxc-talkbob,.pxc-dot,.pxc-z,.pxc-drop,
-          .pxc-g-hello,.pxc-g-wave,.pxc-g-spin,.pxc-g-oops,.pxc-burst,.pxc-pop { animation: none; }
-          .pxc-dot,.pxc-z { opacity: 1; }
-        }
       `}</style>
 
       <defs>
@@ -478,18 +475,18 @@ export default function PaxCharacter({
       {/* thinking dots */}
       {thinking && (
         <g fill="#eceae4">
-          <circle className="pxc-dot" cx="226" cy="84" r="4" style={{ animationDelay: "0s" }} />
-          <circle className="pxc-dot" cx="240" cy="68" r="5.5" style={{ animationDelay: "0.2s" }} />
-          <circle className="pxc-dot" cx="258" cy="50" r="7" style={{ animationDelay: "0.4s" }} />
+          <circle className="pxc-dot" cx="226" cy="84" r="4" style={{ ["--d" as string]: "0s" }} />
+          <circle className="pxc-dot" cx="240" cy="68" r="5.5" style={{ ["--d" as string]: "0.2s" }} />
+          <circle className="pxc-dot" cx="258" cy="50" r="7" style={{ ["--d" as string]: "0.4s" }} />
         </g>
       )}
 
       {/* sleeping z's */}
       {sleeping && (
         <g fill="#b9cfff" fontFamily="ui-rounded, system-ui, sans-serif" fontWeight="800">
-          <text className="pxc-z" x="214" y="104" fontSize="18" style={{ animationDelay: "0s" }}>z</text>
-          <text className="pxc-z" x="226" y="94" fontSize="24" style={{ animationDelay: "1s" }}>z</text>
-          <text className="pxc-z" x="238" y="84" fontSize="30" style={{ animationDelay: "2s" }}>Z</text>
+          <text className="pxc-z" x="214" y="104" fontSize="18" style={{ ["--d" as string]: "0s" }}>z</text>
+          <text className="pxc-z" x="226" y="94" fontSize="24" style={{ ["--d" as string]: "1s" }}>z</text>
+          <text className="pxc-z" x="238" y="84" fontSize="30" style={{ ["--d" as string]: "2s" }}>Z</text>
         </g>
       )}
     </svg>

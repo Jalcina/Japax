@@ -1,35 +1,39 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { useLang, useT } from "@/lib/i18n";
-import type { Lang } from "@/lib/data";
-import { Pending, Section } from "@/components/ui";
+import { Section } from "@/components/ui";
 
 // Fill these in when available. Anything left empty is shown as "pending", never invented.
 // Photos: put a file in /public/team/ and set `photo` (e.g. "/team/jaime.jpg").
-const TEAM: { name: string; initials: string; github: string; linkedin?: string; photo?: string; born: [number, number, number] }[] = [
-  { name: "Jaime Alcina", initials: "JA", github: "Jalcina", linkedin: "https://www.linkedin.com/in/jaimealcina/", photo: "/team/jaime.jpg", born: [2007, 3, 12] },
-  { name: "Pablo Triguero", initials: "PT", github: "ptricha", linkedin: "https://www.linkedin.com/in/pablotriguerochamizo/", photo: "/team/pablo.jpg", born: [2008, 6, 23] },
+const TEAM: { name: string; initials: string; github: string; linkedin?: string; photo?: string; bio: { en: string; es: string } }[] = [
+  { name: "Jaime Alcina", initials: "JA", github: "Jalcina", linkedin: "https://www.linkedin.com/in/jaimealcina/", photo: "/team/jaime.jpg",
+    bio: {
+      en: "Studying Multiplatform Application Development. Co-created JaPax for the NASA Space Apps Challenge 2026 in Seville.",
+      es: "Estudia Desarrollo de Aplicaciones Multiplataforma. Cocreó JaPax para el NASA Space Apps Challenge 2026 en Sevilla.",
+    },
+  },
+  { name: "Pablo Triguero", initials: "PT", github: "ptricha", linkedin: "https://www.linkedin.com/in/pablotriguerochamizo/", photo: "/team/pablo.jpg",
+    bio: {
+      en: "Studying Computer Engineering, with a specialisation in Data Science. Co-created JaPax for the NASA Space Apps Challenge 2026 in Seville.",
+      es: "Estudia Ingeniería Informática con mención en Ciencia de Datos. Cocreó JaPax para el NASA Space Apps Challenge 2026 en Sevilla.",
+    },
+  },
 ];
 
-/** Age in whole years on the given day; the day is read in the browser after mount (not during prerender), so it rolls over by itself on each birthday. */
-function ageOf([y, m, d]: [number, number, number], n: Date) {
-  return n.getFullYear() - y - (n.getMonth() + 1 < m || (n.getMonth() + 1 === m && n.getDate() < d) ? 1 : 0);
-}
+/** Bump when the files in /public/about are re-rendered: they are cached for 7 days, so the URL must change. */
+const VIDEO_V = 3;
 
 const T = {
   en: {
     videoLabel: "JaPax introduction video (about 70 seconds, with narration)",
-    videoLang: "Video language:",
     eyebrow: "About us",
     title: "The team behind JaPax",
     intro: "JaPax was built by two people for the NASA Space Apps Challenge 2026 (Seville), answering the challenge “Flame in Freefall”.",
     teamEyebrow: "The creators",
-    teamTitle: "Jaime and Pablo",
-    age: "years old",
-    ageLabel: "Age",
+    zoom: "Enlarge photo",
     role: "Role",
     roleValue: "Founder & Developer",
     bio: "Bio",
@@ -58,14 +62,11 @@ const T = {
   },
   es: {
     videoLabel: "Vídeo de presentación de JaPax (unos 70 segundos, con locución)",
-    videoLang: "Idioma del vídeo:",
     eyebrow: "Sobre nosotros",
     title: "El equipo detrás de JaPax",
     intro: "JaPax lo hemos creado dos personas para el NASA Space Apps Challenge 2026 (Sevilla), respondiendo al reto “Flame in Freefall”.",
     teamEyebrow: "Los creadores",
-    teamTitle: "Jaime y Pablo",
-    age: "años",
-    ageLabel: "Edad",
+    zoom: "Ampliar foto",
     role: "Rol",
     roleValue: "Fundador y desarrollador",
     bio: "Bio",
@@ -97,10 +98,14 @@ const T = {
 export default function AboutPage() {
   const t = useT(T);
   const { lang } = useLang();
-  const [pick, setPick] = useState<Lang | null>(null);
-  const [today, setToday] = useState<Date | null>(null);
-  useEffect(() => setToday(new Date()), []);
-  const vl = pick ?? lang; // follows the site language until the visitor picks a video language
+  const vl = lang; // the video always matches the site language
+  const [zoom, setZoom] = useState<{ src: string; name: string } | null>(null);
+  useEffect(() => {
+    if (!zoom) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setZoom(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [zoom]);
   return (
     <div className="pb-8">
       <div className="mx-auto max-w-6xl px-4 pt-10">
@@ -115,39 +120,34 @@ export default function AboutPage() {
       </div>
 
       <div className="mx-auto mt-8 max-w-6xl px-4">
-        <div role="group" aria-label={t.videoLang} className="mb-3 flex items-center gap-2 text-sm">
-          <span className="text-muted">{t.videoLang}</span>
-          {(["en", "es"] as const).map((l) => (
-            <button
-              key={l}
-              onClick={() => setPick(l)}
-              aria-pressed={vl === l}
-              className={`rounded-full border px-3 py-1 transition-colors ${vl === l ? "border-accent bg-accent/25 text-ink" : "border-line-2 text-ink-2 hover:text-ink"}`}
-            >
-              {l === "en" ? "English" : "Español"}
-            </button>
-          ))}
-        </div>
         <video
           key={vl}
           controls
           playsInline
           preload="metadata"
-          poster={`/about/japax-about-${vl}.jpg`}
+          poster={`/about/japax-about-${vl}.jpg?v=${VIDEO_V}`}
           className="aspect-video w-full rounded-xl border border-line-2 bg-black"
           aria-label={t.videoLabel}
         >
-          <source src={`/about/japax-about-${vl}.mp4`} type="video/mp4" />
+          <source src={`/about/japax-about-${vl}.mp4?v=${VIDEO_V}`} type="video/mp4" />
         </video>
       </div>
 
-      <Section eyebrow={t.teamEyebrow} title={t.teamTitle}>
+      <section className="mx-auto max-w-6xl px-4 pt-16">
+        <div className="flex items-center gap-4 sm:gap-5">
+          <Image src="/brand/japax-isotipo.png" alt="" width={72} height={72} className="h-14 w-auto sm:h-20" />
+          <div>
+            <h2 className="text-4xl font-bold uppercase tracking-tight sm:text-6xl">{t.teamEyebrow}</h2>
+          </div>
+        </div>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {TEAM.map((m) => (
             <article key={m.github} className="card p-5">
               <div className="flex items-center gap-4">
                 {m.photo ? (
-                  <Image src={m.photo} alt={m.name} width={96} height={96} className="h-24 w-24 rounded-full border border-line-2 object-cover" />
+                  <button type="button" onClick={() => setZoom({ src: m.photo!, name: m.name })} aria-label={`${t.zoom}: ${m.name}`} className="shrink-0 cursor-zoom-in rounded-full transition-transform hover:scale-105 focus-visible:outline-2">
+                    <Image src={m.photo} alt={m.name} width={96} height={96} className="h-24 w-24 rounded-full border border-line-2 object-cover" />
+                  </button>
                 ) : (
                   <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-line-2 bg-surface-2 text-xl font-semibold text-ink-2" aria-hidden="true">
                     {m.initials}
@@ -160,16 +160,12 @@ export default function AboutPage() {
               </div>
               <dl className="mt-4 space-y-2 text-sm">
                 <div className="flex items-baseline gap-2">
-                  <dt className="w-14 shrink-0 text-muted">{t.ageLabel}</dt>
-                  <dd>{today ? `${ageOf(m.born, today)} ${t.age}` : " "}</dd>
-                </div>
-                <div className="flex items-baseline gap-2">
                   <dt className="w-14 shrink-0 text-muted">{t.role}</dt>
                   <dd>{t.roleValue}</dd>
                 </div>
                 <div className="flex items-baseline gap-2">
                   <dt className="w-14 shrink-0 text-muted">{t.bio}</dt>
-                  <dd><Pending>{t.pending}</Pending></dd>
+                  <dd>{m.bio[lang]}</dd>
                 </div>
               </dl>
               <div className="mt-4 flex flex-wrap gap-2 text-sm">
@@ -187,7 +183,20 @@ export default function AboutPage() {
             </article>
           ))}
         </div>
-      </Section>
+      </section>
+
+      {zoom && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={zoom.name}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setZoom(null)}
+        >
+          <button type="button" aria-label="Close" className="absolute right-4 top-4 rounded-full border border-line-2 bg-surface-2 px-3 py-1.5 text-sm text-ink" onClick={() => setZoom(null)}>✕</button>
+          <Image src={zoom.src} alt={zoom.name} width={480} height={480} className="aspect-square w-[min(90vw,80vh,32rem)] rounded-2xl border border-line-2 object-cover" onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
 
       <Section eyebrow={t.projEyebrow} title={t.projTitle}>
         <div className="mt-4 max-w-3xl space-y-3 text-ink-2">

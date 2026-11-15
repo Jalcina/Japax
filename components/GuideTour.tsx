@@ -5,11 +5,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { TOUR, useGuide } from "@/lib/guide";
 import { useT } from "@/lib/i18n";
 import { GUIDE_T } from "@/lib/guideStops";
-import PaxFace from "@/components/PaxFace";
+import PaxCharacter, { type PaxGesture } from "@/components/PaxCharacter";
 
 type Box = { top: number; left: number; width: number; height: number };
 const CARD_W = 360;
 const GAP = 14;
+/** Size of the big Pax standing beside the card (desktop only). */
+const PAX = 176;
 
 /** First visible element matching the selector. */
 function findTarget(sel: string): HTMLElement | null {
@@ -20,9 +22,25 @@ function findTarget(sel: string): HTMLElement | null {
   return null;
 }
 
-/** Guided tour: a spotlight plus a popover that points at real parts of each page. */
+/** Reveals `text` a few characters at a time; Pax talks while it runs. */
+function useTyped(text: string) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    setN(0);
+    const id = setInterval(() => {
+      setN((v) => {
+        if (v + 2 >= text.length) clearInterval(id);
+        return Math.min(v + 2, text.length);
+      });
+    }, 24);
+    return () => clearInterval(id);
+  }, [text]);
+  return { shown: text.slice(0, n), done: n >= text.length, skip: () => setN(text.length) };
+}
+
+/** Guided tour: a spotlight, a card that points at real parts of each page, and Pax beside it explaining each step. */
 export default function GuideTour() {
-  const { on, setOn } = useGuide();
+  const { on, setOn, savePos, startAt, pendingPage, takeStart, finish, restart, epoch } = useGuide();
   const t = useT(GUIDE_T);
   const path = usePathname();
   const router = useRouter();
@@ -31,16 +49,46 @@ export default function GuideTour() {
   const pageIdx = key ? TOUR.indexOf(key) : -1;
 
   const [i, setI] = useState(0);
+  /** The page the tour has been set up for; until it matches, the tour stays hidden (e.g. while navigating to resume). */
+  const [readyKey, setReadyKey] = useState<string | null>(null);
+  const [resumed, setResumed] = useState(false);
   const [box, setBox] = useState<Box | null>(null);
-  const [talking, setTalking] = useState(false);
   const [cardH, setCardH] = useState(220);
+  const [gesture, setGesture] = useState<{ g: PaxGesture | null; key: number }>({ g: null, key: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
+  const wasOn = useRef(false);
 
-  useEffect(() => setI(0), [key, on]);
+  // Landing on a tour page: open the requested step (resume / back from the next page) or the first one.
+  useEffect(() => {
+    if (!on || !key) return;
+    // On our way to another page (resume, restart, back): don't flash or save this one.
+    const pend = pendingPage();
+    if (pend && pend !== key) return setReadyKey(null);
+    const n = t.steps[key].length;
+    const s = takeStart(key);
+    const first = !wasOn.current;
+    wasOn.current = true;
+    setI(s === null ? 0 : s < 0 ? n - 1 : Math.min(s, n - 1));
+    // Pax waves when the tour opens; the note only shows when it picks up mid-way.
+    if (first) {
+      setResumed(s !== null && (s > 0 || key !== TOUR[0]));
+      setGesture((g) => ({ g: "hello", key: g.key + 1 }));
+    } else setResumed(false);
+    setReadyKey(key);
+  }, [key, on, epoch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!on) wasOn.current = false;
+  }, [on]);
 
   const step = steps?.[Math.min(i, (steps?.length ?? 1) - 1)];
-  const active = on && !!step;
+  const active = on && !!step && readyKey === key;
+
+  // Remember the position on every step, so leaving and coming back resumes here.
+  useEffect(() => {
+    if (active && key) savePos({ page: key, step: i });
+  }, [active, key, i, savePos]);
 
   // Find the target (pages may render late), scroll it into view and keep its box fresh.
   useEffect(() => {
@@ -71,17 +119,13 @@ export default function GuideTour() {
     return () => cancelAnimationFrame(raf);
   }, [active, step]);
 
-  // Pax "speaks" for a moment on every new step
-  useEffect(() => {
-    if (!active) return;
-    setTalking(true);
-    const id = setTimeout(() => setTalking(false), 1800);
-    return () => clearTimeout(id);
-  }, [active, i, key]);
+  // Pax reads the step out: the text types in while its mouth moves.
+  const typed = useTyped(active && step ? step.body : "");
+  const talking = active && !typed.done;
 
   useLayoutEffect(() => {
     if (cardRef.current) setCardH(cardRef.current.offsetHeight);
-  }, [i, key, active, t]);
+  }, [i, key, active, t, resumed]);
 
   useEffect(() => {
     if (active) nextRef.current?.focus({ preventScroll: true });
@@ -92,15 +136,21 @@ export default function GuideTour() {
 
   const goNext = useCallback(() => {
     if (!steps) return;
+    setResumed(false);
     if (i < steps.length - 1) setI(i + 1);
     else if (nextPage) router.push(nextPage);
-    else setOn(false);
-  }, [i, steps, nextPage, router, setOn]);
+    else finish();
+  }, [i, steps, nextPage, router, finish]);
 
   const goBack = useCallback(() => {
+    setResumed(false);
     if (i > 0) setI(i - 1);
-    else if (prevPage) router.push(prevPage);
-  }, [i, prevPage, router]);
+    else if (prevPage) {
+      // Going back a page lands on that page's last step, not its first.
+      startAt({ page: prevPage, step: -1 });
+      router.push(prevPage);
+    }
+  }, [i, prevPage, router, startAt]);
 
   useEffect(() => {
     if (!active) return;
@@ -124,8 +174,11 @@ export default function GuideTour() {
   let style: React.CSSProperties;
   let arrow: "up" | "down" | null = null;
   let cardLeft = 0;
+  let cardTop = 0;
   if (mobile || !box) {
     style = mobile ? { left: 8, right: 8, bottom: 88 } : { left: "50%", bottom: 24, transform: "translateX(-50%)", width: CARD_W };
+    cardLeft = (vw - CARD_W) / 2;
+    cardTop = vh - 24 - cardH;
   } else {
     const below = box.top + box.height + pad + GAP;
     const above = box.top - pad - GAP - cardH;
@@ -134,12 +187,21 @@ export default function GuideTour() {
     else if (above >= 8) { top = above; arrow = "down"; }
     else top = Math.max(8, vh - cardH - 24);
     cardLeft = Math.min(Math.max(8, box.left + box.width / 2 - CARD_W / 2), vw - CARD_W - 8);
+    cardTop = top;
     style = { top, left: cardLeft, width: CARD_W };
   }
   const arrowLeft = box ? Math.min(Math.max(20, box.left + box.width / 2 - cardLeft), CARD_W - 20) : 0;
   const progress = ((pageIdx + (i + 1) / steps.length) / TOUR.length) * 100;
   const last = !nextPage && i === steps.length - 1;
   const nextLabel = i < steps.length - 1 ? t.next : nextPage ? t.nextPage(t.pageNames[nextPage]) : t.finish;
+  const atStart = pageIdx === 0 && i === 0;
+
+  // Big Pax stands on whichever side of the card has room; on phones it stays small inside the card.
+  const paxSide: "left" | "right" | null = mobile ? null : cardLeft >= PAX + 8 ? "left" : cardLeft + CARD_W + PAX + 8 <= vw ? "right" : null;
+  const paxCx = paxSide === "left" ? cardLeft - PAX / 2 : cardLeft + CARD_W + PAX / 2;
+  const paxCy = cardTop + Math.min(cardH, PAX) / 2;
+  // Pax looks at what the spotlight is showing.
+  const look = box ? { x: (box.left + box.width / 2 - paxCx) / 300, y: (box.top + box.height / 2 - paxCy) / 300 } : { x: paxSide === "left" ? 0.6 : -0.6, y: 0 };
 
   return (
     <>
@@ -155,15 +217,35 @@ export default function GuideTour() {
           <span aria-hidden="true" className="absolute h-3 w-3 rotate-45 border-line-2 bg-surface"
             style={arrow === "up" ? { top: -7, left: arrowLeft - 6, borderTopWidth: 1, borderLeftWidth: 1 } : { bottom: -7, left: arrowLeft - 6, borderBottomWidth: 1, borderRightWidth: 1 }} />
         )}
+
+        {paxSide && (
+          <>
+            {/* speech nub: the card is what Pax is saying */}
+            <span aria-hidden="true" className="absolute h-3.5 w-3.5 rotate-45 border-line-2 bg-surface"
+              style={paxSide === "left" ? { left: -8, top: Math.min(cardH, PAX) / 2 - 7, borderBottomWidth: 1, borderLeftWidth: 1 } : { right: -8, top: Math.min(cardH, PAX) / 2 - 7, borderTopWidth: 1, borderRightWidth: 1 }} />
+            <div aria-hidden="true" className="pointer-events-none absolute" style={{ top: Math.min(cardH, PAX) / 2 - PAX / 2, ...(paxSide === "left" ? { right: "100%", marginRight: 2 } : { left: "100%", marginLeft: 2 }) }}>
+              <PaxCharacter size={PAX} talking={talking} mood={last ? "happy" : "idle"} look={look} gesture={gesture.g} gestureKey={gesture.key} />
+            </div>
+          </>
+        )}
+
         <div className="mb-3 flex items-center gap-3">
-          <PaxFace talking={talking} size={34} />
+          {!paxSide && <PaxCharacter talking={talking} size={46} minimal className="-my-1.5 shrink-0" />}
           <div className="min-w-0 flex-1">
             <p className="text-[11px] font-medium uppercase tracking-wide text-muted">{t.pageNames[key]} · {t.step(i + 1, steps.length)}</p>
             <h2 className="text-base font-semibold leading-tight">{step.title}</h2>
           </div>
           <button onClick={() => setOn(false)} aria-label={t.skip} className="self-start rounded-md px-1.5 py-0.5 text-ink-2 hover:text-ink">✕</button>
         </div>
-        <p className="text-sm leading-relaxed text-ink-2">{step.body}</p>
+
+        {resumed && <p className="mb-2 rounded-lg border border-flame/30 bg-flame/10 px-3 py-1.5 text-xs text-ink">{t.resumed}</p>}
+
+        {/* The full text reserves the space so the card does not grow while Pax "types"; click to show it all. */}
+        <p className="grid cursor-text text-sm leading-relaxed text-ink-2" onClick={typed.skip}>
+          <span className="invisible col-start-1 row-start-1" aria-hidden="true">{step.body}</span>
+          <span className="col-start-1 row-start-1" aria-hidden="true">{typed.shown}</span>
+          <span className="sr-only">{step.body}</span>
+        </p>
         {step.tryIt && (
           <p className="mt-3 rounded-lg border border-accent/30 bg-accent/10 px-3 py-2 text-sm">
             <span className="font-semibold text-accent">{t.tryLabel}:</span> {step.tryIt}
@@ -174,6 +256,7 @@ export default function GuideTour() {
         </div>
         <div className="mt-3 flex items-center gap-2">
           <span className="text-[11px] text-muted">{t.page(pageIdx + 1, TOUR.length)}</span>
+          {!atStart && <button onClick={restart} className="text-[11px] text-muted underline-offset-2 hover:text-ink hover:underline">{t.restart}</button>}
           <button onClick={() => setOn(false)} className="ml-auto text-xs text-ink-2 underline-offset-2 hover:text-ink hover:underline">{t.skip}</button>
           {(i > 0 || prevPage) && <button onClick={goBack} className="rounded-lg border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:text-ink">{t.back}</button>}
           <button ref={nextRef} onClick={goNext} className="rounded-lg bg-accent px-3.5 py-1.5 text-xs font-semibold text-black hover:brightness-110">{last ? t.finish : nextLabel}</button>
