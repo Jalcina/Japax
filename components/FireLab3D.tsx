@@ -347,7 +347,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
             </details>
           </div>
           {/* the ISS catalog describes iss_hd.glb, which is only loaded in the whole-station view (the "fire site" scene is a different model) */}
-          {(env !== "iss" || view === "overview") && <ComponentPanel env={env} api={sceneApi} atm={atm} pick={panelPick} condTag={estimatedEnv ? "estimated" : "reported"} />}
+          {(env !== "iss" || view === "overview") && <ComponentPanel env={env} api={sceneApi} atm={atm} pick={panelPick} condTag={estimatedEnv ? "estimated" : "reported"} labPhase={stats?.phase} />}
         </div>
       </div>
 

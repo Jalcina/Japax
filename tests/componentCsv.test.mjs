@@ -5,16 +5,21 @@ import { readFileSync } from "node:fs";
 import { toGraph, engineMeasures } from "../lib/componentCatalog.ts";
 import { simulate } from "../lib/componentSpread.ts";
 import { buildCsv, csvCell, csvFileName, neutraliseFormula, CSV_COLUMNS } from "../lib/componentCsv.ts";
+import { buildRunRecord } from "../lib/runRecord.ts";
 import { ruptureReport } from "../lib/componentReport.ts";
 
 const catalog = JSON.parse(readFileSync(new URL("../data/components/emu.catalog.json", import.meta.url), "utf8"));
 const SUIT = { o2: 1, pressureAtm: 0.293, gravityG: 0, flowCmS: 0 };
 const TANK = "emu-plss-o2-tank";
 const sim = (o) => simulate({ ...toGraph(catalog), atm: SUIT, ignite: TANK, horizonS: 600, ...o });
-const labels = Object.fromEntries(catalog.components.map((c) => [c.id, c.label]));
-const record = (events, over = {}) => ({
-  runId: "run-001", timestampUtc: "2026-11-15T10:00:00.000Z", appVersion: "0.1.0", env: "suit", startComponent: TANK, atm: SUIT,
-  forced: false, measuredOnly: false, measuresApplied: {}, events, labels, componentCount: catalog.components.length, ...over,
+const rec = (s, over = {}) => buildRunRecord({
+  runId: "run-001", timestampUtc: "2026-11-15T10:00:00.000Z", appVersion: "0.1.0", env: "suit", source: TANK, atm: SUIT, atmTag: "estimated",
+  forced: false, measuredOnly: false, applied: {}, events: s.events, catalog, ...over,
+});
+/** a RunRecord-shaped object with hostile text, for the escaping tests */
+const fake = (timeline) => ({
+  runId: "run-001", timestampUtc: "2026-11-15T10:00:00.000Z", appVersion: "0.1.0", env: "suit", startComponent: "x", atm: SUIT, forced: false, measuredOnly: false,
+  measuresApplied: {}, timeline, endT: 1, metrics: [{ key: "duration_s", label: "d", value: "1", unit: "s", note: "n" }],
 });
 
 /** minimal RFC 4180 parser: quotes, doubled quotes, commas and newlines inside quotes */
@@ -36,37 +41,43 @@ function parseCsv(text) {
 }
 const col = (name) => CSV_COLUMNS.indexOf(name);
 
-test("CSV: BOM, header with the minimum columns, one row per engine event plus one summary row", () => {
-  const r = sim();
-  const csv = buildCsv([record(r.events)], () => "src");
+test("CSV: BOM, header with the minimum columns, one row per engine event (the end event included) plus one summary row", () => {
+  const s = sim();
+  const run = rec(s);
+  const csv = buildCsv([run]);
   assert.equal(csv.charCodeAt(0), 0xfeff);
   const rows = parseCsv(csv.slice(1));
   assert.deepEqual(rows[0], [...CSV_COLUMNS]);
   for (const c of ["run_id", "timestamp_utc", "app_version", "env", "start_component", "o2", "pressure_atm", "gravity_g", "flow_cm_s", "forced_failure", "measured_only", "measure_applied", "t_sim_s", "t_real_equiv_s", "event", "component_id", "component_label", "state", "level", "source"]) assert.ok(col(c) >= 0, c);
-  assert.equal(rows.length - 1, r.events.length + 1);
+  assert.equal(rows.length - 1, s.events.length + 1);
   const ev = rows.slice(1, -1);
-  r.events.forEach((e, i) => {
+  s.events.forEach((e, i) => {
     assert.equal(ev[i][col("component_id")], e.componentId);
     assert.equal(ev[i][col("state")], e.state);
     assert.equal(ev[i][col("level")], e.tag);
     assert.equal(Number(ev[i][col("t_sim_s")]), Math.round(e.t * 10) / 10);
     assert.equal(ev[i][col("event")], "engine_event");
+    assert.ok(ev[i][col("source")].length > 0);
   });
-  const s = rows.at(-1);
-  assert.equal(s[col("event")], "summary");
-  assert.match(s[col("reason")], /rupture=yes; t_rupture_s=75/);
-  assert.match(s[col("reason")], /components_reached=6\/6/);
+  assert.equal(ev.at(-1)[col("state")], "end");
+  const s0 = rows.at(-1);
+  assert.equal(s0[col("event")], "summary");
+  assert.match(s0[col("reason")], /time_to_rupture_s=75 s/);
+  assert.match(s0[col("reason")], /components_reached=6 of 6 components/);
 });
 
-test("CSV: a run that does not end in a rupture is exported too, with rupture=no", () => {
+test("CSV: a run that does not end in a rupture is exported too, with the reason why a metric is not available", () => {
   const starved = simulate({ ...toGraph(catalog), atm: { o2: 0.21, pressureAtm: 1, gravityG: 0, flowCmS: 0 }, ignite: "emu-upper-garment", horizonS: 600 });
-  const rows = parseCsv(buildCsv([record(starved.events, { startComponent: "emu-upper-garment" })], () => "").slice(1));
-  assert.match(rows.at(-1)[col("reason")], /rupture=no; t_rupture_s=n\/a/);
+  const run = rec(starved, { source: "emu-upper-garment", atm: { o2: 0.21, pressureAtm: 1, gravityG: 0, flowCmS: 0 } });
+  const rows = parseCsv(buildCsv([run]).slice(1));
+  assert.match(rows.at(-1)[col("reason")], /time_to_rupture_s=not available/);
+  assert.match(rows.at(-1)[col("reason")], /end_reason=self_extinguished/);
+  assert.ok(run.metrics.find((m) => m.key === "time_to_rupture_s").note.startsWith("not available:"));
 });
 
 test("CSV: every ignition is its own run_id and all runs of the session are in the file", () => {
   const a = sim(), b = sim({ forceRupture: TANK });
-  const rows = parseCsv(buildCsv([record(a.events, { runId: "run-001" }), record(b.events, { runId: "run-002", forced: true })], () => "").slice(1));
+  const rows = parseCsv(buildCsv([rec(a, { runId: "run-001" }), rec(b, { runId: "run-002", forced: true })]).slice(1));
   assert.equal(rows.length - 1, a.events.length + 1 + b.events.length + 1);
   assert.deepEqual([...new Set(rows.slice(1).map((r) => r[col("run_id")]))], ["run-001", "run-002"]);
   assert.equal(rows.slice(1).filter((r) => r[col("event")] === "summary").length, 2);
@@ -74,8 +85,7 @@ test("CSV: every ignition is its own run_id and all runs of the session are in t
 });
 
 test("CSV: commas, double quotes and line breaks are escaped and survive a round trip", () => {
-  const ev = [{ t: 1, componentId: "x", state: "burning", tag: "estimated", reason: 'a, b "quoted"\nsecond line' }];
-  const csv = buildCsv([record(ev, { labels: { x: 'Label, with "quotes"' } })], () => "src, with comma");
+  const csv = buildCsv([fake([{ t: 1, componentId: "x", component: 'Label, with "quotes"', state: "burning", level: "estimated", source: "src, with comma", reason: 'a, b "quoted"\nsecond line' }])]);
   const rows = parseCsv(csv.slice(1));
   assert.equal(rows[1][col("reason")], 'a, b "quoted"\nsecond line');
   assert.equal(rows[1][col("component_label")], 'Label, with "quotes"');
@@ -89,8 +99,7 @@ test("CSV: cells that start with = + - @ tab or CR get an apostrophe (formula in
     assert.ok(csvCell(bad).replace(/^"/, "").startsWith("'"), JSON.stringify(bad));
   }
   assert.equal(neutraliseFormula("safe =text"), "safe =text");
-  const ev = [{ t: 0, componentId: "x", state: "burning", tag: "estimated", reason: "=cmd|' /C calc'!A0" }];
-  const rows = parseCsv(buildCsv([record(ev, { labels: { x: "@evil" } })], () => "+src").slice(1));
+  const rows = parseCsv(buildCsv([fake([{ t: 0, componentId: "x", component: "@evil", state: "burning", level: "estimated", source: "+src", reason: "=cmd|' /C calc'!A0" }])]).slice(1));
   assert.equal(rows[1][col("reason")][0], "'");
   assert.equal(rows[1][col("component_label")], "'@evil");
   assert.equal(rows[1][col("source")], "'+src");

@@ -4,10 +4,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { SceneApi } from "@/components/ImmersiveScene";
 import { engineMeasures, resolveComponent, toGraph, type CComponent, type CFact, type Resolution } from "@/lib/componentCatalog";
-import { buildCsv, csvFileName, type RunRecord } from "@/lib/componentCsv";
+import ResultsDialog, { downloadText } from "@/components/ResultsDialog";
+import { buildCsv, csvFileName } from "@/lib/componentCsv";
 import { COMPONENT_ENVS, type EnvBundle } from "@/lib/componentEnvs";
 import { energeticOf, ruptureReport, shortLabel } from "@/lib/componentReport";
 import { simulate, type CEvent } from "@/lib/componentSpread";
+import { buildRunRecord, type BuildInput, type RunRecord } from "@/lib/runRecord";
 import { LabBlast } from "@/lib/labBlast";
 import { spreadFactors, type Atm } from "@/lib/labPhysics";
 import pkg from "@/package.json";
@@ -24,7 +26,7 @@ const TAGC: Record<string, string> = {
 };
 type Shown = "intact" | "not_reached" | "burning" | "damaged" | "relieved" | "ruptured";
 const RANK: Record<Shown, number> = { intact: 0, not_reached: 1, burning: 2, damaged: 3, relieved: 4, ruptured: 5 };
-const LABEL: Record<Shown, string> = { intact: "Intact", not_reached: "Not reached", burning: "Burning", damaged: "Damaged", relieved: "Pressure relieved", ruptured: "Ruptured" };
+const LABEL: Record<Shown | "end", string> = { intact: "Intact", not_reached: "Not reached", burning: "Burning", damaged: "Damaged", relieved: "Pressure relieved", ruptured: "Ruptured", end: "Simulation ended" };
 const MEASURED = new Set(["measured", "reported"]);
 
 export interface PanelPick { name: string; material: string; n: number }
@@ -129,11 +131,17 @@ function RuptureNotice({ rep, atm, condTag, tank, applied }: { rep: NonNullable<
   );
 }
 
-/** every ignition of this page session (cleared on reload). Finished runs only: the live run is added when the CSV is built. */
+/** every run of this page session (cleared on reload): immutable RunRecords, finished or closed early. The run on screen is added when a file is built. */
 const sessionRuns: RunRecord[] = [];
 let runSeq = 0;
+/** the run on screen: the same inputs and the same engine events as the timeline */
+interface CurRun { runId: string; ts: string; source: string; atm: Atm; forced: boolean; measuredOnly: boolean; applied: Record<string, number>; events: CEvent[]; t: number }
 
-interface PanelProps { api: SceneApi | null; atm: Atm; pick: PanelPick | null; env: string; /** tag of the atmosphere values themselves (estimated for the Moon and the suit) */ condTag?: string }
+interface PanelProps {
+  api: SceneApi | null; atm: Atm; pick: PanelPick | null; env: string;
+  /** tag of the atmosphere values themselves (estimated for the Moon and the suit) */ condTag?: string;
+  /** phase of the surface-fire layer (LabFire): "out" means the lab's own suppression system put the fire out */ labPhase?: string;
+}
 
 /** Generic panel: it renders for every environment that has a catalog in lib/componentEnvs and for no other. */
 export default function ComponentPanel(props: PanelProps) {
@@ -142,7 +150,7 @@ export default function ComponentPanel(props: PanelProps) {
   return <EnvPanel key={props.env} {...props} bundle={bundle} />;
 }
 
-function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated" }: PanelProps & { bundle: EnvBundle }) {
+function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", labPhase }: PanelProps & { bundle: EnvBundle }) {
   const CATALOG = bundle.catalog;
   const MAP = bundle.map;
   const HORIZON_S = bundle.horizonS ?? DEFAULT_HORIZON_S;
@@ -163,15 +171,20 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated" }:
   const fired = useRef(false);
   const tint = useRef(new Map<THREE.Material, { c: THREE.Color; i: number }>());
 
-  const live = useRef<RunRecord | null>(null); // the run on screen, rebuilt on every render from the same events as the timeline
+  const cur = useRef<CurRun | null>(null); // the run on screen while it has not ended
   const runMeta = useRef<{ runId: string; ts: string } | null>(null);
-  const [runCount, setRunCount] = useState(sessionRuns.length);
+  const mk = useRef<(c: CurRun, endAt?: BuildInput["endAt"]) => RunRecord>(() => { throw new Error("run record builder not ready"); });
+  const [ended, setEnded] = useState<RunRecord | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [, bump] = useState(0);
 
   const start = useCallback((id: string | null, r: Resolution | null) => {
-    // a new ignition closes the run on screen (kept for the CSV) and opens the next run_id
-    if (live.current) { sessionRuns.push(live.current); live.current = null; }
+    // a new ignition closes the run on screen as interrupted (kept for the files) and opens the next run_id
+    if (cur.current) { sessionRuns.push(mk.current(cur.current, { t: cur.current.t, reason: "interrupted_by_user" })); cur.current = null; }
     if (id) { runSeq += 1; runMeta.current = { runId: `run-${String(runSeq).padStart(3, "0")}`, ts: new Date().toISOString() }; } else runMeta.current = null;
-    setRunCount(sessionRuns.length + (id ? 1 : 0));
+    setEnded(null);
+    setDialogOpen(false);
+    bump((n) => n + 1);
     setRes(r);
     setSource(id);
     setApplied({});
@@ -191,18 +204,38 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated" }:
     () => (source ? simulate({ ...GRAPH, atm, ignite: source, horizonS: HORIZON_S, measures: ms, forceRupture: forced ? TANK?.id : undefined }) : null),
     [source, atm, ms, forced, GRAPH, TANK],
   );
-  // the CSV rows are these very events (sim.events), not a second log
-  live.current = sim && source && runMeta.current
-    ? {
-        runId: runMeta.current.runId, timestampUtc: runMeta.current.ts, appVersion: pkg.version, env, startComponent: source,
-        atm: { o2: atm.o2, pressureAtm: atm.pressureAtm, gravityG: atm.gravityG, flowCmS: atm.flowCmS },
-        forced, measuredOnly, measuresApplied: applied, events: sim.events,
-        labels: Object.fromEntries(CATALOG.components.map((c) => [c.id, c.label])), componentCount: CATALOG.components.length,
-      }
-    : null;
-  // leaving the environment keeps the run for the CSV
-  useEffect(() => () => { if (live.current) { sessionRuns.push(live.current); live.current = null; } }, []);
-  const maxT = useMemo(() => Math.min(HORIZON_S, Math.max(30, (sim?.events.at(-1)?.t ?? 0) + 15)), [sim]);
+  // the files and the window are built from these very events (sim.events), through the immutable RunRecord, never from a second log
+  cur.current = sim && source && runMeta.current && !ended ? { runId: runMeta.current.runId, ts: runMeta.current.ts, source, atm, forced, measuredOnly, applied, events: sim.events, t } : null;
+  mk.current = (c, endAt) => buildRunRecord({ runId: c.runId, timestampUtc: c.ts, appVersion: pkg.version, env, source: c.source, atm: c.atm, atmTag: condTag, forced: c.forced, measuredOnly: c.measuredOnly, applied: c.applied, events: c.events, catalog: CATALOG, endAt });
+  // leaving the environment closes the run on screen
+  useEffect(() => () => { if (cur.current) { sessionRuns.push(mk.current(cur.current, { t: cur.current.t, reason: "interrupted_by_user" })); cur.current = null; } }, []);
+  /** the engine's own end of the run: playback stops exactly there */
+  const endT = sim?.end.t ?? 0;
+  const maxT = endT;
+
+  const finishWith = (endAt?: BuildInput["endAt"]) => {
+    if (!cur.current) return;
+    const rec = mk.current(cur.current, endAt);
+    sessionRuns.push(rec);
+    cur.current = null;
+    setEnded(rec);
+    setDialogOpen(true); // opens once per run; it never reopens by itself (the "View results" button does)
+    setPlaying(false);
+    if (endAt) setT(endAt.t);
+  };
+  // natural end: the clock reached the engine's terminal event
+  useEffect(() => {
+    if (sim && source && !ended && cur.current && t >= endT) finishWith();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [t, sim, source, ended, endT]);
+  // the surface-fire layer says its own suppression system put the fire out
+  const prevLab = useRef(labPhase);
+  useEffect(() => {
+    const was = prevLab.current;
+    prevLab.current = labPhase;
+    if (labPhase === "out" && was !== "out" && cur.current && !ended) finishWith({ t: cur.current.t, reason: "extinguished_by_suppression_system" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [labPhase, ended]);
 
   useEffect(() => {
     if (!playing || !sim) return;
@@ -325,41 +358,13 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated" }:
   const speedNow = spreadFactors(atm, "fabric").mmS;
   const rep = sim && TANK && source ? ruptureReport(sim.events, t, CATALOG, source) : null;
 
-  const downloadCsv = () => {
-    const runs = [...sessionRuns, ...(live.current ? [live.current] : [])];
-    const tankSrc = TANK?.energetic?.failureMode.src ?? "";
-    const csv = buildCsv(runs, (e) => (TANK && e.componentId === TANK.id && (e.state === "ruptured" || e.state === "relieved") ? tankSrc : "JaPax component engine (lib/componentSpread) with labPhysics.spreadFactors; the level column carries the tag of each event"));
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = csvFileName(env);
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  // every file is built from RunRecords; the run on screen, if it has not ended, goes in as "in_progress" at the current time
+  const allRuns = (): RunRecord[] => [...sessionRuns, ...(cur.current ? [mk.current(cur.current, { t: cur.current.t, reason: "in_progress" })] : [])];
+  const runCount = sessionRuns.length + (cur.current ? 1 : 0);
+  const downloadCsv = () => downloadText(csvFileName(env), buildCsv(allRuns()), "text/csv;charset=utf-8");
 
-  const apply = (id: string) => setApplied((a) => (id in a ? a : { ...a, [id]: Math.round(t * 10) / 10 }));
-
-  const download = () => {
-    const lines = [
-      "JaPax component sheet (simulation, not a measurement)",
-      `Ignition component: ${comp ? comp.label : "unidentified"}`,
-      `Conditions: O2 ${Math.round(atm.o2 * 100)} %, ${(atm.pressureAtm * 14.696).toFixed(1)} psi, ${atm.gravityG} g, airflow ${atm.flowCmS} cm/s`,
-      `Forced failure: ${forced ? "yes (demo scenario, not a prediction)" : "no (physical path)"}`,
-      `Measures applied: ${Object.entries(applied).map(([id, at]) => `${id} at ${at} s`).join("; ") || "none"}`,
-      "",
-      "Timeline (simulated seconds):",
-      ...(sim?.events ?? []).map((e) => `  t=${e.t.toFixed(1)} s  ${label(e.componentId)}: ${e.state} [${e.tag}] ${e.reason}`),
-      "",
-      "Data gaps:",
-      ...CATALOG.gaps.map((g) => `  - ${g}`),
-    ];
-    const url = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/plain" }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "japax-component-sheet.txt";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  const apply = (id: string) => setApplied((a) => (ended || id in a ? a : { ...a, [id]: Math.round(t * 10) / 10 }));
+  const lightAgain = () => { if (source) start(source, { componentId: source, method: "material", key: "light it again" }); };
 
   return (
     <div className="card p-4" id="component-panel">
@@ -423,18 +428,29 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated" }:
 
       {sim && (
         <>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-            <button onClick={() => setPlaying((p) => !p)} className="rounded-lg border border-line-2 px-3 py-1.5">{playing ? "Pause" : t >= maxT ? "Finished" : "Play"}</button>
-            <button onClick={() => { setT(0); setPlaying(true); }} className="rounded-lg border border-line-2 px-3 py-1.5 text-ink-2 hover:text-ink">Restart</button>
-            <label className="text-ink-2">Speed
-              <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))} className="ml-1 rounded-lg border border-line-2 bg-surface px-1.5 py-1 text-ink">
-                <option value={1}>×1</option><option value={4}>×4</option><option value={16}>×16</option><option value={64}>×64</option><option value={256}>×256</option>
-              </select>
-            </label>
-          </div>
+          {ended ? (
+            <div className="mt-3 rounded-lg border border-line-2 bg-surface p-3" role="status" data-testid="ended-status">
+              <p className="text-sm font-semibold">Simulation ended · {ended.endReason}</p>
+              <p className="text-xs text-ink-2">At t = {ended.endT.toFixed(1)} s. The timeline, the numbers and the colours on the model are stopped. {ended.endWhy}.</p>
+              <div className="mt-2 flex flex-wrap gap-2 text-sm">
+                <button onClick={() => setDialogOpen(true)} className="rounded-lg border border-line-2 px-3 py-1.5" data-testid="view-results">View results</button>
+                <button onClick={lightAgain} className="rounded-lg bg-accent px-3 py-1.5 font-semibold text-black" data-testid="light-again-panel">Light it again</button>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+              <button onClick={() => setPlaying((p) => !p)} className="rounded-lg border border-line-2 px-3 py-1.5">{playing ? "Pause" : "Play"}</button>
+              <button onClick={() => { setT(0); setPlaying(true); }} className="rounded-lg border border-line-2 px-3 py-1.5 text-ink-2 hover:text-ink">Restart</button>
+              <label className="text-ink-2">Speed
+                <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))} className="ml-1 rounded-lg border border-line-2 bg-surface px-1.5 py-1 text-ink">
+                  <option value={1}>×1</option><option value={4}>×4</option><option value={16}>×16</option><option value={64}>×64</option><option value={256}>×256</option>
+                </select>
+              </label>
+            </div>
+          )}
           <div className="mt-2">
             <label htmlFor="cp-time" className="flex justify-between text-xs text-ink-2"><span>Simulated time</span><span className="tabular-nums">{t.toFixed(0)} s</span></label>
-            <input id="cp-time" type="range" min={0} max={maxT} step={0.5} value={t} onChange={(e) => { setPlaying(false); setT(Number(e.target.value)); }} className="w-full" />
+            <input id="cp-time" type="range" min={0} max={Math.max(maxT, 1)} step={0.5} value={t} disabled={!!ended} onChange={(e) => { setPlaying(false); setT(Number(e.target.value)); }} className="w-full" />
           </div>
 
           <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
@@ -487,7 +503,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated" }:
           <li key={m.id} className="rounded-lg border border-line p-2 text-xs">
             <p className="font-medium text-ink">{m.action}</p>
             {measuredOnly ? <p className="text-muted">Hidden: not measured data.</p> : <FactLine f={m.effect} hide={false} />}
-            <button onClick={() => apply(m.id)} disabled={!source || m.id in applied}
+            <button onClick={() => apply(m.id)} disabled={!source || !!ended || m.id in applied}
               className="mt-1 rounded-lg bg-accent px-3 py-1 text-xs font-semibold text-black disabled:cursor-not-allowed disabled:opacity-40">
               {m.id in applied ? `Applied at ${applied[m.id]} s` : "Apply measure"}
             </button>
@@ -496,7 +512,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated" }:
       </ul>
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <button onClick={download} disabled={!sim} className="rounded-lg border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:text-ink disabled:opacity-40">Download component sheet (.txt)</button>
+<button onClick={() => setDialogOpen(true)} disabled={!ended} className="rounded-lg border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:text-ink disabled:opacity-40">View results</button>
         <button onClick={downloadCsv} disabled={runCount === 0} data-testid="csv-download" className="rounded-lg border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:text-ink disabled:opacity-40">Download data (.csv)</button>
       </div>
       <p className="mt-1 text-[11px] text-muted" data-testid="csv-hint">
@@ -508,6 +524,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated" }:
         <summary className="cursor-pointer text-ink-2 hover:text-ink">Data gaps</summary>
         <ul className="mt-1 list-disc space-y-1 pl-4 text-muted">{CATALOG.gaps.map((g, i) => <li key={i}>{g}</li>)}</ul>
       </details>
+      {ended && dialogOpen && <ResultsDialog run={ended} sessionRuns={allRuns} onClose={() => setDialogOpen(false)} onLightAgain={lightAgain} />}
     </div>
   );
 }
