@@ -17,7 +17,15 @@ npm run dev          # → http://localhost:3000
 npm run build
 npm run type-check
 node scripts/build-data.mjs   # regenera investigations.v2.json
+npm run test:lab     # motor de componentes, catálogos, CSV y RunRecord (node --test, 76 tests)
 ```
+
+## Motor de componentes (en `/simulator#fire`)
+- Un toque en el modelo 3D identifica un componente y simula cómo un fuego pasa entre componentes (grafo, nivel A) con medidas "Apply measure", aviso de ruptura, evento de fin y ventana de resultados + CSV/.txt.
+- Datos por escena en `data/components/<env>.catalog.json` (+ `.map.json`): `suit`, `iss` (conjunto), `iss-interior`, `earth` (sitio), `earth-planet`, `moon` (módulo lunar) y `mars` (sin selector aún). Registro y vista en `lib/componentEnvs.ts`.
+- Todo `Fact` del catálogo lleva `tag` + `src` (lo valida `tests/componentCatalog.test.mjs`); lo sin fuente es `estimated`/hypothesis. Los huecos van en `gaps` de cada catálogo.
+- Motor puro: `lib/componentSpread.ts`; informe de ruptura: `lib/componentReport.ts`; registro inmutable de cada run (fuente única de ventana, CSV y .txt): `lib/runRecord.ts`, `lib/componentCsv.ts`; UI: `components/ComponentPanel.tsx`, `components/ResultsDialog.tsx`.
+- Herramienta de etiquetado solo para desarrollo: `/dev-label?model=iss|emu|lm` (da 404 en producción).
 
 ## APIs NASA (sin auth)
 ```
