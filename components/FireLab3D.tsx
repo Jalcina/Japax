@@ -301,7 +301,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
         </div>
 
         {/* ---- live data and component engine, side by side under the scene ---- */}
-        <div className="grid items-start gap-5 lg:grid-cols-2">
+        <div className="grid gap-5 lg:grid-cols-2">
           <div className="card p-4">
             <div className="flex items-baseline justify-between">
               <h3 className="font-semibold">{t("Live data")}</h3>
@@ -345,9 +345,9 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
       </div>
 
       {/* ---- conditions, material and suppression below ---- */}
-      <div className="mt-5 grid items-start gap-5 lg:grid-cols-2">
+      <div className="mt-5 grid gap-5 lg:grid-cols-2">
           {!custom ? (
-            <div className="card p-4">
+            <div className="card p-4 lg:col-start-1 lg:row-start-1">
               <h3 className="font-semibold">{t("{env}: fixed conditions", { env: t(ENV_NAME[env]) })}</h3>
               <ul className="mt-2 space-y-2.5">
                 {(["o2", "p", "g", "flow"] as const).map((k) => {
@@ -368,7 +368,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
               <p className="mt-2 text-xs text-muted">{t("Want your own numbers? Press")} <strong>{t("Custom")}</strong>.</p>
             </div>
           ) : (
-            <div id="fl3-custom" className="card p-4">
+            <div id="fl3-custom" className="card p-4 lg:col-start-1 lg:row-start-1">
               <h3 className="font-semibold">{t("Custom conditions")}</h3>
               <p className="text-xs text-muted">{t("Your own values drive the simulation. Closing this panel returns to the fixed data of {env}.", { env: t(ENV_NAME[env]) })}</p>
               <div className="mt-3 space-y-4">
@@ -390,8 +390,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
             </div>
           )}
 
-          <div className="space-y-5">
-          <div className="card p-4">
+          <div className="card p-4 lg:col-start-1 lg:row-start-2">
             <label className="block text-sm">
               <span className="font-semibold">{t("Material at the ignition point")}</span>
               <select value={material} onChange={(e) => { userPickedMaterial.current = true; setInferred(null); setMaterial(e.target.value as Material); }} className="mt-1 block w-full rounded-lg border border-line-2 bg-surface px-2 py-1.5">
@@ -403,7 +402,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
             {live && <p className="mt-1 text-xs text-ink-2">{t("Surface hit:")} <span className="text-ink">{live.surfaceName || t("unnamed mesh")}</span></p>}
           </div>
 
-          <div className="card p-4">
+          <div className="card p-4 lg:col-start-2 lg:row-span-2 lg:row-start-1">
             <h3 className="font-semibold">{t("Fire suppression")}</h3>
             <p className="text-xs text-muted">{t("Choose how to fight this fire, then activate it. The effect is applied to the fire you started.")}</p>
             <label className="mt-3 block text-sm">
@@ -433,7 +432,6 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
               {runsN > 0 && <button onClick={() => setResultsSignal((n) => n + 1)} data-testid="view-last-results-ext" className={`rounded-lg border px-3 py-2 text-sm hover:bg-accent/10 ${live?.phase === "out" ? "border-accent text-ink" : "border-line-2 text-ink-2 hover:text-ink"}`}>{t("View last results")}</button>}
             </div>
             <p className="mt-3 text-sm font-medium" aria-live="polite">{t(active || ext === "none" ? sc.headline : !lit ? "Start a fire first: tap a surface in the 3D scene, then Activate unlocks." : "Press Activate to apply it.")}</p>
-          </div>
           </div>
       </div>
 
