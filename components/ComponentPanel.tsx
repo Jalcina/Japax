@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { SceneApi } from "@/components/ImmersiveScene";
 import { engineMeasures, resolveComponent, toGraph, type CComponent, type CFact, type Resolution } from "@/lib/componentCatalog";
+import FireAlerts, { type FireAlertItem } from "@/components/FireAlerts";
 import ResultsDialog, { downloadText } from "@/components/ResultsDialog";
 import { buildCsv, csvFileName } from "@/lib/componentCsv";
 import { COMPONENT_ENVS, type EnvBundle } from "@/lib/componentEnvs";
@@ -290,6 +291,21 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
   const statesRef = useRef(states);
   statesRef.current = states;
 
+  // damage notifications: every component with damage of ANY severity at the simulated time on screen
+  // (burning, damaged by a neighbour's failure, ruptured, or put out but harmed). Intact / not reached / relieved are not damage.
+  const DAMAGE_ORDER = ["ruptured", "burning", "damaged", "extinguished"] as const;
+  const alertItems: FireAlertItem[] = sim && source && !ended
+    ? CATALOG.components
+        .flatMap((c): FireAlertItem[] => {
+          const st = states[c.id];
+          if (!(DAMAGE_ORDER as readonly string[]).includes(st)) return [];
+          const at = (s: string) => sim.events.find((e) => e.componentId === c.id && e.state === s)?.t ?? 0;
+          const forS = st === "burning" ? t - at("burning") : st === "ruptured" ? at("ruptured") - at("burning") : at(st);
+          return [{ id: c.id, name: X(shortLabel(c)), kind: st as FireAlertItem["kind"], forS: Math.max(0, forS) }];
+        })
+        .sort((a, b) => DAMAGE_ORDER.indexOf(a.kind) - DAMAGE_ORDER.indexOf(b.kind))
+    : [];
+
   // the visual layers: tint the real meshes of the components that burn, and draw the rupture
   useEffect(() => {
     if (!api || !TANK?.energetic) return;
@@ -397,6 +413,9 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
   const downloadCsv = () => downloadText(csvFileName(env), buildCsv(allRuns()), "text/csv;charset=utf-8");
 
   const apply = (id: string) => setApplied((a) => (ended || id in a ? a : { ...a, [id]: Math.round(t * 10) / 10 }));
+  /** every recommended measure of the catalog, at the current simulated time (the engine decides which ones matter for this fire) */
+  const pending = allMeasures.filter((m) => !(m.id in applied));
+  const applyAll = () => setApplied((a) => (ended ? a : { ...a, ...Object.fromEntries(allMeasures.filter((m) => !(m.id in a)).map((m) => [m.id, Math.round(t * 10) / 10])) }));
   const lightAgain = () => { const s = source ?? lastRun?.source ?? null; if (s) start(s, { componentId: s, method: "material", key: "light it again" }); };
   const hasLast = !!ended || !!lastRun;
   const openLast = () => { if (hasLast) setDialogOpen(true); };
@@ -449,7 +468,12 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
               {T("Forced failure (demo scenario, not a prediction)")}
             </label>
           </div>
-          {TANK.virtual && env === "suit" && <p className="mt-1 text-[11px] text-muted">{T("PLSS = the portable life-support backpack. The suit model has no separately selectable oxygen tank, so it is a virtual component (tap the “PLSS O2 tank” marker on the back of the suit). Its effects are drawn at the torso.")}</p>}
+          {TANK.virtual && env === "suit" && (
+            <details className="mt-1 text-[11px] text-muted">
+              <summary className="cursor-pointer text-ink-2 hover:text-ink">{T("What is the PLSS?")}</summary>
+              <p className="mt-1">{T("PLSS = the portable life-support backpack. The suit model has no separately selectable oxygen tank, so it is a virtual component (tap the “PLSS O2 tank” marker on the back of the suit). Its effects are drawn at the torso.")}</p>
+            </details>
+          )}
         </>
       )}
 
@@ -548,6 +572,10 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
           {T(ended ? "The simulation ended, so measures are locked. Press “Light it again” to try another one." : "Measures unlock once a fire is burning: tap a part of the model to start one.")}
         </p>
       )}
+      <button onClick={applyAll} disabled={!source || !!ended || pending.length === 0} data-testid="apply-all-measures"
+        className="mt-2 min-h-10 w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-bold text-white hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-40">
+        {pending.length === 0 && source ? T("All recommended measures applied") : T("🧯 Apply all recommended safety measures")}
+      </button>
       <ul className="mt-1 grid gap-1.5 sm:grid-cols-2">
         {allMeasures.map((m) => (
           <li key={m.id} className="flex flex-col rounded-lg border border-line p-2 text-xs sm:[&:last-child:nth-child(odd)]:col-span-2">
@@ -577,6 +605,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
         <summary className="cursor-pointer text-ink-2 hover:text-ink">{T("Data gaps")}</summary>
         <ul className="mt-1 list-disc space-y-1 pl-4 text-muted">{CATALOG.gaps.map((g, i) => <li key={i}>{X(g)}</li>)}</ul>
       </details>
+      <FireAlerts items={alertItems} runKey={runMeta.current?.runId ?? source ?? ""} onApplyAll={applyAll} pending={pending.length} />
       {dlgRun && <ResultsDialog run={dlgRun} runEn={dlgEn} sessionRuns={allRuns} onClose={() => setDialogOpen(false)} onLightAgain={lightAgain} />}
     </div>
   );
