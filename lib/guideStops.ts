@@ -21,8 +21,9 @@ export const GUIDE_T = {
     pageNames: { "/": "Overview", "/history": "Chronology", "/simulator": "Simulator", "/explorer": "Investigations", "/dashboard": "Ranking", "/references": "Sources" } as Record<string, string>,
     steps: {
       "/": [
-        { sel: "main h1", title: "Scope", body: "JaPax consolidates NASA's microgravity combustion investigations (PSI/NTRS) into a traceable evidence base for spacecraft and lunar-habitat fire safety. Every figure carries its PSI ID, DOI and an evidence tag: measured, reported, estimated or simulated." },
-        { sel: MENU, title: "Navigation", body: "Sections follow the safety-engineering workflow: chronology, simulation, investigations, multi-criteria ranking, fire-safety evidence and sources." },
+        { sel: "main h1", title: "Why JaPax exists", body: "In 1967 a fire in a pure-oxygen cabin killed three Apollo 1 astronauts. Today spacesuits and planned lunar habitats are still rich in oxygen, and in space there is no one to call. JaPax answers one question: if a fire starts, what must be protected first? Every figure carries its PSI ID, DOI and an evidence tag: measured, reported, estimated or simulated." },
+        { sel: "main ol[aria-label]", title: "Protect what keeps you alive", body: "In our simulation a fire that starts in the upper garment of a spacesuit reaches the oxygen tank in under a minute, and the tank bursts at 2:13. Shielding the tank turns six bursts out of six fires into one. It is a model, labelled as such, not a test.", tryIt: "Open the simulator and light a fire on the suit." },
+        { sel: MENU, title: "Navigation", body: "Sections follow the path from the lives lost to the answer: chronology, simulator, investigations, ranking, fire-safety evidence and sources." },
         { sel: "[data-pax]", title: "Pax", body: "Pax answers technical questions against the PSI corpus and flags every statement that falls outside it. Use it to query the data or to restart this tour." },
       ],
       "/history": [
@@ -66,8 +67,9 @@ export const GUIDE_T = {
     pageNames: { "/": "Inicio", "/history": "Cronología", "/simulator": "Simulador", "/explorer": "Investigaciones", "/dashboard": "Ranking", "/references": "Fuentes" } as Record<string, string>,
     steps: {
       "/": [
-        { sel: "main h1", title: "Alcance", body: "JaPax consolida las investigaciones de combustión en microgravedad de NASA (PSI/NTRS) en una base de evidencia trazable para la seguridad contra incendios en naves y hábitats lunares. Cada cifra lleva su PSI ID, su DOI y una etiqueta de evidencia: medido, reportado, estimado o simulado." },
-        { sel: MENU, title: "Navegación", body: "Las secciones siguen el flujo de trabajo de ingeniería de seguridad: cronología, simulación, investigaciones, ranking multicriterio, evidencia de seguridad contra incendios y fuentes." },
+        { sel: "main h1", title: "Por qué existe JaPax", body: "En 1967 un fuego en una cabina de oxígeno puro mató a tres astronautas del Apollo 1. Hoy los trajes espaciales y los hábitats lunares previstos siguen ricos en oxígeno, y en el espacio no hay a quién llamar. JaPax responde a una pregunta: si empieza un fuego, ¿qué hay que proteger primero? Cada cifra lleva su PSI ID, su DOI y una etiqueta de evidencia: medido, reportado, estimado o simulado." },
+        { sel: "main ol[aria-label]", title: "Protege lo que te mantiene vivo", body: "En nuestra simulación, un fuego que empieza en la prenda superior de un traje espacial llega al depósito de oxígeno en menos de un minuto, y el depósito revienta a los 2:13. Blindar el depósito convierte seis reventones de seis fuegos en uno. Es un modelo, etiquetado como tal, no un ensayo.", tryIt: "Abre el simulador y enciende un fuego en el traje." },
+        { sel: MENU, title: "Navegación", body: "Las secciones siguen el camino desde las vidas perdidas hasta la respuesta: cronología, simulador, investigaciones, ranking, evidencia de seguridad contra incendios y fuentes." },
         { sel: "[data-pax]", title: "Pax", body: "Pax responde consultas técnicas sobre el corpus PSI y señala cada afirmación que queda fuera de él. Úsalo para consultar los datos o reiniciar este recorrido." },
       ],
       "/history": [
