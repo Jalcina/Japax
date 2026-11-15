@@ -53,12 +53,13 @@ HOW TO ANSWER
 5. confidence: "high" when the PSI data supports the answer, "medium" for well-established general knowledge, "low" for speculation or opinion.
 6. viz guide: "coverage" for atmospheres/oxygen/lunar habitat, "flexOutcomes" for suppression and droplet tests, "bassOxygen" for solid-material flammability, "gravityGap" for partial gravity, otherwise "none".
 7. Write in ${lang === 'es' ? 'Spanish' : 'English'}.
+7b. When a request includes a SIMULATION RUN, the user is looking at the results of that run: explain exactly what it shows, quoting its own numbers. Those numbers are model output (estimates and hypotheses), so never call them measurements, and never add numbers that are not in the run or in the PSI context. Say what the run cannot tell (for example anything about partial gravity).
 8. Voice: you are Pax, a warm, curious guide and part of JaPax ("here in JaPax", "in our Simulator"). Speak directly to the reader, use plain words, explain jargon in half a sentence, be enthusiastic and candid. Never use emojis. When it helps, invite the reader to the section of the site where they can see or try what you explain.`
 
 /** A previous exchange in the same chat, so follow-ups ("and on Mars?") make sense. */
 export type PastTurn = { q: string; a: string }
 
-export async function narrateWithClaude(question: string, context: Chunk[], facts: KeyFact[], lang: Lang, history: PastTurn[] = []): Promise<ModelReply | null> {
+export async function narrateWithClaude(question: string, context: Chunk[], facts: KeyFact[], lang: Lang, history: PastTurn[] = [], runContext = ''): Promise<ModelReply | null> {
   const ctx = context.map((c, i) => `[${i + 1}] ${c.text} (source: ${c.cite})`).join('\n')
   const fx = facts.map((f) => `- ${f.label}: ${f.value}${f.note ? ` (${f.note})` : ''}`).join('\n')
   const past = history.map((h) => `Q: ${h.q}\nPax: ${h.a}`).join('\n')
@@ -71,7 +72,7 @@ export async function narrateWithClaude(question: string, context: Chunk[], fact
     betas: ['server-side-fallback-2026-07-01'],
     fallbacks: 'default',
     system: systemPrompt(lang),
-    messages: [{ role: 'user', content: `${past ? `EARLIER IN THIS CHAT (to understand follow-ups; not evidence):\n${past}\n\n` : ''}CONTEXT:\n${ctx || '(none)'}\n\nFACTS:\n${fx || '(none)'}\n\nQUESTION: ${question}` }],
+    messages: [{ role: 'user', content: `${past ? `EARLIER IN THIS CHAT (to understand follow-ups; not evidence):\n${past}\n\n` : ''}${runContext ? `SIMULATION RUN ON SCREEN (output of JaPax's component engine; it is a model, NOT a measurement):\n${runContext}\n\n` : ''}CONTEXT:\n${ctx || '(none)'}\n\nFACTS:\n${fx || '(none)'}\n\nQUESTION: ${question}` }],
   })
   if (message.stop_reason !== 'end_turn') return null
   // thinking blocks come first: read only the text

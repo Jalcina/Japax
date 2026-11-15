@@ -20,6 +20,21 @@ export const TOPICS: { id: ExplainTopic; en: string; es: string }[] = [
   { id: "trust", en: "How much can I trust this?", es: "¿Cuánto me puedo fiar?" },
 ];
 
+/** Compact text of the run (all taken from the RunRecord) that is sent with a free question so Pax can answer about THIS run. */
+export function runContextText(run: RunRecord): string {
+  const lines: string[] = [];
+  lines.push(`Environment: ${run.env}. Fire started at: ${short(run.startLabel)}. Run ended at ${f1(run.endT)} s. End reason: ${run.endReason} (${run.endWhy}).`);
+  lines.push(`Conditions (tag ${run.atmTag}): O2 ${Math.round(run.atm.o2 * 100)} %, pressure ${run.atm.pressureAtm} atm, gravity ${run.atm.gravityG} g, airflow ${run.atm.flowCmS} cm/s. Forced failure demo: ${run.forced ? "yes" : "no"}.`);
+  lines.push("Components (final state, ignition second, burning seconds):");
+  for (const c of run.components) lines.push(`- ${short(c.name)} [${c.material}]: ${c.finalState}${c.ignitionS === null ? ", never reached" : `, ignited ${f1(c.ignitionS)} s, burned ${c.burningS === null ? "n/a" : f1(c.burningS)} s, from ${c.propagatedFrom}`}`);
+  const done = run.measures.filter((m) => m.status === "applied");
+  lines.push(done.length ? `Measures applied: ${done.map((m) => `${m.action} at ${f1(m.atS ?? 0)} s (${m.tag})`).join("; ")}.` : "Measures applied: none.");
+  const r = run.rupture;
+  if (r && r.status !== "none") lines.push(`Energetic component ${short(r.tankLabel)}: ${r.status}${r.ruptureAt === null ? "" : ` at ${f1(r.ruptureAt)} s`}; assumed heating window ${r.window[0]}-${r.window[1]} s (assumption); forced: ${r.forced ? "yes" : "no"}.`);
+  lines.push(`Summary: ${run.summary.join(" ")}`);
+  return lines.join("\n").slice(0, 3900);
+}
+
 export function availableTopics(run: RunRecord): ExplainTopic[] {
   return TOPICS.map((t) => t.id).filter((id) => id !== "rupture" || run.rupture !== null);
 }

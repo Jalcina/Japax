@@ -22,10 +22,13 @@ export async function POST(req: Request) {
   let question = "";
   let lang: Lang = "en";
   let history: PastTurn[] = [];
+  let runContext = "";
   try {
     const body = await req.json();
     question = typeof body?.question === "string" ? body.question.trim().slice(0, 500) : "";
     lang = body?.lang === "es" ? "es" : "en";
+    // the simulation run the user is looking at (built in the browser from its RunRecord), so Pax can explain it
+    runContext = typeof body?.runContext === "string" ? body.runContext.slice(0, 4000) : "";
     if (Array.isArray(body?.history))
       history = (body.history as PastTurn[])
         .filter((h) => typeof h?.q === "string" && typeof h?.a === "string")
@@ -46,7 +49,7 @@ export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "local";
   if (hasApiKey() && allowAi(ip)) {
     try {
-      const n = await narrateWithClaude(question, context, answer.keyFacts, lang, history);
+      const n = await narrateWithClaude(question, context, answer.keyFacts, lang, history, runContext);
       if (n) {
         const order: Record<string, number> = { high: 3, medium: 2, low: 1 };
         return NextResponse.json({
