@@ -222,16 +222,6 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
     if (guess && !userPickedMaterial.current) setMaterial(guess);
   }, []);
 
-  // keyboard / assistive route: ignite where the camera is looking (the centre of the canvas)
-  const igniteCentre = () => {
-    const api = apiRef.current;
-    const c = document.querySelector<HTMLCanvasElement>("#fire-lab canvas");
-    if (!api || !c) return;
-    const r = c.getBoundingClientRect();
-    const hit = api.raycast(r.x + r.width / 2, r.y + r.height / 2);
-    if (hit) onPick([hit.point.x, hit.point.y, hit.point.z], { normal: [hit.normal.x, hit.normal.y, hit.normal.z], name: hit.name, material: hit.material });
-  };
-
   const switchView = (v: "site" | "overview") => { setView(v); setPanelPick(null); setReady(false); setLit(false); setStats(null); setActivated(null); };
 
   const reset = () => { labRef.current?.reset(); setActivated(null); setLit(false); setStats(null); };
@@ -273,7 +263,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
       <div className="mt-4 flex flex-col gap-5">
         {/* ---- 3D scene ---- */}
         <div className="flex flex-col">
-          <div className="relative lg:h-[clamp(420px,calc(100svh-13rem),760px)]" role="region" aria-label={t("Interactive 3D scene. Tap a surface to start a fire; or use the button below the scene to start one at the centre of the view.")}>
+          <div className="relative lg:h-[clamp(420px,calc(100svh-13rem),760px)]" role="region" aria-label={t("Interactive 3D scene. Tap a surface to start a fire.")}>
             <ImmersiveScene env={env as ImmersiveEnv} wide overview={view === "overview"} onReady={onReady} onPick={onPick} className="h-[56svh] min-h-[300px] max-h-[540px] lg:absolute lg:inset-0 lg:h-full lg:max-h-none" />
             {ready && !lit && (
               <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center px-3">
@@ -295,7 +285,6 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
                 <button onClick={() => switchView("overview")} aria-pressed={view === "overview"} className={`rounded-lg border px-3 py-1.5 ${view === "overview" ? "border-accent bg-accent/15" : "border-line-2 text-ink-2 hover:text-ink"}`}>{t(env === "iss" ? "Whole station" : "Whole Earth")}</button>
               </div>
             )}
-            <button onClick={igniteCentre} disabled={!ready} className="min-h-9 rounded-lg border border-line-2 px-3 py-1.5 text-ink-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-40">{t("Start a fire at the centre of the view")}</button>
             <label className="flex items-center gap-1.5 text-ink-2">
               {t("Time-lapse")}
               <select value={lapse} onChange={(e) => setLapse(Number(e.target.value))} className="min-h-9 rounded-lg border border-line-2 bg-surface px-1.5 py-1 text-ink">
@@ -305,7 +294,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
             <button onClick={() => setResultsSignal((n) => n + 1)} disabled={runsN === 0} data-testid="view-last-results-bar" className="min-h-9 rounded-lg border border-accent/60 px-3 py-1.5 text-ink hover:bg-accent/10 disabled:cursor-not-allowed disabled:border-line-2 disabled:text-ink-2 disabled:opacity-40 sm:ml-auto">{t("View last results")}</button>
           </div>
           <p className="mt-1.5 text-[11px] leading-snug text-muted">
-            {t("No mouse or touch? Frame the view first, then use this button.")} {t("Real fires here creep at millimetres per second, so time is sped up. Both clocks are shown.")}{" "}
+            {t("Real fires here creep at millimetres per second, so time is sped up. Both clocks are shown.")}{" "}
             {t("3D scene: a visualization, not a measurement. Models: NASA 3D Resources (ISS, EMU, Lunar Module), procedural terrain and Earth textures from three.js examples.")}{" "}
             <Link href="/references" className="link">{t("References")}</Link>
           </p>

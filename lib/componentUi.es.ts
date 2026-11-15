@@ -175,7 +175,7 @@ const COMPONENT_UI_ES: Record<string, string> = {
   "View last results": "Ver resultados de la última prueba",
   "Why and source": "Por qué y fuente",
   "The simulation ended, so measures are locked. Press “Light it again” to try another one.": "La simulación terminó, así que las medidas están bloqueadas. Pulsa «Encenderlo de nuevo» para probar otra.",
-  "Measures unlock once a fire is burning: tap a part of the model (or use the button under the scene) to start one.": "Las medidas se desbloquean cuando hay un fuego encendido: toca una parte del modelo (o usa el botón bajo la escena) para iniciarlo.",
+  "Measures unlock once a fire is burning: tap a part of the model to start one.": "Las medidas se desbloquean cuando hay un fuego encendido: toca una parte del modelo para iniciarlo.",
 };
 
 export default COMPONENT_UI_ES;
