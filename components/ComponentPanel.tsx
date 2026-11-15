@@ -140,6 +140,8 @@ function RuptureNotice({ rep, atm, condTag, tank, applied }: { rep: NonNullable<
 /** every run of this page session (cleared on reload): immutable RunRecords, finished or closed early. The run on screen is added when a file is built. */
 const sessionRuns: RunRecord[] = [];
 let runSeq = 0;
+/** the last run that finished or was closed (any end reason): "View last results" reopens it at any time, even after a new ignition */
+let lastRun: { build: (l?: "en" | "es") => RunRecord; source: string } | null = null;
 /** the run on screen: the same inputs and the same engine events as the timeline */
 interface CurRun { runId: string; ts: string; source: string; atm: Atm; forced: boolean; measuredOnly: boolean; applied: Record<string, number>; events: CEvent[]; t: number }
 
@@ -147,6 +149,8 @@ interface PanelProps {
   api: SceneApi | null; atm: Atm; pick: PanelPick | null; env: string;
   /** tag of the atmosphere values themselves (estimated for the Moon and the suit) */ condTag?: string;
   /** phase of the surface-fire layer (LabFire): "out" means the lab's own suppression system put the fire out */ labPhase?: string;
+  /** every change opens the results window of the last run (a button elsewhere on the page); 0 = never */ resultsSignal?: number;
+  /** tells the page how many runs this session has, so its own "View last results" button knows when to enable */ onRuns?: (n: number) => void;
 }
 
 /** Generic panel: it renders for every environment that has a catalog in lib/componentEnvs and for no other. */
@@ -156,7 +160,7 @@ export default function ComponentPanel(props: PanelProps) {
   return <EnvPanel key={props.env} {...props} bundle={bundle} />;
 }
 
-function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", labPhase }: PanelProps & { bundle: EnvBundle }) {
+function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", labPhase, resultsSignal = 0, onRuns }: PanelProps & { bundle: EnvBundle }) {
   const { lang, t: T, X } = useTr();
   const stateName = (st: string) => (lang === "es" ? STATE_ES : (LABEL as Record<string, string>))[st] ?? st;
   const CATALOG = bundle.catalog;
@@ -189,9 +193,16 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
   const [dialogOpen, setDialogOpen] = useState(false);
   const [, bump] = useState(0);
 
+  /** stores a run that stopped (kept for the files and for "View last results") */
+  const closeRun = (c: CurRun, endAt?: BuildInput["endAt"]) => {
+    sessionRuns.push(mk.current(c, endAt));
+    const build = mk.current; // the builder of this very environment, even if the panel unmounts later
+    lastRun = { build: (l) => build(c, endAt, l), source: c.source };
+  };
+
   const start = useCallback((id: string | null, r: Resolution | null) => {
     // a new ignition closes the run on screen as interrupted (kept for the files) and opens the next run_id
-    if (cur.current) { sessionRuns.push(mk.current(cur.current, { t: cur.current.t, reason: "interrupted_by_user" })); cur.current = null; }
+    if (cur.current) { closeRun(cur.current, { t: cur.current.t, reason: "interrupted_by_user" }); cur.current = null; }
     if (id) { runSeq += 1; runMeta.current = { runId: `run-${String(runSeq).padStart(3, "0")}`, ts: new Date().toISOString() }; } else runMeta.current = null;
     setEnded(null);
     endedSrc.current = null;
@@ -220,7 +231,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
   cur.current = sim && source && runMeta.current && !ended ? { runId: runMeta.current.runId, ts: runMeta.current.ts, source, atm, forced, measuredOnly, applied, events: sim.events, t } : null;
   mk.current = (c, endAt, l) => buildRunRecord({ lang: l, runId: c.runId, timestampUtc: c.ts, appVersion: pkg.version, env, source: c.source, atm: c.atm, atmTag: condTag, forced: c.forced, measuredOnly: c.measuredOnly, applied: c.applied, events: c.events, catalog: CATALOG, endAt });
   // leaving the environment closes the run on screen
-  useEffect(() => () => { if (cur.current) { sessionRuns.push(mk.current(cur.current, { t: cur.current.t, reason: "interrupted_by_user" })); cur.current = null; } }, []);
+  useEffect(() => () => { if (cur.current) { closeRun(cur.current, { t: cur.current.t, reason: "interrupted_by_user" }); cur.current = null; } }, []);
   /** the engine's own end of the run: playback stops exactly there */
   const endT = sim?.end.t ?? 0;
   const maxT = endT;
@@ -228,7 +239,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
   const finishWith = (endAt?: BuildInput["endAt"]) => {
     if (!cur.current) return;
     const c = cur.current;
-    sessionRuns.push(mk.current(c, endAt));
+    closeRun(c, endAt);
     endedSrc.current = { c, endAt };
     const rec = mk.current(c, endAt, lang);
     cur.current = null;
@@ -386,7 +397,19 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
   const downloadCsv = () => downloadText(csvFileName(env), buildCsv(allRuns()), "text/csv;charset=utf-8");
 
   const apply = (id: string) => setApplied((a) => (ended || id in a ? a : { ...a, [id]: Math.round(t * 10) / 10 }));
-  const lightAgain = () => { if (source) start(source, { componentId: source, method: "material", key: "light it again" }); };
+  const lightAgain = () => { const s = source ?? lastRun?.source ?? null; if (s) start(s, { componentId: s, method: "material", key: "light it again" }); };
+  const hasLast = !!ended || !!lastRun;
+  const openLast = () => { if (hasLast) setDialogOpen(true); };
+  // the window of a run that is not the one on screen (the last one closed), rebuilt in the current language
+  const dlgRun = dialogOpen ? (ended ?? lastRun?.build(lang) ?? null) : null;
+  const dlgEn = () => (ended ? (endedSrc.current ? mk.current(endedSrc.current.c, endedSrc.current.endAt) : ended) : (lastRun?.build("en") as RunRecord));
+  // a button elsewhere on the page asks for the last results
+  const firstSignal = useRef(resultsSignal);
+  useEffect(() => {
+    if (resultsSignal !== firstSignal.current) { firstSignal.current = resultsSignal; openLast(); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultsSignal]);
+  useEffect(() => { onRuns?.(runCount); }, [runCount, onRuns]);
 
   return (
     <div className="card p-4" id="component-panel">
@@ -522,25 +545,30 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
       <p className="text-[11px] text-muted">{T("Applied at the current simulated time. Every measure here is an engineering proposal (hypothesis); none has test data for this model.")}</p>
       {(!source || ended) && (
         <p className="mt-1 rounded border border-amber-400/40 px-2 py-1 text-[11px] text-amber-300" role="status" data-testid="measures-locked">
-          {ended ? "The simulation ended, so measures are locked. Press “Light it again” to try another one." : "Measures unlock once a fire is burning: tap a part of the model (or use the button under the scene) to start one."}
+          {T(ended ? "The simulation ended, so measures are locked. Press “Light it again” to try another one." : "Measures unlock once a fire is burning: tap a part of the model (or use the button under the scene) to start one.")}
         </p>
       )}
-      <ul className="mt-1 space-y-2">
+      <ul className="mt-1 space-y-1.5">
         {allMeasures.map((m) => (
           <li key={m.id} className="rounded-lg border border-line p-2 text-xs">
-            <p className="font-medium text-ink">{X(m.action)}</p>
-            {measuredOnly ? <p className="text-muted">{T("Hidden: not measured data.")}</p> : <FactLine f={m.effect} hide={false} />}
-            <button onClick={() => apply(m.id)} disabled={!source || !!ended || m.id in applied}
-              className="mt-1 rounded-lg bg-accent px-3 py-1 text-xs font-semibold text-black disabled:cursor-not-allowed disabled:opacity-40">
-              {m.id in applied ? T("Applied at {s} s", { s: applied[m.id] }) : T("Apply measure")}
-            </button>
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+              <p className="min-w-0 flex-1 basis-48 font-medium text-ink">{X(m.action)}</p>
+              <button onClick={() => apply(m.id)} disabled={!source || !!ended || m.id in applied}
+                className="min-h-9 shrink-0 rounded-lg bg-accent px-3 py-1 text-xs font-semibold text-black disabled:cursor-not-allowed disabled:opacity-40">
+                {m.id in applied ? T("Applied at {s} s", { s: applied[m.id] }) : T("Apply measure")}
+              </button>
+            </div>
+            <details className="mt-1">
+              <summary className="cursor-pointer text-[11px] text-ink-2 hover:text-ink">{T("Why and source")}</summary>
+              {measuredOnly ? <p className="text-muted">{T("Hidden: not measured data.")}</p> : <FactLine f={m.effect} hide={false} />}
+            </details>
           </li>
         ))}
       </ul>
 
-      <div className="mt-3 flex flex-wrap items-center gap-3">
-<button onClick={() => setDialogOpen(true)} disabled={!ended} className="rounded-lg border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:text-ink disabled:opacity-40">{T("View results")}</button>
-        <button onClick={downloadCsv} disabled={runCount === 0} data-testid="csv-download" className="rounded-lg border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:text-ink disabled:opacity-40">{T("Download data (.csv)")}</button>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <button onClick={openLast} disabled={!hasLast} data-testid="view-last-results" className="min-h-9 rounded-lg border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:text-ink disabled:opacity-40">{T("View last results")}</button>
+        <button onClick={downloadCsv} disabled={runCount === 0} data-testid="csv-download" className="min-h-9 rounded-lg border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:text-ink disabled:opacity-40">{T("Download data (.csv)")}</button>
       </div>
       <p className="mt-1 text-[11px] text-muted" data-testid="csv-hint">
         {runCount === 0
@@ -551,7 +579,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
         <summary className="cursor-pointer text-ink-2 hover:text-ink">{T("Data gaps")}</summary>
         <ul className="mt-1 list-disc space-y-1 pl-4 text-muted">{CATALOG.gaps.map((g, i) => <li key={i}>{X(g)}</li>)}</ul>
       </details>
-      {ended && dialogOpen && <ResultsDialog run={ended} runEn={() => (endedSrc.current ? mk.current(endedSrc.current.c, endedSrc.current.endAt) : ended)} sessionRuns={allRuns} onClose={() => setDialogOpen(false)} onLightAgain={lightAgain} />}
+      {dlgRun && <ResultsDialog run={dlgRun} runEn={dlgEn} sessionRuns={allRuns} onClose={() => setDialogOpen(false)} onLightAgain={lightAgain} />}
     </div>
   );
 }

@@ -172,6 +172,10 @@ const COMPONENT_UI_ES: Record<string, string> = {
   "Why the run stopped: extinguished by a measure, self-extinguished, burned out, ruptured and settled, or the look-ahead limit.": "Por qué se detuvo la simulación: apagado por una medida, se apagó solo, agotado, rotura ya asentada o límite de previsión.",
   "Summary": "Resumen",
   "Evidence and gaps": "Evidencia y huecos",
+  "View last results": "Ver resultados de la última prueba",
+  "Why and source": "Por qué y fuente",
+  "The simulation ended, so measures are locked. Press “Light it again” to try another one.": "La simulación terminó, así que las medidas están bloqueadas. Pulsa «Encenderlo de nuevo» para probar otra.",
+  "Measures unlock once a fire is burning: tap a part of the model (or use the button under the scene) to start one.": "Las medidas se desbloquean cuando hay un fuego encendido: toca una parte del modelo (o usa el botón bajo la escena) para iniciarlo.",
 };
 
 export default COMPONENT_UI_ES;

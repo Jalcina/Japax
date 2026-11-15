@@ -91,11 +91,13 @@ const fmt = (x: number, d = 1) => (Number.isFinite(x) ? x.toFixed(d) : "—");
 
 function Tile({ label, value, tag, eli5 }: { label: string; value: string; tag?: string; eli5: string }) {
   return (
-    <div className="rounded-lg border border-line bg-surface-2 p-2.5">
-      <p className="text-[11px] uppercase tracking-wide text-muted">{label}</p>
-      <p className="mt-0.5 text-lg font-semibold tabular-nums leading-tight">{value}</p>
-      <p className="mt-1 text-[11px] leading-snug text-ink-2">{eli5}</p>
-      {tag && <span className={`mt-1 inline-block rounded px-1.5 py-0.5 text-[10px] font-medium ${SIM}`}>{tag}</span>}
+    <div className="rounded-lg border border-line bg-surface-2 px-2.5 py-2" title={eli5}>
+      <p className="truncate text-[10px] uppercase tracking-wide text-muted">{label}</p>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+        <p className="text-base font-semibold tabular-nums leading-tight sm:text-lg">{value}</p>
+        {tag && <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${SIM}`}>{tag}</span>}
+      </div>
+      <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-ink-2">{eli5}</p>
     </div>
   );
 }
@@ -141,6 +143,9 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
   const [stats, setStats] = useState<LabStats | null>(null);
   const [ready, setReady] = useState(false);
   const [lit, setLit] = useState(false);
+  /** "View last results": counts button presses (the panel opens its window on every change) and how many runs this session has */
+  const [resultsSignal, setResultsSignal] = useState(0);
+  const [runsN, setRunsN] = useState(0);
   const labRef = useRef<LabFire | null>(null);
   const apiRef = useRef<SceneApi | null>(null);
   const [sceneApi, setSceneApi] = useState<SceneApi | null>(null);
@@ -268,8 +273,8 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
       <div className="mt-4 flex flex-col gap-5">
         {/* ---- 3D scene ---- */}
         <div className="flex flex-col">
-          <div className="relative lg:min-h-[66vh] lg:flex-1" role="region" aria-label={t("Interactive 3D scene. Tap a surface to start a fire; or use the button below the scene to start one at the centre of the view.")}>
-            <ImmersiveScene env={env as ImmersiveEnv} wide overview={view === "overview"} onReady={onReady} onPick={onPick} className="h-[52vh] min-h-[320px] lg:absolute lg:inset-0 lg:h-full" />
+          <div className="relative lg:h-[clamp(420px,calc(100svh-13rem),760px)]" role="region" aria-label={t("Interactive 3D scene. Tap a surface to start a fire; or use the button below the scene to start one at the centre of the view.")}>
+            <ImmersiveScene env={env as ImmersiveEnv} wide overview={view === "overview"} onReady={onReady} onPick={onPick} className="h-[56svh] min-h-[300px] max-h-[540px] lg:absolute lg:inset-0 lg:h-full lg:max-h-none" />
             {ready && !lit && (
               <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center px-3">
                 <span className="rounded-full bg-black/65 px-4 py-2 text-center text-sm text-white backdrop-blur">{t("Tap a panel, cable, fabric or piece of equipment to start a fire there")}</span>
@@ -277,35 +282,33 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
             )}
             {lit && (
               <div className="absolute right-3 top-3 flex gap-2 text-xs">
-                <button onClick={reignite} className="rounded-full bg-black/60 px-3 py-1.5 text-white/90 backdrop-blur hover:bg-black/80">{t("Re-ignite")}</button>
-                <button onClick={reset} className="rounded-full bg-black/60 px-3 py-1.5 text-white/90 backdrop-blur hover:bg-black/80">{t("Clear")}</button>
+                <button onClick={reignite} className="min-h-9 rounded-full bg-black/60 px-3.5 py-1.5 text-white/90 backdrop-blur hover:bg-black/80">{t("Re-ignite")}</button>
+                <button onClick={reset} className="min-h-9 rounded-full bg-black/60 px-3.5 py-1.5 text-white/90 backdrop-blur hover:bg-black/80">{t("Clear")}</button>
               </div>
             )}
             <span className="pointer-events-none absolute bottom-8 left-3 rounded bg-black/55 px-2 py-0.5 text-[11px] text-white/80">{t("SIMULATION · flames and spread are illustrative")}</span>
           </div>
-          <p className="mt-1.5 text-xs text-muted">
-            {t("3D scene: a visualization, not a measurement. Models: NASA 3D Resources (ISS, EMU, Lunar Module), procedural terrain and Earth textures from three.js examples.")}{" "}
-            <Link href="/references" className="link">{t("References")}</Link>
-          </p>
-
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
             {(env === "iss" || env === "earth") && (
               <div className="flex gap-1.5" role="group" aria-label={t("Scene view")}>
                 <button onClick={() => switchView("site")} aria-pressed={view === "site"} className={`rounded-lg border px-3 py-1.5 ${view === "site" ? "border-accent bg-accent/15" : "border-line-2 text-ink-2 hover:text-ink"}`}>{t("Fire site")}</button>
                 <button onClick={() => switchView("overview")} aria-pressed={view === "overview"} className={`rounded-lg border px-3 py-1.5 ${view === "overview" ? "border-accent bg-accent/15" : "border-line-2 text-ink-2 hover:text-ink"}`}>{t(env === "iss" ? "Whole station" : "Whole Earth")}</button>
               </div>
             )}
-            <button onClick={igniteCentre} disabled={!ready} className="rounded-lg border border-line-2 px-3 py-1.5 text-ink-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-40">{t("Start a fire at the centre of the view")}</button>
-            <span className="text-xs text-muted">{t("No mouse or touch? Frame the view first, then use this button.")}</span>
+            <button onClick={igniteCentre} disabled={!ready} className="min-h-9 rounded-lg border border-line-2 px-3 py-1.5 text-ink-2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-40">{t("Start a fire at the centre of the view")}</button>
+            <label className="flex items-center gap-1.5 text-ink-2">
+              {t("Time-lapse")}
+              <select value={lapse} onChange={(e) => setLapse(Number(e.target.value))} className="min-h-9 rounded-lg border border-line-2 bg-surface px-1.5 py-1 text-ink">
+                <option value={20}>×20</option><option value={40}>×40</option><option value={80}>×80</option><option value={160}>×160</option>
+              </select>
+            </label>
+            <button onClick={() => setResultsSignal((n) => n + 1)} disabled={runsN === 0} data-testid="view-last-results-bar" className="min-h-9 rounded-lg border border-accent/60 px-3 py-1.5 text-ink hover:bg-accent/10 disabled:cursor-not-allowed disabled:border-line-2 disabled:text-ink-2 disabled:opacity-40 sm:ml-auto">{t("View last results")}</button>
           </div>
-
-          <label className="mt-3 flex flex-wrap items-center gap-2 text-sm text-ink-2">
-            {t("Time-lapse")}
-            <select value={lapse} onChange={(e) => setLapse(Number(e.target.value))} className="rounded-lg border border-line-2 bg-surface px-1.5 py-1 text-ink">
-              <option value={20}>×20</option><option value={40}>×40</option><option value={80}>×80</option><option value={160}>×160</option>
-            </select>
-            <span className="text-xs text-muted">{t("Real fires here creep at millimetres per second, so time is sped up. Both clocks are shown.")}</span>
-          </label>
+          <p className="mt-1.5 text-[11px] leading-snug text-muted">
+            {t("No mouse or touch? Frame the view first, then use this button.")} {t("Real fires here creep at millimetres per second, so time is sped up. Both clocks are shown.")}{" "}
+            {t("3D scene: a visualization, not a measurement. Models: NASA 3D Resources (ISS, EMU, Lunar Module), procedural terrain and Earth textures from three.js examples.")}{" "}
+            <Link href="/references" className="link">{t("References")}</Link>
+          </p>
         </div>
 
         {/* ---- live data and component engine, side by side under the scene ---- */}
@@ -348,7 +351,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
             </details>
           </div>
           {/* each scene has its own catalog: the "fire site" and the whole-place views are different models (see lib/componentEnvs) */}
-          {<ComponentPanel env={componentEnvKey(env, view)} api={sceneApi} atm={atm} pick={panelPick} condTag={estimatedEnv ? "estimated" : "reported"} labPhase={stats?.phase} />}
+          {<ComponentPanel env={componentEnvKey(env, view)} api={sceneApi} atm={atm} pick={panelPick} condTag={estimatedEnv ? "estimated" : "reported"} labPhase={stats?.phase} resultsSignal={resultsSignal} onRuns={setRunsN} />}
         </div>
       </div>
 
@@ -368,7 +371,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
                         <span className="flex items-center gap-1.5"><strong className="tabular-nums">{t(r.value)}</strong><span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${TAG[r.tag]}`}>{t(r.tag)}</span></span>
                       </div>
                       <p className="text-xs text-ink-2">{t(r.eli5)}</p>
-                      <p className="text-[11px] text-muted">{t("Source:")} {t(r.src)}</p>
+                      <details><summary className="cursor-pointer text-[11px] text-muted hover:text-ink-2">{t("Source:")}</summary><p className="text-[11px] text-muted">{t(r.src)}</p></details>
                     </li>
                   );
                 })}
@@ -438,6 +441,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
             <div className="mt-3 flex gap-2">
               <button onClick={activate} disabled={ext === "none" || !lit || active} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-40">{t(active ? "Activated" : "Activate")}</button>
               {active && <button onClick={() => setActivated(null)} className="rounded-lg border border-line-2 px-3 py-2 text-sm text-ink-2 hover:text-ink">{t("Cancel")}</button>}
+              {runsN > 0 && <button onClick={() => setResultsSignal((n) => n + 1)} data-testid="view-last-results-ext" className={`rounded-lg border px-3 py-2 text-sm hover:bg-accent/10 ${live?.phase === "out" ? "border-accent text-ink" : "border-line-2 text-ink-2 hover:text-ink"}`}>{t("View last results")}</button>}
             </div>
             <p className="mt-3 text-sm font-medium" aria-live="polite">{t(active || ext === "none" ? sc.headline : !lit ? "Start a fire first: tap a surface in the 3D scene, then Activate unlocks." : "Press Activate to apply it.")}</p>
           </div>
