@@ -34,17 +34,27 @@ RULES
 6. Write in ${lang === 'es' ? 'Spanish' : 'English'}.
 7. Voice: you are Pax, a warm, curious guide. Speak directly to the reader, use plain words, and explain any jargon in half a sentence. Be enthusiastic about what the data shows and candid about what it does not. Never use emojis, never exaggerate, and never let the friendly tone soften a caveat or a data gap.`
 
-export async function narrateWithClaude(question: string, context: Chunk[], facts: KeyFact[], lang: Lang): Promise<ModelReply | null> {
+/** A previous exchange in the same chat, so follow-ups ("and on Mars?") make sense. */
+export type PastTurn = { q: string; a: string }
+
+export async function narrateWithClaude(question: string, context: Chunk[], facts: KeyFact[], lang: Lang, history: PastTurn[] = []): Promise<ModelReply | null> {
   const ctx = context.map((c, i) => `[${i + 1}] ${c.text} (source: ${c.cite})`).join('\n')
   const fx = facts.map((f) => `- ${f.label}: ${f.value}${f.note ? ` (${f.note})` : ''}`).join('\n')
-  const message = await getClient().messages.create({
+  const past = history.map((h) => `Q: ${h.q}\nPax: ${h.a}`).join('\n')
+  const message = await getClient().beta.messages.create({
     model: MODEL_MAIN,
-    max_tokens: 700,
+    // Sonnet 5.5 thinks by default; low effort keeps a chat reply fast and cheap.
+    max_tokens: 2000,
+    output_config: { effort: 'low' },
+    // On a safety decline, the API retries on a fallback model within the same call.
+    betas: ['server-side-fallback-2026-07-01'],
+    fallbacks: 'default',
     system: systemPrompt(lang),
-    messages: [{ role: 'user', content: `CONTEXT:\n${ctx || '(none)'}\n\nFACTS:\n${fx || '(none)'}\n\nQUESTION: ${question}` }],
+    messages: [{ role: 'user', content: `${past ? `EARLIER IN THIS CHAT (to understand follow-ups; not evidence):\n${past}\n\n` : ''}CONTEXT:\n${ctx || '(none)'}\n\nFACTS:\n${fx || '(none)'}\n\nQUESTION: ${question}` }],
   })
-  const block = message.content[0]
-  const raw = block.type === 'text' ? block.text : ''
+  if (message.stop_reason !== 'end_turn') return null
+  // thinking blocks come first: read only the text
+  const raw = message.content.map((b) => (b.type === 'text' ? b.text : '')).join('')
   const reply = parseModelJson(raw)
   if (!reply) return null
   // anti-hallucination: keep only sentences whose numbers are in the evidence

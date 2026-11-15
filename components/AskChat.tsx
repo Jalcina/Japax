@@ -278,7 +278,9 @@ export default function AskChat({ embedded = false, initialQuestion }: { embedde
     setTurns((x) => [...x, { q: question }]);
     setPaxMood("thinking");
     try {
-      const res = await fetch("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, lang }) });
+      // the last two answered turns, so Pax understands follow-ups
+      const history = turns.filter((tn) => tn.a).slice(-2).map((tn) => ({ q: tn.q, a: `${tn.a!.headline} ${tn.a!.body}` }));
+      const res = await fetch("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, lang, history }) });
       const a = (await res.json()) as OracleAnswer;
       setTurns((x) => x.map((tn, i) => (i === x.length - 1 ? (res.ok ? { ...tn, a } : { ...tn, err: true }) : tn)));
       // Pax reacts to the answer: a data gap or low confidence worries it, a solid answer pleases it

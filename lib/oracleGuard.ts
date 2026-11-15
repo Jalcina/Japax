@@ -25,7 +25,7 @@ export function parseModelJson(raw: string): ModelReply | null {
     return null
   }
   const headline = typeof j.headline === 'string' ? j.headline.trim().slice(0, 150) : ''
-  const body = typeof j.body === 'string' ? j.body.trim().slice(0, 900) : ''
+  const body = typeof j.body === 'string' ? j.body.trim().slice(0, 1400) : ''
   if (!headline || !body) return null
   const confidence = j.confidence === 'high' || j.confidence === 'medium' || j.confidence === 'low' ? j.confidence : 'medium'
   const followUps = Array.isArray(j.followUps) ? j.followUps.filter((x): x is string => typeof x === 'string').map((s) => s.trim().slice(0, 120)).slice(0, 3) : []
@@ -38,7 +38,8 @@ const normNum = (s: string) => s.replace(',', '.')
 /** Keeps only sentences whose numbers all appear in `allowed` (evidence text). Years and tiny integers are ignored. */
 export function dropUnsupportedSentences(text: string, allowed: string): { text: string; dropped: number } {
   const hay = allowed.replace(/,/g, '.')
-  const sentences = text.match(/[^.!?]+(?:[.!?]+|$)/g) ?? [text]
+  // a "." between digits (10.2 psi) is a decimal point, not the end of a sentence
+  const sentences = text.match(/(?:[^.!?]|\.(?=\d))+(?:[.!?]+|$)/g) ?? [text]
   const keep: string[] = []
   let dropped = 0
   for (const s of sentences) {
