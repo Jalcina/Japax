@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { SceneApi } from "@/components/ImmersiveScene";
 import { engineMeasures, resolveComponent, toGraph, type CComponent, type CFact, type Resolution } from "@/lib/componentCatalog";
@@ -156,11 +156,18 @@ interface PanelProps {
 }
 
 /** Generic panel: it renders for every environment that has a catalog in lib/componentEnvs and for no other. */
-export default function ComponentPanel(props: PanelProps) {
+function ComponentPanelImpl(props: PanelProps) {
   const bundle = COMPONENT_ENVS[props.env];
   if (!bundle) return null;
   return <EnvPanel key={props.env} {...props} bundle={bundle} />;
 }
+
+/** the page re-renders ~5 times a second (live fire data) with the same props: skip the whole engine unless something it reads changed (the atmosphere object is rebuilt each time, so it is compared by value) */
+const ComponentPanel = memo(ComponentPanelImpl, (a, b) =>
+  a.env === b.env && a.api === b.api && a.pick === b.pick && a.condTag === b.condTag && a.labPhase === b.labPhase &&
+  a.resultsSignal === b.resultsSignal && a.onRuns === b.onRuns && a.onActive === b.onActive &&
+  a.atm.o2 === b.atm.o2 && a.atm.pressureAtm === b.atm.pressureAtm && a.atm.gravityG === b.atm.gravityG && a.atm.flowCmS === b.atm.flowCmS);
+export default ComponentPanel;
 
 function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", labPhase, resultsSignal = 0, onRuns, onActive }: PanelProps & { bundle: EnvBundle }) {
   const { lang, t: T, X } = useTr();

@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { ImmersiveEnv, PickInfo, SceneApi } from "@/components/ImmersiveScene";
 import ComponentPanel, { type PanelPick } from "@/components/ComponentPanel";
@@ -115,6 +115,30 @@ function Slider({ id, label, value, min, max, step, show, onChange, note }: { id
   );
 }
 
+/** the "why" card only depends on the scenario facts and the language: memoized so the 5 Hz live-data updates do not rebuild it */
+const WhyCard = memo(function WhyCard({ facts, lang }: { facts: ReturnType<typeof scenario>["facts"]; lang: Parameters<typeof tr>[0] }) {
+  const t = (s: string, v?: Record<string, string | number>) => tr(lang, s, v);
+  return (
+  <div className="card mt-5 p-4">
+    <h3 className="font-semibold">{t("Why is this happening?")}</h3>
+    <p className="text-xs text-muted">{t("Each statement carries its evidence tag and source. Counts for CO₂ and helium come from measured FLEX droplet tests (PSI-69, DOI 10.60555/mbq8-0451, 274 tests); FLEX burned droplets, not fabric, plastic or cables.")}</p>
+    <ul className="mt-3 space-y-3">
+      {facts.map((f, i) => (
+        <li key={i} className="text-sm">
+          <span className={`mr-2 rounded px-1.5 py-0.5 text-[10px] font-medium ${TAG[f.tag]}`}>{t(f.tag)}</span>
+          {factText(f, t)}
+          {f.eli5 && <span className="mt-0.5 block text-xs text-ink-2">{t("ELI5:")} {t(f.eli5)}</span>}
+          <span className="block text-[11px] text-muted">{t("Source:")} {t(f.src)}</span>
+        </li>
+      ))}
+    </ul>
+    <p className="mt-3 text-xs text-muted">
+      <strong className="text-ink-2">{t("What is data and what is simulation:")}</strong> {t("the spread you watch is a simulation anchored to measured SAFFIRE points (about 1 to 2.6 mm/s on thin fabric in microgravity). The factors that scale it to other atmospheres (oxygen, airflow, gravity, material) are estimated, not fitted. Particles, area and speed shown above are produced by this engine. The measured rates are listed below with their PSI ID and DOI. No experiment gives a spread curve, and FLEX has no suppressant test above 25 % O₂.")}
+    </p>
+  </div>
+  );
+});
+
 export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: EnvId; onOpenEvidence?: () => void } = {}) {
   const { lang } = useLang();
   const data = useData();
@@ -176,6 +200,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
   // the conditions the simulation actually uses: the environment's fixed data, or the user's own
   const atm = custom ? cond : condFor(env);
   const mat = MATERIALS[material];
+  const factorList = useMemo(() => spreadFactors(atm, material).factors, [atm.o2, atm.pressureAtm, atm.gravityG, atm.flowCmS, material]); // eslint-disable-line react-hooks/exhaustive-deps
   const agentFrac = ext === "co2" || ext === "he" ? Math.min(frac, AGENT_LIMIT[ext]) : 0;
 
   const sc = useMemo(
@@ -332,7 +357,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
               <summary className="cursor-pointer text-ink-2 hover:text-ink">{t("How is the spread speed built?")}</summary>
               <p className="mt-1 text-xs text-muted">{t("Speed = anchor × oxygen × airflow × gravity × material. Only the anchor is measured; the rest are modelling choices, shown here so you can judge them.")}</p>
               <ul className="mt-2 space-y-2">
-                {spreadFactors(atm, material).factors.map((f) => (
+                {factorList.map((f) => (
                   <li key={f.key} className="text-xs">
                     <div className="flex items-baseline justify-between gap-2"><span className="text-ink">{t(f.label)}</span><span className="flex items-center gap-1.5"><strong className="tabular-nums text-ink">{f.key === "anchor" ? `${f.value.toFixed(1)} mm/s` : `×${f.value.toFixed(2)}`}</strong><span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${TAG[f.tag]}`}>{t(f.tag)}</span></span></div>
                     <p className="text-ink-2">{t(f.why)}</p>
@@ -438,23 +463,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
           </div>
       </div>
 
-      <div className="card mt-5 p-4">
-        <h3 className="font-semibold">{t("Why is this happening?")}</h3>
-        <p className="text-xs text-muted">{t("Each statement carries its evidence tag and source. Counts for CO₂ and helium come from measured FLEX droplet tests (PSI-69, DOI 10.60555/mbq8-0451, 274 tests); FLEX burned droplets, not fabric, plastic or cables.")}</p>
-        <ul className="mt-3 space-y-3">
-          {sc.facts.map((f, i) => (
-            <li key={i} className="text-sm">
-              <span className={`mr-2 rounded px-1.5 py-0.5 text-[10px] font-medium ${TAG[f.tag]}`}>{t(f.tag)}</span>
-              {factText(f, t)}
-              {f.eli5 && <span className="mt-0.5 block text-xs text-ink-2">{t("ELI5:")} {t(f.eli5)}</span>}
-              <span className="block text-[11px] text-muted">{t("Source:")} {t(f.src)}</span>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-3 text-xs text-muted">
-          <strong className="text-ink-2">{t("What is data and what is simulation:")}</strong> {t("the spread you watch is a simulation anchored to measured SAFFIRE points (about 1 to 2.6 mm/s on thin fabric in microgravity). The factors that scale it to other atmospheres (oxygen, airflow, gravity, material) are estimated, not fitted. Particles, area and speed shown above are produced by this engine. The measured rates are listed below with their PSI ID and DOI. No experiment gives a spread curve, and FLEX has no suppressant test above 25 % O₂.")}
-        </p>
-      </div>
+      <WhyCard facts={sc.facts} lang={lang} />
 
       {onOpenEvidence && (
         <p className="mt-4 text-sm text-ink-2">
