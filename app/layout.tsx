@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://japax.vercel.app"),
   title: "JaPax — Know what to protect, before the fire decides",
   description:
-    "NASA's fire experiments turned into one answer for spacesuits, ships and lunar bases: where a fire starts, where it goes, how long it takes, and what to protect so the crew comes home.",
+    "Nearly 13 TB of NASA fire experiments turned into one answer for spacesuits, ships and lunar bases: where a fire starts, where it goes, how long it takes, and what to protect so the crew comes home.",
   openGraph: {
     title: "JaPax — Know what to protect, before the fire decides",
     description:

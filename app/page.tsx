@@ -18,7 +18,7 @@ const T = {
     s1: "NASA fire investigations",
     s1n: (n: number) => `${n} with a verified PSI DOI`,
     s2: "of raw experiment data",
-    s2n: "sum of the file sizes NASA lists in PSI for the 19 investigations (PSI API, 15 Nov 2026)",
+    s2n: "sum of the total size PSI declares for the 19 investigations (PSI API, 15 Nov 2026)",
     s3: "public files catalogued",
     s3n: "tables, images and flame videos, summed across all investigations",
     s4: "datasets at lunar gravity",
@@ -26,7 +26,7 @@ const T = {
     wEyebrow: "Why we exist",
     wTitle: "Fire in space is a question of human lives",
     w: [
-      { kicker: "1967", title: "A hazard that was underestimated", text: "During a ground test of Apollo 1 a fire started in a cabin full of pure oxygen. The hatch took about ninety seconds to open. Gus Grissom, Ed White and Roger Chaffee died inside. It was not bad luck: it was an underestimated risk, in an environment nobody fully understood." },
+      { kicker: "1967", title: "A hazard that was underestimated", text: "During a ground test of Apollo 1 a fire started in a cabin full of pure oxygen. The hatch took about ninety seconds to open. Gus Grissom, Ed White and Roger Chaffee died inside. It was not bad luck: it was an underestimated risk." },
       { kicker: "Today", title: "The danger moved, it did not leave", text: "An astronaut who steps outside the station wears a suit filled with 100% oxygen. The habitats planned for the Moon would hold more oxygen than the air we breathe on Earth. Oxygen keeps the crew alive, and it turns any spark into a threat." },
       { kicker: "In space", title: "No firefighters, no exit, no one to call", text: "If a fire starts, the crew has only what someone designed before launch. Every choice, which material, where to put a barrier, which component to shield, becomes the difference between coming home or not." },
       { kicker: "The blind spot", title: "Decisions made with very little light", text: "Fire does not behave in space as it does on Earth. NASA has run combustion experiments in microgravity for years, but its archive holds zero datasets at lunar gravity. Whoever designs a suit, a ship or a base has no answer to the key question: if a fire starts, what do I protect first?" },
@@ -43,7 +43,7 @@ const T = {
     unprot: "No protection",
     prot: "Oxygen tank shielded",
     burst: (n: number) => `The tank bursts in ${n} of 6 fires`,
-    oText: "Shielding the tank turns six bursts out of six into one: the one that starts at the tank itself. You do not need to protect the whole suit. You need to protect what keeps the astronaut alive.",
+    oText: "In the model, shielding the tank turns six bursts out of six into one: the one that starts at the tank itself. You do not need to protect the whole suit. You need to protect what keeps the astronaut alive.",
     oNote: "Simulated by the JaPax component engine, which starts from a flame spread rate measured by NASA on thin fabric (SAFFIRE I-III, 1.8-2.6 mm/s). The factors that scale it to the suit (oxygen, airflow, gravity, material), the component layout and the rupture window are estimates, labelled as such. Suit conditions: 100% O₂ at 0.29 atm, no airflow. This is a model, not a test.",
     oCta: "Run it yourself in the simulator",
     fEyebrow: "What NASA has already measured",
@@ -59,7 +59,7 @@ const T = {
     mText: "Each region or marker is an atmosphere (O₂ mole fraction, total pressure) that was actually tested. The orange region is the expected lunar-habitat envelope: oxygen-enriched and sub-atmospheric. Coverage there is sparse, and no test was run at lunar gravity (0.166 g).",
     qEyebrow: "Why truth is part of saving lives",
     qTitle: "When lives are at stake, an invented number is a danger",
-    qText: "In JaPax every number says where it comes from and whether it was measured, reported, estimated or simulated. Where there are no data we say it out loud, because a gap nobody sees can also cost a life. Our honesty is not a limitation: it is the reason you can trust us to decide.",
+    qText: "In JaPax every number says where it comes from and whether it was measured, reported, estimated or simulated. Where there are no data we say it out loud, because a gap nobody sees can also cost a life. Our honesty is not a limitation: it is the reason you can rely on us when you have to decide.",
     q: [
       ["Measured", "Value recorded in a PSI dataset, cited with PSI ID, DOI and sample size."],
       ["Reported", "Value stated in a peer-reviewed paper or NTRS report and not re-derived from raw data."],
@@ -87,7 +87,7 @@ const T = {
     s1: "investigaciones de fuego de la NASA",
     s1n: (n: number) => `${n} con DOI de PSI verificado`,
     s2: "de datos brutos de experimentos",
-    s2n: "suma de los tamaños de archivo que la NASA lista en PSI para las 19 investigaciones (API de PSI, 15 nov 2026)",
+    s2n: "suma del tamaño total que PSI declara para las 19 investigaciones (API de PSI, 15 nov 2026)",
     s3: "archivos públicos catalogados",
     s3n: "tablas, imágenes y vídeos de llamas, sumados en todas las investigaciones",
     s4: "conjuntos de datos a gravedad lunar",
@@ -95,9 +95,9 @@ const T = {
     wEyebrow: "Por qué existimos",
     wTitle: "El fuego en el espacio es una cuestión de vidas humanas",
     w: [
-      { kicker: "1967", title: "Un peligro que se subestimó", text: "Durante una prueba en tierra del Apollo 1 empezó un fuego en una cabina llena de oxígeno puro. La escotilla tardó unos noventa segundos en abrirse. Gus Grissom, Ed White y Roger Chaffee murieron dentro. No fue mala suerte: fue un riesgo subestimado, en un entorno que nadie entendía del todo." },
+      { kicker: "1967", title: "Un peligro que se subestimó", text: "Durante una prueba en tierra del Apollo 1 empezó un fuego en una cabina llena de oxígeno puro. La escotilla tardó unos noventa segundos en abrirse. Gus Grissom, Ed White y Roger Chaffee murieron dentro. No fue mala suerte: fue un riesgo subestimado." },
       { kicker: "Hoy", title: "El peligro cambió de lugar, no desapareció", text: "Cuando un astronauta sale de la estación, lleva un traje lleno de oxígeno al 100%. Los hábitats lunares previstos tendrían más oxígeno que el aire que respiramos en la Tierra. El oxígeno mantiene viva a la tripulación y convierte cualquier chispa en una amenaza." },
-      { kicker: "En el espacio", title: "Sin bomberos, sin salida de emergencia, sin nadie a quien llamar", text: "Si empieza un fuego, la tripulación solo tiene lo que alguien diseñó antes de despegar. Cada decisión, qué material usar, dónde poner una barrera, qué componente blindar, se convierte en la diferencia entre volver a casa o no." },
+      { kicker: "En el espacio", title: "Sin bomberos, sin salida, sin nadie a quien llamar", text: "Si empieza un fuego, la tripulación solo tiene lo que alguien diseñó antes de despegar. Cada decisión, qué material usar, dónde poner una barrera, qué componente blindar, se convierte en la diferencia entre volver a casa o no." },
       { kicker: "El punto ciego", title: "Decisiones tomadas con muy poca luz", text: "El fuego en el espacio no se comporta como en la Tierra. La NASA lleva años haciendo experimentos de combustión en microgravedad, pero en su archivo no hay ningún conjunto de datos a gravedad lunar. Quien diseña un traje, una nave o una base no tiene respuesta a la pregunta clave: si empieza un fuego, ¿qué protejo primero?" },
     ],
     oEyebrow: "Nuestra respuesta",
@@ -112,9 +112,9 @@ const T = {
     unprot: "Sin protección",
     prot: "Depósito de oxígeno blindado",
     burst: (n: number) => `El depósito revienta en ${n} de 6 fuegos`,
-    oText: "Blindar el depósito convierte seis reventones de seis en uno: el que empieza en el propio depósito. No hace falta proteger todo el traje. Hace falta proteger lo que mantiene vivo al astronauta.",
-    oNote: "Simulado con el motor de componentes de JaPax, que parte de una velocidad de propagación medida por la NASA en tela fina (SAFFIRE I-III, 1,8-2,6 mm/s). Los factores que la adaptan al traje (oxígeno, flujo de aire, gravedad, material), la disposición de componentes y la ventana de rotura son estimaciones y así se etiquetan. Condiciones del traje: 100% de O₂ a 0.29 atm, sin flujo de aire. Es un modelo, no un ensayo.",
-    oCta: "Pruébalo tú mismo en el simulador",
+    oText: "En el modelo, blindar el depósito convierte seis reventones de seis en uno: el que empieza en el propio depósito. No hace falta proteger todo el traje. Hace falta proteger lo que mantiene vivo al astronauta.",
+    oNote: "Simulado con el motor de componentes de JaPax, que parte de una velocidad de propagación medida por la NASA en tela fina (SAFFIRE I-III, 1.8-2.6 mm/s). Los factores que la adaptan al traje (oxígeno, flujo de aire, gravedad, material), la disposición de componentes y la ventana de rotura son estimaciones y así se etiquetan. Condiciones del traje: 100% de O₂ a 0.29 atm, sin flujo de aire. Es un modelo, no un ensayo.",
+    oCta: "Pruébalo por tu cuenta en el simulador",
     fEyebrow: "Lo que la NASA ya ha medido",
     fTitle: "Tres resultados que cambian cómo se protege a una tripulación",
     see: "Ver",
@@ -128,7 +128,7 @@ const T = {
     mText: "Cada región o marcador es una atmósfera (fracción molar de O₂, presión total) realmente ensayada. La región naranja es la envolvente prevista de un hábitat lunar: enriquecida en oxígeno y subatmosférica. La cobertura ahí es escasa y no se ha ensayado a gravedad lunar (0.166 g).",
     qEyebrow: "Por qué la verdad es parte de salvar vidas",
     qTitle: "Cuando hay vidas en juego, una cifra inventada es un peligro",
-    qText: "En JaPax cada número dice de dónde sale y si está medido, reportado, estimado o simulado. Donde no hay datos lo decimos en voz alta, porque un hueco que nadie ve también puede costar una vida. Nuestra honestidad no es una limitación: es la razón por la que puedes confiar en nosotros para decidir.",
+    qText: "En JaPax cada número dice de dónde sale y si está medido, reportado, estimado o simulado. Donde no hay datos lo decimos en voz alta, porque un hueco que nadie ve también puede costar una vida. Nuestra honestidad no es una limitación: es la razón por la que puedes apoyarte en nosotros a la hora de decidir.",
     q: [
       ["Medido", "Valor registrado en un conjunto de datos PSI, citado con PSI ID, DOI y tamaño muestral."],
       ["Reportado", "Valor expuesto en un artículo revisado por pares o un informe NTRS, no recalculado a partir de datos brutos."],
@@ -208,7 +208,7 @@ export default function Home() {
 
         <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Stat value={String(data.investigations.length)} label={t.s1} note={t.s1n(withDoi)} />
-          <Stat value="≈6.3 TB" label={t.s2} note={t.s2n} />
+          <Stat value="≈12.7 TB" label={t.s2} note={t.s2n} />
           <Stat value={totalFiles.toLocaleString("en-US").replace(/,/g, loc === "es" ? " " : ",")} label={t.s3} note={t.s3n} />
           <Stat value="0" label={t.s4} note={t.s4n} />
         </div>
