@@ -48,7 +48,7 @@ const T = {
     plan: "test plan, not results",
     open: "Open",
     measured: "measured",
-    chk: "Linked to the investigation record in the Explorer",
+    chk: "Linked to the investigation record in the investigation catalogue",
   },
   es: {
     eyebrow: "Equipos de nueva generación",
@@ -65,7 +65,7 @@ const T = {
     plan: "plan de ensayos, no resultados",
     open: "Abrir",
     measured: "medido",
-    chk: "Enlazado con la ficha de la investigación en el Explorador",
+    chk: "Enlazado con la ficha de la investigación en el catálogo de investigaciones",
   },
 };
 

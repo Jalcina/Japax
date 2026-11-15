@@ -13,7 +13,7 @@ type Sort = "score" | "name" | "files";
 
 const T = {
   en: {
-    eyebrow: "Explorer",
+    eyebrow: "Investigations",
     title: "NASA combustion investigations",
     intro1: "investigations from the PSI repository, with their test conditions, findings and sources. Select up to three to compare them side by side.",
     filter: "Filter by area",
@@ -53,7 +53,7 @@ const T = {
     rows: { phase: "Fuel phase", fuels: "Fuels", pressure: "Pressure", flow: "Airflow speed", sensors: "Sensors", hw: "Hardware", files: "Files in PSI", videos: "videos", rel: "Lunar relevance" },
   },
   es: {
-    eyebrow: "Explorador",
+    eyebrow: "Investigaciones",
     title: "Investigaciones de combustión de NASA",
     intro1: "investigaciones del repositorio PSI, con sus condiciones de ensayo, hallazgos y fuentes. Selecciona hasta tres para compararlas lado a lado.",
     filter: "Filtrar por área",
@@ -264,7 +264,7 @@ function ComparePanel({ compare, onBack }: { compare: Investigation[]; onBack: (
             {compare.map((c, k) => (
               <div key={c.id}>
                 <div className="text-sm font-semibold tabular-nums">
-                  {c.files.total.toLocaleString(loc)}{" "}
+                  {c.files.total.toLocaleString("en-US").replace(/,/g, loc === "es" ? "\u00a0" : ",")}{" "}
                   <span className="font-normal text-muted">
                     ({c.files.videos} {t.rows.videos})
                   </span>

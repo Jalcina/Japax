@@ -173,7 +173,7 @@ export default function Home() {
 
         <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Stat value={String(data.investigations.length)} label={t.s1} note={t.s1n(withDoi)} />
-          <Stat value={totalFiles.toLocaleString(loc)} label={t.s2} note={t.s2n} />
+          <Stat value={totalFiles.toLocaleString("en-US").replace(/,/g, loc === "es" ? "\u00a0" : ",")} label={t.s2} note={t.s2n} />
           <Stat value={String(totalVideos)} label={t.s3} note={t.s3n} />
           <Stat value="0" label={t.s4} note={t.s4n} />
         </div>

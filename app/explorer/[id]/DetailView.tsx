@@ -12,7 +12,7 @@ const T = {
   en: {
     ntrsTitle: "Related NASA literature (NTRS)",
     ntrsNote: "Reports and papers from the NASA Technical Reports Server that mention this investigation by name.",
-    back: "← Back to the explorer",
+    back: "← Back to the catalogue",
     relTitle: "Relevance for a lunar base",
     relNote1: "Explainable score using the default weights; adjust them on the",
     relNote2: "ranking page",
@@ -51,7 +51,7 @@ const T = {
   es: {
     ntrsTitle: "Literatura relacionada de la NASA (NTRS)",
     ntrsNote: "Informes y artículos del servidor de informes técnicos de la NASA que mencionan esta investigación por su nombre.",
-    back: "← Volver al explorador",
+    back: "← Volver al catálogo",
     relTitle: "Relevancia para una base lunar",
     relNote1: "Puntuación explicable con los pesos por defecto; ajústalos en la",
     relNote2: "página de ranking",
@@ -210,7 +210,7 @@ export default function DetailView({ id }: { id: string }) {
         </h2>
         <div className="card mt-3 p-4 text-sm">
           <p>
-            <strong>{inv.files.total.toLocaleString(loc)}</strong> {t.pubFiles}
+            <strong>{inv.files.total.toLocaleString("en-US").replace(/,/g, loc === "es" ? "\u00a0" : ",")}</strong> {t.pubFiles}
             {inv.files.videos > 0 && (
               <>
                 , <strong>{inv.files.videos}</strong> {t.videos}
