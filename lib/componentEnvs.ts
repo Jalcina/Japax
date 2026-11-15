@@ -14,6 +14,8 @@ import earthPlanetCatalog from "../data/components/earth-planet.catalog.json";
 import earthPlanetMap from "../data/components/earth-planet.map.json";
 import moonCatalog from "../data/components/moon.catalog.json";
 import moonMap from "../data/components/moon.map.json";
+import marsCatalog from "../data/components/mars.catalog.json";
+import marsMap from "../data/components/mars.map.json";
 import type { Catalog, ComponentMap } from "./componentCatalog.ts";
 
 /** `horizonS`: how long the engine looks ahead (simulated seconds). A fire crosses a hatch in minutes to hours, a suit in about a minute. */
@@ -26,6 +28,7 @@ export const COMPONENT_ENVS: Record<string, EnvBundle> = {
   earth: { catalog: earthCatalog as unknown as Catalog, map: earthMap as unknown as ComponentMap },
   "earth-planet": { catalog: earthPlanetCatalog as unknown as Catalog, map: earthPlanetMap as unknown as ComponentMap },
   moon: { catalog: moonCatalog as unknown as Catalog, map: moonMap as unknown as ComponentMap, horizonS: 3600 },
+  mars: { catalog: marsCatalog as unknown as Catalog, map: marsMap as unknown as ComponentMap, horizonS: 3600 },
 };
 
 /** Which catalog describes the scene on screen: the same environment has different scenes in its "site" and "overview" views. */

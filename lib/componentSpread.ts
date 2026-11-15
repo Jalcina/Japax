@@ -118,6 +118,11 @@ export function simulate(input: SimInput): { events: CEvent[]; end: { t: number;
           blocked.set(other, { t: j.t, reason: "non-combustible material: it cannot carry the flame", tag: "estimated", inert: true });
           continue;
         }
+        if (atm.o2 < 0.1) {
+          // below the lower edge of labPhysics' own range (it clamps O2 at 10 %): the model does not pretend a flame can spread
+          blocked.set(other, { t: j.t, reason: `oxygen ${(atm.o2 * 100).toFixed(2)} % is below the 10 % lower edge of the model: the flame cannot spread (estimated)`, tag: "estimated" });
+          continue;
+        }
         const sp = spreadFactors(atm, target.material);
         if (sp.mmS <= 0) {
           blocked.set(other, { t: j.t, reason: "the flame starves: " + sp.note, tag: "reported" });

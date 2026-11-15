@@ -1,0 +1,256 @@
+{
+  "env": "mars",
+  "version": 1,
+  "model": "perseverance.glb",
+  "components": [
+    {
+      "id": "mars-body",
+      "label": "Rover body and electronics (Body, Body_Parts)",
+      "function": "Main chassis with the electronics; named Body* in the model.",
+      "material": "cable",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Electronics and wiring are assumed to be cable-class. No flammability test of this part exists.",
+        "src": "Assumption (no PSI/NTRS test of this part); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "mars-rtg",
+          "path": "contact",
+          "distanceM": 0.5,
+          "distanceNote": "attachment between two parts; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        },
+        {
+          "id": "mars-mobility",
+          "path": "contact",
+          "distanceM": 0.4,
+          "distanceNote": "attachment between two parts; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        },
+        {
+          "id": "mars-arm",
+          "path": "contact",
+          "distanceM": 0.5,
+          "distanceNote": "attachment between two parts; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        },
+        {
+          "id": "mars-mast",
+          "path": "cable",
+          "distanceM": 0.6,
+          "distanceNote": "attachment between two parts; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        },
+        {
+          "id": "mars-hazcams",
+          "path": "cable",
+          "distanceM": 0.4,
+          "distanceNote": "attachment between two parts; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        },
+        {
+          "id": "mars-antennas",
+          "path": "cable",
+          "distanceM": 0.6,
+          "distanceNote": "attachment between two parts; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        }
+      ],
+      "measures": [
+        {
+          "id": "m-mars-extinguish",
+          "kind": "suppress",
+          "appliesTo": [
+            "mars-body",
+            "mars-rtg",
+            "mars-mobility",
+            "mars-arm",
+            "mars-turret",
+            "mars-mast",
+            "mars-hazcams",
+            "mars-antennas"
+          ],
+          "action": "Cut power and put the fire out where it started (remote shutdown of the burning part).",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis): the engine ends the fire where it started at that moment. A rover has no crew and no extinguisher in the sources used; this is a stand-in for powering the part down.",
+            "src": "Hypothesis; no test in the sources used"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "extinguish",
+            "target": "origin"
+          }
+        },
+        {
+          "id": "m-mars-barrier-body-arm",
+          "kind": "prevent",
+          "appliesTo": [
+            "mars-body",
+            "mars-arm"
+          ],
+          "action": "Put a fire-blocking barrier between the body and the robotic arm so a fire cannot cross.",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis): the engine removes this connection. No test of such a barrier exists in the sources used.",
+            "src": "Hypothesis; flame spread needs continuous fuel (stated, not measured, for this place)"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "cut_edge",
+            "from": "mars-body",
+            "to": "mars-arm"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mars-rtg",
+      "label": "Radioisotope power system (rtg)",
+      "function": "Power source at the rear of the rover; low-confidence label from the mesh name rtg. Its heat source is not modelled.",
+      "material": "inert",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Treated as non-combustible (bare metal): the model never lets a flame cross into it. A fire can still be lit on it by a tap.",
+        "src": "Assumption: general material property, not an experiment of this archive"
+      },
+      "neighbors": [
+        {
+          "id": "mars-body",
+          "path": "contact",
+          "distanceM": 0.5,
+          "distanceNote": "attachment between two parts; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "mars-mobility",
+      "label": "Wheels and suspension",
+      "function": "Six wheels and the rocker-bogie suspension.",
+      "material": "inert",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Treated as non-combustible (bare metal): the model never lets a flame cross into it. A fire can still be lit on it by a tap.",
+        "src": "Assumption: general material property, not an experiment of this archive"
+      },
+      "neighbors": [
+        {
+          "id": "mars-body",
+          "path": "contact",
+          "distanceM": 0.4,
+          "distanceNote": "attachment between two parts; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "mars-arm",
+      "label": "Robotic arm (arm*)",
+      "function": "Arm and its cabling; named arm* in the model.",
+      "material": "cable",
+      "flammability": {
+        "tag": "estimated",
+        "text": "The arm's cabling is assumed to be cable-class. No flammability test of this part exists.",
+        "src": "Assumption (no PSI/NTRS test of this part); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "mars-body",
+          "path": "contact",
+          "distanceM": 0.5,
+          "distanceNote": "attachment between two parts; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        },
+        {
+          "id": "mars-turret",
+          "path": "cable",
+          "distanceM": 0.8,
+          "distanceNote": "attachment between two parts; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "mars-turret",
+      "label": "Arm turret instruments (PIXL, WATSON, drill, lab)",
+      "function": "Instruments at the end of the arm; named turret*, PIXL*, WATSON, corring_drill, lab.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Instrument housings are assumed to contain polymers and cabling. No flammability test of this part exists.",
+        "src": "Assumption (no PSI/NTRS test of this part); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "mars-arm",
+          "path": "cable",
+          "distanceM": 0.8,
+          "distanceNote": "attachment between two parts; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "mars-mast",
+      "label": "Mast head cameras (head, NavCams, Mastcam-Z, lens)",
+      "function": "Cameras at the top of the mast.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Camera housings are assumed to contain polymers and cabling. No flammability test of this part exists.",
+        "src": "Assumption (no PSI/NTRS test of this part); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "mars-body",
+          "path": "cable",
+          "distanceM": 0.6,
+          "distanceNote": "attachment between two parts; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "mars-hazcams",
+      "label": "Hazard cameras (hazcams_*)",
+      "function": "Front and rear hazard-avoidance cameras and their wiring.",
+      "material": "cable",
+      "flammability": {
+        "tag": "estimated",
+        "text": "The wiring is assumed to be cable-class. No flammability test of this part exists.",
+        "src": "Assumption (no PSI/NTRS test of this part); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "mars-body",
+          "path": "cable",
+          "distanceM": 0.4,
+          "distanceNote": "attachment between two parts; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "mars-antennas",
+      "label": "Antennas (UHF, high gain, low gain)",
+      "function": "Three antennas; named antenna_* in the model.",
+      "material": "inert",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Treated as non-combustible (bare metal): the model never lets a flame cross into it. A fire can still be lit on it by a tap.",
+        "src": "Assumption: general material property, not an experiment of this archive"
+      },
+      "neighbors": [
+        {
+          "id": "mars-body",
+          "path": "cable",
+          "distanceM": 0.6,
+          "distanceNote": "attachment between two parts; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        }
+      ],
+      "measures": []
+    }
+  ],
+  "gaps": [
+    "The Martian atmosphere has about 0.13 % oxygen (CLAUDE.md context table, not a PSI value): below the 10 % lower edge of the model, a flame cannot spread, so on the live Mars conditions every fire ends by itself. The component links only matter if you raise the oxygen yourself with the custom conditions.",
+    "The rover is labelled by mesh name and prefix (the model's names are meaningful): 8 components were identified, the rest are listed as unidentified. Labels such as the power source (rtg) come from the mesh names and were not checked against a NASA drawing.",
+    "Energetic components: none verified. The rover carries a radioisotope power source and batteries, but their energy, failure modes and sources were not verified here, so there is no rupture.",
+    "No PSI/NTRS combustion test exists for a rover or its parts; spread speeds are the SAFFIRE anchor scaled by estimated factors, and Martian gravity (0.38 g) is an extrapolation.",
+    "Distances between parts are assumed from the proportions of the model; wheels, suspension, antennas and the power source are treated as non-combustible metal (assumption). Detection and any remote action are not modelled."
+  ]
+}

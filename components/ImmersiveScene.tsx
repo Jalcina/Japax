@@ -150,8 +150,11 @@ async function buildMars({ scene, progress }: Ctx): Promise<Built> {
   scene.add(sunDisc(sunDir, 800, 11, 0xffe9cc));
 
   const { group: terr, H } = makeTerrain({ size: 300, seg: 320, amp: 4.5, freq: 0.018, craters: 22, craterMax: 18, seed: 21, flat: 6, low: new THREE.Color(0x6e3a22), high: new THREE.Color(0xbb7a4c), roughness: 0.95 });
+  terr.name = "mars_ground";
   scene.add(terr);
-  scene.add(makeRidge(185, 22, 0x8f5535, 11, 1.8));
+  const ridgeM = makeRidge(185, 22, 0x8f5535, 11, 1.8);
+  ridgeM.name = "mars_ridge";
+  scene.add(ridgeM);
 
   const rover = (await loadModel("/models/perseverance.glb", progress)).scene;
   const box = fitModel(rover, 4.2);

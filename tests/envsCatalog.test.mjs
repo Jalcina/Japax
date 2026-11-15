@@ -91,6 +91,31 @@ test("Lunar module: the metal landing gear and antennas are inert (not reached, 
   assert.notEqual(r.end.reason, "self_extinguished", "an inert neighbour is not a flame that starved");
 });
 
+test("Mars: the catalog is valid, every mesh of perseverance.glb is covered, and with 0.13 % oxygen the fire cannot spread (it ends by itself)", () => {
+  const { cat, map } = load("mars");
+  assert.deepEqual(validateCatalog(cat), []);
+  assert.equal(cat.components.length, 8);
+  const b = readFileSync(new URL("../public/models/perseverance.glb", import.meta.url));
+  const j = JSON.parse(b.subarray(20, 20 + b.readUInt32LE(12)).toString("utf8"));
+  const san = (s) => s.replace(/\s/g, "_").replace(/[[\]\\.:/]/g, "");
+  const names = j.nodes.filter((n) => n.mesh !== undefined).map((n) => san(n.name || ""));
+  assert.equal(names.length, 68);
+  const prefixes = [...Object.keys(map.entries), ...map.unidentified].filter((k) => k.startsWith("meshprefix:")).map((k) => k.slice(11));
+  const ignored = new Set(Object.keys(map.ignored).filter((k) => k.startsWith("mesh:")).map((k) => k.slice(5)));
+  assert.deepEqual(names.filter((n) => !ignored.has(n) && !prefixes.some((p) => n.startsWith(p))), []);
+  assert.equal(resolveComponent(map, { mesh: "hazcams_rear_wiring" }).componentId, "mars-hazcams");
+  assert.equal(resolveComponent(map, { mesh: "turret_obj002" }).componentId, "mars-turret");
+  assert.equal(resolveComponent(map, { mesh: "Cylinder001" }).method, "ignored");
+  assert.equal(resolveComponent(map, { mesh: "bottom002" }).method, "unidentified");
+  const mars = { o2: 0.0013, pressureAtm: 0.006, gravityG: 0.38, flowCmS: 5 };
+  const r = simulate({ ...toGraph(cat), atm: mars, ignite: "mars-body", horizonS: 3600 });
+  assert.equal(r.events.filter((e) => e.state === "burning").length, 1);
+  assert.equal(r.end.reason, "self_extinguished");
+  assert.ok(r.events.some((e) => e.state === "not_reached" && /below the 10 % lower edge/.test(e.reason)));
+  const custom = simulate({ ...toGraph(cat), atm: { o2: 0.21, pressureAtm: 1, gravityG: 0.38, flowCmS: 10 }, ignite: "mars-body", horizonS: 3600 });
+  assert.ok(custom.events.filter((e) => e.state === "burning").length > 1, "with breathable air the links work");
+});
+
 test("run records of the new environments are complete and say that no rupture is possible", () => {
   for (const env of Object.keys(E)) {
     const src = env === "iss-interior" ? "isscab-rack-0" : env === "earth" ? "earth-pan" : env === "earth-planet" ? "earthplanet-surface" : "lm-ascent";

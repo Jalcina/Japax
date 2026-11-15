@@ -1,0 +1,49 @@
+{
+  "env": "mars",
+  "model": "perseverance.glb",
+  "method": "Manual labelling by mesh-name prefix (the model's names are meaningful). three.js removes dots and turns spaces of node names into underscores.",
+  "entries": {
+    "meshprefix:Body": "mars-body",
+    "meshprefix:rtg": "mars-rtg",
+    "meshprefix:Wheels": "mars-mobility",
+    "meshprefix:suspension": "mars-mobility",
+    "meshprefix:arm": "mars-arm",
+    "meshprefix:turret": "mars-turret",
+    "meshprefix:PIXL": "mars-turret",
+    "meshprefix:WATSON": "mars-turret",
+    "meshprefix:corring": "mars-turret",
+    "meshprefix:cover_0": "mars-turret",
+    "meshprefix:lab": "mars-turret",
+    "meshprefix:head": "mars-mast",
+    "meshprefix:lens": "mars-mast",
+    "meshprefix:Mastcam": "mars-mast",
+    "meshprefix:NavCams": "mars-mast",
+    "meshprefix:microphones": "mars-mast",
+    "meshprefix:hazcams": "mars-hazcams",
+    "meshprefix:antenna": "mars-antennas"
+  },
+  "ignored": {
+    "mesh:mars_ground": "Martian ground: not a component",
+    "mesh:mars_ridge": "distant ridge of the scenery: not a component",
+    "mesh:Cylinder": "transparent helper mesh of the model: not a component",
+    "mesh:Cylinder001": "transparent helper mesh of the model: not a component",
+    "mesh:Cylinder002": "transparent helper mesh of the model: not a component",
+    "mesh:hinge": "transparent helper mesh of the model: not a component",
+    "mesh:arm_01_pivot": "transparent helper mesh of the model: not a component",
+    "mesh:arm_02_pivot": "transparent helper mesh of the model: not a component"
+  },
+  "unidentified": [
+    "meshprefix:bottom",
+    "meshprefix:top",
+    "meshprefix:probe",
+    "meshprefix:RIMFAX",
+    "meshprefix:Name_Chips",
+    "meshprefix:base",
+    "meshprefix:Up_Look",
+    "meshprefix:Down_Look",
+    "meshprefix:pan_end",
+    "meshprefix:calibration",
+    "meshprefix:part_01",
+    "meshprefix:box"
+  ]
+}
