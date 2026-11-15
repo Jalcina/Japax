@@ -118,8 +118,8 @@ const T = {
     } as Record<string, [string, string]>,
     status: { igniting: "Encendiendo", burning: "Ardiendo", extinguishing: "Apagándose", out: "Apagada" },
     regime: {
-      diffusion: "Llama de difusión. Sin flotabilidad, el oxígeno llega a la llama solo por difusión y la llama es una esfera azul fantasmal.",
-      buoyant: "Llama dominada por la flotabilidad. Los gases calientes suben y atraen aire fresco; la llama es una gota parpadeante.",
+      diffusion: "Llama de difusión. Sin flotabilidad, el oxígeno llega a la llama solo por difusión y la llama es una esfera azul tenue.",
+      buoyant: "Llama dominada por la flotabilidad. Los gases calientes suben y atraen aire fresco; la llama tiene forma de gota y parpadea.",
       transition: "Gravedad parcial: NO hay datos experimentales. Esta forma es una mezcla ilustrativa de los comportamientos de 0 g y 1 g.",
     },
     rate: "reacciones/s",
