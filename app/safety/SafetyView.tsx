@@ -67,7 +67,7 @@ function ladder(s: SafetyStats, lang: Lang): { title: string; status: Status; te
 const T = {
   en: {
     eyebrow: "Fire-safety evidence base",
-    title: "From combustion science to spacecraft fire-protection design",
+    title: "From combustion science to what a spacecraft must protect",
     lead: "A spacecraft fire is addressed in four layers: prevention, detection, spread limitation and extinguishment. Select an environment to see which layers NASA's investigations support with measurements, which they only indicate, and where the hazard is unquantified.",
     warn: "This is evidence from NASA experiments, not an operating procedure. Crew procedures are the responsibility of NASA and the space agencies.",
     envTitle: "Select the ignition environment",
@@ -93,7 +93,7 @@ const T = {
   },
   es: {
     eyebrow: "Base de evidencia de seguridad contra incendios",
-    title: "De la ciencia de la combustión al diseño de protección contra incendios en naves",
+    title: "De la ciencia de la combustión a qué debe proteger una nave",
     lead: "Un incendio en una nave se aborda en cuatro capas: prevención, detección, limitación de la propagación y extinción. Selecciona un entorno para ver qué capas respaldan con mediciones las investigaciones de NASA, cuáles solo las indican y dónde el peligro no está cuantificado.",
     warn: "Esto es evidencia de experimentos de NASA, no un procedimiento operativo. Los procedimientos de tripulación son responsabilidad de NASA y de las agencias espaciales.",
     envTitle: "Selecciona el entorno de ignición",

@@ -217,12 +217,8 @@
       ],
       "note": "Experimento no tripulado a bordo de la nave de carga Cygnus. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
       "sensors": [
-        "oxígeno",
-        "dióxido de carbono",
-        "calor",
-        "presión",
-        "crecimiento de la llama",
-        "dos cámaras de vídeo"
+        "instrumentos de oxígeno, dióxido de carbono, calor y presión, más mediciones del crecimiento de la llama",
+        "dos cámaras de vídeo (vistas de la llama)"
       ],
       "summary": "Un incendio a gran escala provocado a propósito a bordo de una nave de carga no tripulada para estudiar cómo crece un fuego realista en baja gravedad.",
       "findings": [
@@ -448,8 +444,8 @@
     },
     "Apollo 13": {
       "year": 1970,
-      "text": "El tanque de oxígeno nº 2 explotó camino de la Luna tras sobrecalentarse sus calentadores y degradar el aislante de teflón; el voltaje de los calentadores se había subido de 28 a 65 V CC sin actualizar los termostatos.",
-      "lesson": "Rediseño del sistema de oxígeno: un tercer tanque, termostatos mejorados, sin ventiladores de agitación y cableado revestido de acero inoxidable."
+      "text": "El depósito de oxígeno nº 2 explotó camino de la Luna tras sobrecalentarse sus calentadores y degradar el aislante de teflón; el voltaje de los calentadores se había subido de 28 a 65 V CC sin actualizar los termostatos.",
+      "lesson": "Rediseño del sistema de oxígeno: un tercer depósito, termostatos mejorados, sin ventiladores de agitación y cableado revestido de acero inoxidable."
     },
     "Mir": {
       "year": 1997,
