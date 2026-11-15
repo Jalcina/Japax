@@ -3,18 +3,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { SceneApi } from "@/components/ImmersiveScene";
-import catalogJson from "@/data/components/emu.catalog.json";
-import mapJson from "@/data/components/emu.map.json";
-import { engineMeasures, resolveComponent, toGraph, type CComponent, type CFact, type Catalog, type ComponentMap, type Resolution } from "@/lib/componentCatalog";
+import { engineMeasures, resolveComponent, toGraph, type CComponent, type CFact, type Resolution } from "@/lib/componentCatalog";
+import { buildCsv, csvFileName, type RunRecord } from "@/lib/componentCsv";
+import { COMPONENT_ENVS, type EnvBundle } from "@/lib/componentEnvs";
+import { energeticOf, ruptureReport, shortLabel } from "@/lib/componentReport";
 import { simulate, type CEvent } from "@/lib/componentSpread";
 import { LabBlast } from "@/lib/labBlast";
 import { spreadFactors, type Atm } from "@/lib/labPhysics";
+import pkg from "@/package.json";
 
-const CATALOG = catalogJson as unknown as Catalog;
-const MAP = mapJson as unknown as ComponentMap;
-const GRAPH = toGraph(CATALOG);
-const BY_ID = new Map(CATALOG.components.map((c) => [c.id, c]));
-const TANK = CATALOG.components.find((c) => c.energetic) as CComponent;
 /** the suit model is fitted to 3.1 scene units for about 2 m, so one metre is about 1.55 units */
 const UNITS_PER_M = 1.55;
 const HORIZON_S = 600;
@@ -76,7 +73,81 @@ function tankAnchor(api: SceneApi): THREE.Vector3 {
   return new THREE.Vector3(c.x, box.isEmpty() ? c.y : box.getCenter(new THREE.Vector3()).y, (dir < 0 ? suit.min.z : suit.max.z) + dir * 0.05);
 }
 
-export default function ComponentPanel({ api, atm: atmIn, pick }: { api: SceneApi | null; atm: Atm; pick: PanelPick | null }) {
+const f1 = (n: number) => (Math.round(n * 10) / 10).toString();
+
+/** The alert (rupture) or status (tank under heat) shown when the fire reaches an energetic component. Every figure comes from lib/componentReport. */
+function RuptureNotice({ rep, atm, condTag, tank, applied }: { rep: NonNullable<ReturnType<typeof ruptureReport>>; atm: Atm; condTag: string; tank: CComponent; applied: Record<string, number> }) {
+  const [lo, hi] = rep.window;
+  const name = rep.tankLabel;
+  const conds = `O2 ${Math.round(atm.o2 * 100)} %, ${(atm.pressureAtm * 14.696).toFixed(1)} psi, ${atm.gravityG} g, airflow ${atm.flowCmS} cm/s`;
+  const row = (k: string, v: string, tag: string) => (
+    <li className="text-xs text-ink-2"><span className="font-medium text-ink">{k}:</span> {v} <Chip tag={tag} /></li>
+  );
+  if (rep.status === "heating") {
+    return (
+      <div role="status" className="mt-2 rounded-lg border border-amber-400/60 bg-amber-500/10 p-3" data-testid="heat-notice">
+        <p className="text-sm font-semibold text-amber-200">{name} under heat: the fire reached it at t = {f1(rep.reachedAt ?? 0)} s and has heated it for {f1(rep.exposureS ?? 0)} s.</p>
+        <p className="text-xs text-ink-2">
+          {rep.remainingToPlannedS !== null ? `The model plans the rupture in ${f1(rep.remainingToPlannedS)} s (mid-point of an assumed ${lo}-${hi} s heating window); across the whole window that is between ${f1(rep.remainingToWindowS?.[0] ?? 0)} and ${f1(rep.remainingToWindowS?.[1] ?? 0)} s left.` : `No rupture is planned in this run.`} <Chip tag="estimated" />
+        </p>
+      </div>
+    );
+  }
+  if (rep.status === "relieved") {
+    return (
+      <div role="status" className="mt-2 rounded-lg border border-sky-400/50 bg-sky-500/10 p-3" data-testid="relief-notice">
+        <p className="text-sm font-semibold text-sky-200">{name}: pressure relieved at t = {f1(rep.relievedAt ?? 0)} s, {f1(rep.exposureS ?? 0)} s after the fire reached it; no rupture in this run.</p>
+        <p className="text-xs text-muted">Engineering proposal (hypothesis): the engine removes the stored pressure before the assumed window ends. <Chip tag="estimated" /></p>
+      </div>
+    );
+  }
+  const consequences = rep.consequences.map((c) => `${c.label} (${c.state}, t = ${f1(c.t)} s)`).join("; ");
+  const measures = Object.entries(applied).map(([id, at]) => `${id} at ${f1(at)} s`).join("; ");
+  return (
+    <div role="alert" className="mt-2 rounded-lg border border-red-400/70 bg-red-500/10 p-3" data-testid="rupture-alert">
+      <p className="text-sm font-semibold text-red-200">
+        {rep.forced
+          ? `${name} ruptured: forced demo scenario, the failure is imposed at t = 0 s without any heating.`
+          : `${name} ruptured: the fire reached the tank and heated it for ${f1(rep.exposureS ?? 0)} s.`}
+      </p>
+      <ul className="mt-1 space-y-1">
+        {row("Where it started", `${rep.chain[0]?.label ?? rep.originId} (ignition point chosen by the user, t = 0 s)`, "estimated")}
+        {row("Fire path to the tank", rep.chain.length > 1 ? rep.chain.map((s) => `${s.label} ${f1(s.t)} s`).join(" → ") : "the fire started at the tank itself", "estimated")}
+        {row("Time heated before the rupture", rep.forced ? "none (forced scenario)" : `${f1(rep.exposureS ?? 0)} s`, "estimated")}
+        {row("Rupture window used", `assumed ${lo}-${hi} s of heating, mid-point ${f1(rep.usedS)} s (no dataset for this tank)`, "estimated")}
+        {row("Conditions", conds, condTag)}
+        {row("Path", rep.forced ? "forced scenario (demo, not a prediction)" : "physical path: the heating window ran out", "estimated")}
+        {row("Neighbours hit", consequences || `none inside the declared radius of ${tank.energetic?.blastRadiusM ?? "?"} m`, "estimated")}
+        {row("Measures", measures ? `applied (${measures}) but they did not stop this rupture` : "none applied", "estimated")}
+      </ul>
+      <p className="mt-2 text-xs text-ink-2">
+        Why: the oxygen is not the cause by itself. It feeds the combustion and holds the pressure; heating the vessel is what the model counts toward the rupture.
+        The window is an assumption, not a pressure or strength calculation. <Chip tag="estimated" />
+      </p>
+      {tank.energetic && <FactLine f={tank.energetic.failureMode} hide={false} />}
+    </div>
+  );
+}
+
+/** every ignition of this page session (cleared on reload). Finished runs only: the live run is added when the CSV is built. */
+const sessionRuns: RunRecord[] = [];
+let runSeq = 0;
+
+interface PanelProps { api: SceneApi | null; atm: Atm; pick: PanelPick | null; env: string; /** tag of the atmosphere values themselves (estimated for the Moon and the suit) */ condTag?: string }
+
+/** Generic panel: it renders for every environment that has a catalog in lib/componentEnvs and for no other. */
+export default function ComponentPanel(props: PanelProps) {
+  const bundle = COMPONENT_ENVS[props.env];
+  if (!bundle) return null;
+  return <EnvPanel key={props.env} {...props} bundle={bundle} />;
+}
+
+function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated" }: PanelProps & { bundle: EnvBundle }) {
+  const CATALOG = bundle.catalog;
+  const MAP = bundle.map;
+  const GRAPH = useMemo(() => toGraph(CATALOG), [CATALOG]);
+  const BY_ID = useMemo(() => new Map(CATALOG.components.map((c) => [c.id, c])), [CATALOG]);
+  const TANK = useMemo(() => energeticOf(CATALOG), [CATALOG]);
   // the parent rebuilds this object on every render; key it on its values so the simulation is not rerun for nothing
   const atm = useMemo<Atm>(() => ({ o2: atmIn.o2, pressureAtm: atmIn.pressureAtm, gravityG: atmIn.gravityG, flowCmS: atmIn.flowCmS }), [atmIn.o2, atmIn.pressureAtm, atmIn.gravityG, atmIn.flowCmS]);
   const [res, setRes] = useState<Resolution | null>(null);
@@ -91,7 +162,15 @@ export default function ComponentPanel({ api, atm: atmIn, pick }: { api: SceneAp
   const fired = useRef(false);
   const tint = useRef(new Map<THREE.Material, { c: THREE.Color; i: number }>());
 
+  const live = useRef<RunRecord | null>(null); // the run on screen, rebuilt on every render from the same events as the timeline
+  const runMeta = useRef<{ runId: string; ts: string } | null>(null);
+  const [runCount, setRunCount] = useState(sessionRuns.length);
+
   const start = useCallback((id: string | null, r: Resolution | null) => {
+    // a new ignition closes the run on screen (kept for the CSV) and opens the next run_id
+    if (live.current) { sessionRuns.push(live.current); live.current = null; }
+    if (id) { runSeq += 1; runMeta.current = { runId: `run-${String(runSeq).padStart(3, "0")}`, ts: new Date().toISOString() }; } else runMeta.current = null;
+    setRunCount(sessionRuns.length + (id ? 1 : 0));
     setRes(r);
     setSource(id);
     setApplied({});
@@ -108,9 +187,20 @@ export default function ComponentPanel({ api, atm: atmIn, pick }: { api: SceneAp
 
   const ms = useMemo(() => Object.entries(applied).flatMap(([id, atS]) => engineMeasures(CATALOG, [id], atS)), [applied]);
   const sim = useMemo(
-    () => (source ? simulate({ ...GRAPH, atm, ignite: source, horizonS: HORIZON_S, measures: ms, forceRupture: forced ? TANK.id : undefined }) : null),
-    [source, atm, ms, forced],
+    () => (source ? simulate({ ...GRAPH, atm, ignite: source, horizonS: HORIZON_S, measures: ms, forceRupture: forced ? TANK?.id : undefined }) : null),
+    [source, atm, ms, forced, GRAPH, TANK],
   );
+  // the CSV rows are these very events (sim.events), not a second log
+  live.current = sim && source && runMeta.current
+    ? {
+        runId: runMeta.current.runId, timestampUtc: runMeta.current.ts, appVersion: pkg.version, env, startComponent: source,
+        atm: { o2: atm.o2, pressureAtm: atm.pressureAtm, gravityG: atm.gravityG, flowCmS: atm.flowCmS },
+        forced, measuredOnly, measuresApplied: applied, events: sim.events,
+        labels: Object.fromEntries(CATALOG.components.map((c) => [c.id, c.label])), componentCount: CATALOG.components.length,
+      }
+    : null;
+  // leaving the environment keeps the run for the CSV
+  useEffect(() => () => { if (live.current) { sessionRuns.push(live.current); live.current = null; } }, []);
   const maxT = useMemo(() => Math.min(HORIZON_S, Math.max(30, (sim?.events.at(-1)?.t ?? 0) + 15)), [sim]);
 
   useEffect(() => {
@@ -140,15 +230,17 @@ export default function ComponentPanel({ api, atm: atmIn, pick }: { api: SceneAp
 
   // the visual layers: tint the real meshes of the components that burn, and draw the rupture
   useEffect(() => {
-    if (!api) return;
-    const b = new LabBlast(api, TANK.energetic!.blastRadiusM * UNITS_PER_M);
+    if (!api || !TANK?.energetic) return;
+    const b = new LabBlast(api, TANK.energetic.blastRadiusM * UNITS_PER_M);
     blast.current = b;
     return () => { b.dispose(); blast.current = null; };
-  }, [api]);
+  }, [api, TANK]);
 
   // clickable 3D marker on the back of the suit: a real <button> (keyboard + screen reader) projected from a 3D anchor each frame
   useEffect(() => {
-    if (!api) return;
+    // only for an energetic component the 3D model does not contain (the suit's oxygen tank); the anchor logic is suit-specific
+    const tank = TANK;
+    if (!api || !tank?.virtual || env !== "suit") return;
     const host = document.querySelector<HTMLCanvasElement>("#fire-lab canvas")?.parentElement;
     if (!host) return;
     if (getComputedStyle(host).position === "static") host.style.position = "relative";
@@ -158,7 +250,7 @@ export default function ComponentPanel({ api, atm: atmIn, pick }: { api: SceneAp
     btn.setAttribute("aria-label", "PLSS (portable life-support backpack) oxygen tank, a virtual component on the back of the suit: start the fire here");
     btn.setAttribute("data-testid", "tank-marker");
     btn.style.cssText = "position:absolute;left:0;top:0;z-index:5;padding:6px 12px;min-height:32px;border-radius:9999px;border:1px solid #fbbf24;background:rgba(10,12,18,.82);color:#fde68a;font:600 11px system-ui;cursor:pointer;white-space:nowrap;display:none;will-change:transform";
-    btn.onclick = () => start(TANK.id, { componentId: TANK.id, method: "material", key: "virtual component" });
+    btn.onclick = () => start(tank.id, { componentId: tank.id, method: "material", key: "virtual component" });
     host.appendChild(btn);
     let anchor = tankAnchor(api);
     const ok = (a: THREE.Vector3) => Number.isFinite(a.x + a.y + a.z);
@@ -182,7 +274,7 @@ export default function ComponentPanel({ api, atm: atmIn, pick }: { api: SceneAp
       btn.style.transform = `translate(${Math.round(sx)}px,${Math.round(sy)}px) translate(-50%,-50%)`;
     });
     return () => { dead = true; btn.remove(); };
-  }, [api, start]);
+  }, [api, start, TANK, env]);
 
   useEffect(() => {
     if (!api) return;
@@ -230,6 +322,19 @@ export default function ComponentPanel({ api, atm: atmIn, pick }: { api: SceneAp
   const last: CEvent | undefined = visible.at(-1);
   const label = (id: string) => BY_ID.get(id)?.label ?? id;
   const speedNow = spreadFactors(atm, "fabric").mmS;
+  const rep = sim && TANK && source ? ruptureReport(sim.events, t, CATALOG, source) : null;
+
+  const downloadCsv = () => {
+    const runs = [...sessionRuns, ...(live.current ? [live.current] : [])];
+    const tankSrc = TANK?.energetic?.failureMode.src ?? "";
+    const csv = buildCsv(runs, (e) => (TANK && e.componentId === TANK.id && (e.state === "ruptured" || e.state === "relieved") ? tankSrc : "JaPax component engine (lib/componentSpread) with labPhysics.spreadFactors; the level column carries the tag of each event"));
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = csvFileName(env);
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const apply = (id: string) => setApplied((a) => (id in a ? a : { ...a, [id]: Math.round(t * 10) / 10 }));
 
@@ -261,7 +366,7 @@ export default function ComponentPanel({ api, atm: atmIn, pick }: { api: SceneAp
         <h3 className="font-semibold">Component engine</h3>
         <span className="rounded bg-fuchsia-500/15 px-1.5 py-0.5 text-[10px] font-medium text-fuchsia-300">simulation</span>
       </div>
-      <p className="mt-1 text-xs text-muted">Tap a part of the suit to identify it and see how a fire could move between components. The timeline, the colours on the model and the numbers come from the same engine.</p>
+      <p className="mt-1 text-xs text-muted">Tap a part of the model to identify it and see how a fire could move between components. The timeline, the colours on the model and the numbers come from the same engine.</p>
       <label className="mt-2 flex items-center gap-2 text-xs text-ink-2">
         <input type="checkbox" checked={measuredOnly} onChange={(e) => setMeasuredOnly(e.target.checked)} />
         Measured only (hide our simulation)
@@ -281,17 +386,21 @@ export default function ComponentPanel({ api, atm: atmIn, pick }: { api: SceneAp
         </div>
       )}
 
-      <div className="mt-3 flex flex-wrap gap-2">
-        <button onClick={() => start(TANK.id, { componentId: TANK.id, method: "material", key: "virtual component" })}
-          className="rounded-lg border border-line-2 px-3 py-1.5 text-sm text-ink-2 hover:text-ink">
-          Start at the PLSS oxygen tank
-        </button>
-        <label className="flex items-center gap-2 text-sm text-ink-2">
-          <input type="checkbox" checked={forced} onChange={(e) => { setForced(e.target.checked); setT(0); setPlaying(!!source); }} />
-          Forced failure (demo scenario, not a prediction)
-        </label>
-      </div>
-      <p className="mt-1 text-[11px] text-muted">PLSS = the portable life-support backpack. The suit model has no separately selectable oxygen tank, so it is a virtual component (tap the “PLSS O2 tank” marker on the back of the suit). Its effects are drawn at the torso.</p>
+      {TANK && (
+        <>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button onClick={() => start(TANK.id, { componentId: TANK.id, method: "material", key: TANK.virtual ? "virtual component" : "catalog" })}
+              className="rounded-lg border border-line-2 px-3 py-1.5 text-sm text-ink-2 hover:text-ink">
+              Start at the {shortLabel(TANK)}
+            </button>
+            <label className="flex items-center gap-2 text-sm text-ink-2">
+              <input type="checkbox" checked={forced} onChange={(e) => { setForced(e.target.checked); setT(0); setPlaying(!!source); }} />
+              Forced failure (demo scenario, not a prediction)
+            </label>
+          </div>
+          {TANK.virtual && env === "suit" && <p className="mt-1 text-[11px] text-muted">PLSS = the portable life-support backpack. The suit model has no separately selectable oxygen tank, so it is a virtual component (tap the “PLSS O2 tank” marker on the back of the suit). Its effects are drawn at the torso.</p>}
+        </>
+      )}
 
       {comp && (
         <div className="mt-3 rounded-lg border border-line p-3">
@@ -330,12 +439,20 @@ export default function ComponentPanel({ api, atm: atmIn, pick }: { api: SceneAp
           <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
             <div className="rounded-lg border border-line p-2"><p className="text-muted">Components reached</p><p className="text-lg font-semibold tabular-nums">{reached} / {CATALOG.components.length}</p><Chip tag="estimated" /></div>
             <div className="rounded-lg border border-line p-2"><p className="text-muted">Garment spread speed</p><p className="text-lg font-semibold tabular-nums">{speedNow.toFixed(1)} mm/s</p><Chip tag="estimated" /></div>
-            <div className="col-span-2 rounded-lg border border-line p-2">
-              <p className="text-muted">Oxygen tank outcome</p>
-              <p className="font-semibold">{rupture ? `Ruptures at about ${rupture.t.toFixed(0)} s${rupture.forced ? " (forced scenario)" : ` (mid-point of an assumed ${TANK.energetic!.heatToRuptureS[0]}-${TANK.energetic!.heatToRuptureS[1]} s heating window, no dataset)`}` : relieved ? `Rupture avoided: pressure relieved at ${relieved.t.toFixed(0)} s` : "No rupture in this run"}</p>
-              <Chip tag="estimated" />
-            </div>
+            {TANK?.energetic && (
+              <div className="col-span-2 rounded-lg border border-line p-2">
+                <p className="text-muted">{shortLabel(TANK)} outcome</p>
+                <p className="font-semibold">{rupture ? `Ruptures at about ${rupture.t.toFixed(0)} s${rupture.forced ? " (forced scenario)" : ` (mid-point of an assumed ${TANK.energetic.heatToRuptureS[0]}-${TANK.energetic.heatToRuptureS[1]} s heating window, no dataset)`}` : relieved ? `Rupture avoided: pressure relieved at ${relieved.t.toFixed(0)} s` : "No rupture in this run"}</p>
+                <Chip tag="estimated" />
+              </div>
+            )}
           </div>
+
+          {rep && rep.status !== "none" && (
+            measuredOnly
+              ? <p className="mt-2 text-xs text-muted">Rupture notice hidden: it is built from simulated (estimated) events, not measured data.</p>
+              : <RuptureNotice rep={rep} atm={atm} condTag={condTag} tank={TANK as NonNullable<typeof TANK>} applied={applied} />
+          )}
 
           <h4 className="mt-3 text-sm font-semibold">Components</h4>
           <ul className="mt-1 grid grid-cols-1 gap-1 text-xs sm:grid-cols-2">
@@ -379,7 +496,13 @@ export default function ComponentPanel({ api, atm: atmIn, pick }: { api: SceneAp
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <button onClick={download} disabled={!sim} className="rounded-lg border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:text-ink disabled:opacity-40">Download component sheet (.txt)</button>
+        <button onClick={downloadCsv} disabled={runCount === 0} data-testid="csv-download" className="rounded-lg border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:text-ink disabled:opacity-40">Download data (.csv)</button>
       </div>
+      <p className="mt-1 text-[11px] text-muted" data-testid="csv-hint">
+        {runCount === 0
+          ? "No simulation recorded yet: tap a part of the model to start a run, then download its data."
+          : `${runCount} run${runCount === 1 ? "" : "s"} this session, one row per engine event plus a summary row per run. Built in your browser; nothing is uploaded. Times are simulated seconds (equal to real-equivalent seconds in this engine).`}
+      </p>
       <details className="mt-3 text-xs">
         <summary className="cursor-pointer text-ink-2 hover:text-ink">Data gaps</summary>
         <ul className="mt-1 list-disc space-y-1 pl-4 text-muted">{CATALOG.gaps.map((g, i) => <li key={i}>{g}</li>)}</ul>

@@ -345,7 +345,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
               </ul>
             </details>
           </div>
-          {env === "suit" && <ComponentPanel api={sceneApi} atm={atm} pick={panelPick} />}
+          <ComponentPanel env={env} api={sceneApi} atm={atm} pick={panelPick} condTag={estimatedEnv ? "estimated" : "reported"} />
         </div>
       </div>
 
