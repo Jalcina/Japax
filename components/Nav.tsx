@@ -15,7 +15,7 @@ const T = {
     hints: ["Programme overview and key findings", "Mishaps, experiments and data releases", "Component-level fire spread model", "PSI/NTRS combustion investigations", "Multi-criteria investigation ranking", "Prevention, detection, suppression", "Datasets, DOIs and licences"],
   },
   es: {
-    ignition: "Resumen", chronicles: "Cronología", worlds: "Simulador", lab: "Laboratorio", vault: "Investigaciones", radar: "Ranking", safety: "Seguridad contra incendios", proof: "Fuentes",
+    ignition: "Inicio", chronicles: "Cronología", worlds: "Simulador", lab: "Laboratorio", vault: "Investigaciones", radar: "Ranking", safety: "Seguridad contra incendios", proof: "Fuentes",
     main: "Principal", language: "Idioma", guide: "Modo guía", guideOn: "Guía activa", menu: "Menú",
     hints: ["Resumen del programa y hallazgos clave", "Siniestros, experimentos y publicación de datos", "Modelo de propagación entre componentes", "Investigaciones de combustión PSI/NTRS", "Ranking multicriterio de investigaciones", "Prevención, detección y supresión", "Conjuntos de datos, DOI y licencias"],
   },

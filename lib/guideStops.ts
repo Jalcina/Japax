@@ -57,7 +57,7 @@ export const GUIDE_T = {
     restart: "Empezar de nuevo",
     resumed: "Bienvenido de nuevo. Retomamos donde lo dejaste.",
     tryLabel: "Pruébalo",
-    pageNames: { "/": "Resumen", "/history": "Cronología", "/simulator": "Simulador", "/explorer": "Investigaciones", "/dashboard": "Ranking", "/references": "Fuentes" } as Record<string, string>,
+    pageNames: { "/": "Inicio", "/history": "Cronología", "/simulator": "Simulador", "/explorer": "Investigaciones", "/dashboard": "Ranking", "/references": "Fuentes" } as Record<string, string>,
     steps: {
       "/": [
         { sel: "main h1", title: "Alcance", body: "JaPax consolida las investigaciones de combustión en microgravedad de NASA (PSI/NTRS) en una base de evidencia trazable para la seguridad contra incendios en naves y hábitats lunares. Cada cifra lleva su PSI ID, su DOI y una etiqueta de evidencia: medido, reportado, estimado o simulado." },

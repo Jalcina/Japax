@@ -278,7 +278,7 @@ export const TIMELINE: TimelineEvent[] = [
     en: { title: 'Flame in Freefall', text: 'NASA Space Apps asks the world to turn decades of microgravity combustion data into fire-safety insights for the Moon and Mars. This project is one answer.' },
     es: { title: 'Flame in Freefall', text: 'NASA Space Apps pide al mundo convertir décadas de datos de combustión en microgravedad en conocimiento de seguridad contra incendios para la Luna y Marte. Este proyecto es una respuesta.' },
     src: { label: 'NASA Space Apps: challenge statement', url: 'https://www.spaceappschallenge.org' },
-    link: { href: '/', en: 'Back to the overview', es: 'Volver al resumen' },
+    link: { href: '/', en: 'Back to the overview', es: 'Volver al inicio' },
   },
   {
     id: 'next-moon', year: null, when: { en: 'Next', es: 'Próximamente' }, cat: 'next',
