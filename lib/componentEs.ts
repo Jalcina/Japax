@@ -121,7 +121,7 @@ export const STATE_EN: Record<string, string> = {
 export const TAG_ES: Record<string, string> = { measured: "medido", reported: "reportado", predicted: "predicho", estimated: "estimado" };
 export const MATERIAL_ES: Record<string, string> = { cable: "cable", fabric: "tela", inert: "inerte", liquid: "líquido", plastic: "plástico" };
 export const END_REASON_ES: Record<string, string> = {
-  extinguished_by_measure: "apagado por una medida", self_extinguished: "se apagó solo", burned_out: "agotado (todo lo alcanzable ya ardió)",
+  extinguished_by_measure: "apagado por una medida", self_extinguished: "se apagó solo", burned_out: "todo lo alcanzable ya ardió",
   ruptured_and_settled: "rotura y consecuencias ya ocurridas", horizon_reached: "límite de previsión alcanzado",
   extinguished_by_suppression_system: "apagado por el sistema de supresión del laboratorio", interrupted_by_user: "interrumpida por el usuario", in_progress: "en curso",
 };
