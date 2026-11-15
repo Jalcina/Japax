@@ -1,0 +1,9 @@
+JaPax
+Copyright 2026 Jaime Alcina and Pablo Triguero
+
+Original code and design in this repository are licensed under the Apache License 2.0 (see LICENSE).
+
+NASA data (Physical Sciences Informatics, PSI, and the NASA Technical Reports Server, NTRS) referenced and
+redistributed in data/ is public and is NOT covered by this license. Every dataset is cited with its PSI ID and DOI.
+
+JaPax is an independent project. It is not affiliated with or endorsed by NASA.
