@@ -134,3 +134,12 @@ test("a Spanish record never shows a raw end-reason code to the reader", () => {
     for (const s of shown) assert.ok(!codes.test(s), `${env}: ${s}`);
   }
 });
+
+test("every note of a part the maps declare as not simulated is translated", () => {
+  const missing = [];
+  for (const f of readdirSync(new URL("../data/components/", import.meta.url)).filter((x) => x.endsWith(".map.json"))) {
+    const m = JSON.parse(read(`data/components/${f}`));
+    for (const note of new Set(Object.values(m.ignored ?? {}))) if (esText(note) === note) missing.push(`${f}: ${note}`);
+  }
+  assert.deepEqual(missing, []);
+});

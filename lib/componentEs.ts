@@ -38,6 +38,19 @@ const EXACT: Record<string, string> = {
   "the run was stopped before it ended (a new ignition was started or the environment was left); events after that moment never happened": "la simulación se detuvo antes de terminar (se inició una nueva ignición o se salió del entorno); los eventos posteriores a ese momento nunca ocurrieron",
   "the run had not ended yet when this record was taken; events after that moment have not happened": "la simulación aún no había terminado cuando se tomó este registro; los eventos posteriores a ese momento no han ocurrido",
   "stopped": "detenida",
+  // notes of the parts the maps declare as not simulated (data/components/*.map.json, "ignored")
+  "bare ground: not a component (no continuous fuel in the model)": "suelo desnudo: no es un componente (sin combustible continuo en el modelo)",
+  "distant ridge of the scenery: not a component": "cresta lejana del escenario: no es un componente",
+  "hidden by the scene (partially transmissive)": "oculto por la escena (parcialmente transparente)",
+  "structure or fixture of the procedural scene: treated as non-combustible and not simulated": "estructura o accesorio de la escena procedural: se trata como no combustible y no se simula",
+  "outside the pressurised volume: no oxidiser, so a flame cannot burn there; not simulated": "fuera del volumen presurizado: sin oxidante una llama no puede arder allí; no se simula",
+  "external thermal insulation blankets: outside the pressurised volume: no oxidiser, so a flame cannot burn there; not simulated": "mantas de aislamiento térmico externas: fuera del volumen presurizado; sin oxidante una llama no puede arder allí; no se simula",
+  "lettering decal on a module surface, not a component": "rotulación adhesiva en la superficie de un módulo, no es un componente",
+  "this mesh has no material and nothing visible when isolated; not identified (ignored by mesh name)": "esta malla no tiene material y no se ve nada al aislarla; sin identificar (ignorada por el nombre de la malla)",
+  "Martian ground: not a component": "suelo marciano: no es un componente",
+  "transparent helper mesh of the model: not a component": "malla auxiliar transparente del modelo: no es un componente",
+  "lunar ground: not a component": "suelo lunar: no es un componente",
+  "small indicator dot: not a component": "pequeño punto indicador: no es un componente",
   // catalog: energetic contents
   "Oxygen (primary and secondary vessels of the PLSS)": "Oxígeno (recipientes primario y secundario del PLSS)",
   // labPhysics factors
@@ -91,6 +104,7 @@ const TEMPLATES: Array<[RegExp, (m: RegExpExecArray) => string]> = [
   [/^inside the declared blast radius \((.+) m, assumption\)$/, (m) => `dentro del radio de explosión declarado (${m[1]} m, suposición)`],
   [new RegExp(`^pressure relieved by measure ${q} before the failure window closes$`), (m) => `presión aliviada por la medida «${m[1]}» antes de que se cierre la ventana de fallo`],
   [/^Simulation ended \((.+)\): (.+)$/, (m) => `Simulación terminada (${m[1]}): ${esText(m[2])}`],
+  [/^hidden by the scene \(name ends in (.+)\)$/, (m) => `oculto por la escena (el nombre termina en ${m[1]})`],
   [/^blast of (.+)$/, (m) => `explosión de ${esText(m[1])}`],
   [/^applied: (.+)$/, (m) => `aplicadas: ${m[1]}`],
 ];
