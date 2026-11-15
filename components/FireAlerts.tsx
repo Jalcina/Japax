@@ -30,7 +30,7 @@ const STYLE: Record<DamageKind, { border: string; badge: string; text: string; i
  * from the engine, so with nothing harmed nothing is drawn. The tab can be folded to its header and re-opens by
  * itself when a new component gets damaged.
  */
-export default function FireAlerts({ items, runKey, onApplyAll, pending }: { items: FireAlertItem[]; runKey: string; onApplyAll?: () => void; pending?: number }) {
+export default function FireAlerts({ items, runKey }: { items: FireAlertItem[]; runKey: string }) {
   const { t } = useTr();
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [open, setOpen] = useState(true);
@@ -104,15 +104,6 @@ export default function FireAlerts({ items, runKey, onApplyAll, pending }: { ite
             <p className="pointer-events-auto rounded-lg bg-zinc-950/95 px-3 py-1.5 text-center text-xs font-semibold text-orange-300">
               {t("+{n} more damaged parts", { n: more })}
             </p>
-          )}
-          {onApplyAll && (
-            <button
-              onClick={onApplyAll}
-              disabled={!pending}
-              className="pointer-events-auto min-h-11 rounded-lg bg-red-600 px-3 py-2 text-sm font-bold text-white shadow-2xl hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {pending ? t("🧯 Apply all recommended safety measures") : t("All recommended measures applied")}
-            </button>
           )}
         </>
       )}

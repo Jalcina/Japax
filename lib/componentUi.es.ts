@@ -14,8 +14,6 @@ const COMPONENT_UI_ES: Record<string, string> = {
   "Failed {s} s after ignition": "Falló {s} s después de la ignición",
   "On fire for {s} s": "Ardiendo desde hace {s} s",
   "Dismiss": "Descartar",
-  "🧯 Apply all recommended safety measures": "🧯 Aplicar todas las medidas de seguridad recomendadas",
-  "All recommended measures applied": "Todas las medidas recomendadas aplicadas",
   "+{n} more damaged parts": "+{n} partes dañadas más",
   "mesh name in the model": "nombre de la malla en el modelo",
   "mesh-name prefix in the model": "prefijo del nombre de la malla en el modelo",

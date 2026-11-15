@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { buildCsv, csvFileName } from "@/lib/componentCsv";
 import { buildReportTxt, type RunRecord } from "@/lib/runRecord";
+import PaxExplains from "@/components/PaxExplains";
 import { useTr } from "@/lib/i18n";
 import { END_REASON_ES, STATE_ES, TAG_ES } from "@/lib/componentEs";
 
@@ -166,6 +167,7 @@ export default function ResultsDialog({ run, runEn, sessionRuns, onClose, onLigh
         <div id="results-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} className="min-h-0 flex-1 overflow-auto p-3 text-xs">
           {tab === "Summary" && (
             <div className="space-y-3">
+              <PaxExplains run={run} />
               <ul className="list-disc space-y-1 pl-4 text-sm" data-testid="summary-lines">{run.summary.map((s, i) => <li key={i}>{s}</li>)}</ul>
               <RunChart run={run} />
               <h3 className="text-sm font-semibold">{t("Metrics")}</h3>

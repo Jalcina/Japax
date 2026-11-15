@@ -413,9 +413,6 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
   const downloadCsv = () => downloadText(csvFileName(env), buildCsv(allRuns()), "text/csv;charset=utf-8");
 
   const apply = (id: string) => setApplied((a) => (ended || id in a ? a : { ...a, [id]: Math.round(t * 10) / 10 }));
-  /** every recommended measure of the catalog, at the current simulated time (the engine decides which ones matter for this fire) */
-  const pending = allMeasures.filter((m) => !(m.id in applied));
-  const applyAll = () => setApplied((a) => (ended ? a : { ...a, ...Object.fromEntries(allMeasures.filter((m) => !(m.id in a)).map((m) => [m.id, Math.round(t * 10) / 10])) }));
   const lightAgain = () => { const s = source ?? lastRun?.source ?? null; if (s) start(s, { componentId: s, method: "material", key: "light it again" }); };
   const hasLast = !!ended || !!lastRun;
   const openLast = () => { if (hasLast) setDialogOpen(true); };
@@ -572,10 +569,6 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
           {T(ended ? "The simulation ended, so measures are locked. Press “Light it again” to try another one." : "Measures unlock once a fire is burning: tap a part of the model to start one.")}
         </p>
       )}
-      <button onClick={applyAll} disabled={!source || !!ended || pending.length === 0} data-testid="apply-all-measures"
-        className="mt-2 min-h-10 w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-bold text-white hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-40">
-        {pending.length === 0 && source ? T("All recommended measures applied") : T("🧯 Apply all recommended safety measures")}
-      </button>
       <ul className="mt-1 grid gap-1.5 sm:grid-cols-2">
         {allMeasures.map((m) => (
           <li key={m.id} className="flex flex-col rounded-lg border border-line p-2 text-xs sm:[&:last-child:nth-child(odd)]:col-span-2">
@@ -605,7 +598,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
         <summary className="cursor-pointer text-ink-2 hover:text-ink">{T("Data gaps")}</summary>
         <ul className="mt-1 list-disc space-y-1 pl-4 text-muted">{CATALOG.gaps.map((g, i) => <li key={i}>{X(g)}</li>)}</ul>
       </details>
-      <FireAlerts items={alertItems} runKey={runMeta.current?.runId ?? source ?? ""} onApplyAll={applyAll} pending={pending.length} />
+      <FireAlerts items={alertItems} runKey={runMeta.current?.runId ?? source ?? ""} />
       {dlgRun && <ResultsDialog run={dlgRun} runEn={dlgEn} sessionRuns={allRuns} onClose={() => setDialogOpen(false)} onLightAgain={lightAgain} />}
     </div>
   );
