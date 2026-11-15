@@ -6,6 +6,7 @@ import { useLang, useT } from "@/lib/i18n";
 import type { OracleAnswer } from "@/lib/oracle";
 import OracleViz from "@/components/OracleViz";
 import { setPaxMood } from "@/lib/paxMood";
+import PaxCharacter from "@/components/PaxCharacter";
 
 const T = {
   en: {
@@ -270,6 +271,12 @@ export default function AskChat({ embedded = false, initialQuestion }: { embedde
   const [turns, setTurns] = useState<Turn[]>([]);
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
+  // Pax "says" its intro for a few seconds when the page opens
+  const [talking, setTalking] = useState(!embedded);
+  useEffect(() => {
+    const id = setTimeout(() => setTalking(false), 4000);
+    return () => clearTimeout(id);
+  }, []);
   const last = useRef<HTMLElement>(null);
 
   async function send(text: string) {
@@ -311,18 +318,21 @@ export default function AskChat({ embedded = false, initialQuestion }: { embedde
   return (
     <div className={embedded ? "flex h-full min-h-0 flex-col" : "mx-auto max-w-4xl px-4 pb-6 pt-10"}>
      <div className={embedded ? "min-h-0 flex-1 overflow-y-auto px-5 pb-2 pt-4" : ""}>
-      <header className="flex flex-col items-center text-center">
-        {!embedded && <div className="orb" aria-hidden="true" />}
-        {!embedded && <p className="eyebrow mt-8">{t.eyebrow}</p>}
-        <h1 className={embedded ? "max-w-2xl text-xl font-semibold leading-tight tracking-tight sm:text-2xl" : "mt-2 max-w-3xl text-3xl font-semibold leading-tight tracking-tight sm:text-5xl"}>{t.title}</h1>
-        <p className={`max-w-2xl text-ink-2 ${embedded ? "mt-2 text-sm" : "mt-4"}`}>{t.lead}</p>
-      </header>
-
-      {turns.length === 0 && (
-        <div className="mt-10 text-center">
-          <p className="text-5xl font-bold tracking-tight text-accent sm:text-7xl">JaPax</p>
-          <p className="mx-auto mt-3 max-w-2xl text-lg font-medium sm:text-xl">{t.aiPitch}</p>
-        </div>
+      {embedded ? (
+        <header className="flex flex-col items-center text-center">
+          <h1 className="max-w-2xl text-xl font-semibold leading-tight tracking-tight sm:text-2xl">{t.title}</h1>
+          <p className="mt-2 max-w-2xl text-sm text-ink-2">{t.lead}</p>
+        </header>
+      ) : (
+        // Pax, big, introduces itself: this is a live AI, not canned answers
+        <header className="flex flex-col items-center text-center">
+          <h1 className="sr-only">{t.title}</h1>
+          <div className="relative mx-auto max-w-xl rounded-3xl border border-accent/40 bg-surface-2 px-6 py-4 text-lg font-medium sm:text-xl">
+            {t.aiPitch}
+            <span className="absolute -bottom-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-b border-r border-accent/40 bg-surface-2" aria-hidden="true" />
+          </div>
+          <PaxCharacter size={220} mood="happy" talking={talking} gesture="hello" className="mt-4" />
+        </header>
       )}
 
       {turns.length === 0 && (
