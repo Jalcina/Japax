@@ -301,8 +301,8 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
         </div>
 
         {/* ---- live data and component engine, side by side under the scene ---- */}
-        <div className="grid gap-5 lg:grid-cols-2">
-          <div className="card p-4">
+        <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
+          <div className="card flex flex-col p-4 lg:sticky lg:top-24">
             <div className="flex items-baseline justify-between">
               <h3 className="font-semibold">{t("Live data")}</h3>
               <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${SIM}`}>{t("all values simulated")}</span>
