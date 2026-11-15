@@ -55,21 +55,21 @@ export const ERAS: Era[] = [
     from: 1994,
     to: 2007,
     en: { title: 'Fire on stations and shuttles', text: 'An actual fire on Mir and a generation of shuttle combustion experiments.' },
-    es: { title: 'Fuego en estaciones y transbordadores', text: 'Un incendio real en Mir y una generación de experimentos de combustión en el transbordador.' },
+    es: { title: 'Incendios en estaciones y transbordadores', text: 'Un incendio real en Mir y una generación de experimentos de combustión en el transbordador.' },
   },
   {
     id: 'iss',
     from: 2008,
     to: 2018,
     en: { title: 'The ISS becomes a combustion laboratory', text: 'A dedicated rack, droplets, solids and smoke: the experiments behind today’s data.' },
-    es: { title: 'La ISS se convierte en laboratorio de combustión', text: 'Un rack dedicado, gotas, sólidos y humo: los experimentos que hay detrás de los datos actuales.' },
+    es: { title: 'La ISS se convierte en laboratorio de combustión', text: 'Un bastidor dedicado, gotas, sólidos y humo: los experimentos que hay detrás de los datos actuales.' },
   },
   {
     id: 'open',
     from: 2019,
     to: 2025,
     en: { title: 'Open data release', text: 'Investigation by investigation, NASA publishes its combustion results in PSI.' },
-    es: { title: 'Publicación de datos abiertos', text: 'Investigación a investigación, NASA publica sus resultados de combustión en PSI.' },
+    es: { title: 'Publicación de datos abiertos', text: 'Investigación a investigación, la NASA publica sus resultados de combustión en PSI.' },
   },
   {
     id: 'now',
@@ -96,7 +96,7 @@ export const TIMELINE: TimelineEvent[] = [
   {
     id: 'apollo1', year: 1967, when: { en: '27 Jan 1967', es: '27 ene 1967' }, cat: 'incident',
     en: { title: 'Apollo 1: a flash fire in pure oxygen', text: 'During a launch-pad test, a fire sweeps a 100% oxygen cabin and kills Grissom, White and Chaffee. The three-piece hatch needed about 90 seconds to open even under ideal conditions and could not be opened against the rising pressure.' },
-    es: { title: 'Apollo 1: un incendio relámpago en oxígeno puro', text: 'En una prueba en la plataforma de lanzamiento, un fuego recorre una cabina de 100% de oxígeno y mata a Grissom, White y Chaffee. La escotilla de tres piezas necesitó unos 90 segundos en abrirse incluso en condiciones ideales y no pudo abrirse contra la presión creciente.' },
+    es: { title: 'Apollo 1: un incendio relámpago en oxígeno puro', text: 'En una prueba en la plataforma de lanzamiento, un incendio recorre una cabina de 100% de oxígeno y mata a Grissom, White y Chaffee. La escotilla de tres piezas necesitó unos 90 segundos en abrirse incluso en condiciones ideales y no pudo abrirse contra la presión creciente.' },
     src: APOLLO1,
     link: { href: '/explorer/acme-bre', en: 'Oxygen-rich atmospheres are still the question: see BRE', es: 'Las atmósferas ricas en oxígeno siguen siendo la cuestión: mira BRE' },
   },
@@ -109,13 +109,13 @@ export const TIMELINE: TimelineEvent[] = [
   {
     id: 'cortright', year: 1970, when: { en: '15 Jun 1970', es: '15 jun 1970' }, cat: 'incident',
     en: { title: 'The review board names the cause', text: 'The Apollo 13 report finds a combination of mistakes and a deficient design. Fixes: a third oxygen tank, upgraded thermostats, no stirring fans and stainless-steel-sheathed wiring.' },
-    es: { title: 'La comisión de revisión señala la causa', text: 'El informe de Apollo 13 halla una combinación de errores y un diseño deficiente. Soluciones: un tercer tanque de oxígeno, termostatos mejorados, sin ventiladores de agitación y cableado revestido de acero inoxidable.' },
+    es: { title: 'La comisión de revisión señala la causa', text: 'El informe de Apollo 13 halla una combinación de errores y un diseño deficiente. Soluciones: un tercer tanque de oxígeno, termostatos mejorados, sin ventiladores agitadores y cableado revestido de acero inoxidable.' },
     src: APOLLO13,
   },
   {
     id: 'skylab', year: 1974, when: { en: '1974', es: '1974' }, cat: 'research',
     en: { title: 'Skylab measures zero-gravity flammability', text: 'Skylab experiment M479, Zero Gravity Flammability, is reported. NASA’s BASS team still cites it as foundational work.' },
-    es: { title: 'Skylab mide la inflamabilidad en gravedad cero', text: 'Se publica el experimento M479 de Skylab, Zero Gravity Flammability. El equipo de BASS de NASA aún lo cita como trabajo fundacional.' },
+    es: { title: 'Skylab mide la inflamabilidad en gravedad cero', text: 'Se publica el experimento M479 de Skylab, Zero Gravity Flammability. El equipo de BASS de la NASA aún lo cita como trabajo fundacional.' },
     src: { label: 'NASA fact sheet: BASS (references)', url: 'https://www.nasa.gov/wp-content/uploads/2025/07/burning-and-suppression-of-solids-bass.pdf' },
   },
   {
@@ -134,13 +134,13 @@ export const TIMELINE: TimelineEvent[] = [
   {
     id: 'fires', year: 1982, when: { en: '1982', es: '1982' }, cat: 'spinoff',
     en: { title: 'Project FIRES: firefighter gear from spacesuit fabrics', text: 'NASA and the U.S. Fire Administration test protective clothing built from spacesuit-grade, fire-resistant fabrics in 14 municipal fire departments.' },
-    es: { title: 'Proyecto FIRES: equipo de bomberos con tejidos de trajes espaciales', text: 'NASA y la Administración de Bomberos de EE. UU. prueban ropa de protección hecha con tejidos ignífugos de calidad de traje espacial en 14 cuerpos de bomberos municipales.' },
+    es: { title: 'Proyecto FIRES: equipo de bomberos con tejidos de trajes espaciales', text: 'La NASA y la Administración de Bomberos de EE. UU. prueban ropa de protección hecha con tejidos ignífugos de calidad de traje espacial en 14 cuerpos de bomberos municipales.' },
     src: { label: 'NASA Spinoff: Project FIRES', url: 'https://spinoff.nasa.gov/node/9918' },
   },
   {
     id: 'mir', year: 1997, when: { en: '24 Feb 1997', es: '24 feb 1997' }, cat: 'incident',
     en: { title: 'Fire aboard Mir', text: 'A solid-fuel oxygen generator canister ignites in the Kvant-1 module. The flame burns for several minutes, shooting about three feet with sparks and molten metal; the crew fights it with foam extinguishers.' },
-    es: { title: 'Incendio a bordo de Mir', text: 'Un cartucho de generador de oxígeno de combustible sólido se enciende en el módulo Kvant-1. La llama arde varios minutos, con unos tres pies de largo, chispas y metal fundido; la tripulación la combate con extintores de espuma.' },
+    es: { title: 'Incendio a bordo de Mir', text: 'Un cartucho de generador de oxígeno de combustible sólido se enciende en el módulo Kvant-1. La llama arde varios minutos, proyectándose unos tres pies, con chispas y metal fundido; la tripulación la combate con extintores de espuma.' },
     src: { label: 'NASA History: Fire Aboard Mir', url: 'https://www.nasa.gov/history/25-years-ago-fire-aboard-space-station-mir/' },
   },
   {
@@ -164,14 +164,14 @@ export const TIMELINE: TimelineEvent[] = [
   {
     id: 'same', year: 2007, when: { en: '2007', es: '2007' }, cat: 'research',
     en: { title: 'SAME measures smoke in microgravity', text: 'During ISS Expedition 15 (SAME also ran in 2010), 30 samples of five materials are burned to learn how big smoke particles are without gravity. Mean diameters fall around 100 to 200 nm.' },
-    es: { title: 'SAME mide el humo en microgravedad', text: 'Durante la Expedición 15 de la ISS (SAME también se ejecutó en 2010) se queman 30 muestras de cinco materiales para saber qué tamaño tienen las partículas de humo sin gravedad. Los diámetros medios rondan los 100 a 200 nm.' },
+    es: { title: 'SAME mide el humo en microgravedad', text: 'Durante la Expedición 15 de la ISS (SAME también se ejecutó en 2010) se queman 30 muestras de cinco materiales para saber qué tamaño tienen las partículas de humo sin gravedad. Los diámetros medios rondan entre 100 y 200 nm.' },
     src: { label: 'NASA fact sheet: SAME', url: 'https://www.nasa.gov/wp-content/uploads/2025/07/smoke-aerosol-measurement-experiment-same.pdf' },
     link: { href: '/explorer/same', en: 'Open SAME', es: 'Abrir SAME' },
   },
   {
     id: 'cir', year: 2008, when: { en: 'Nov 2008', es: 'nov 2008' }, cat: 'hardware',
     en: { title: 'The Combustion Integrated Rack arrives', text: 'Delivered on STS-126, the CIR gives the ISS a 100-liter combustion chamber with eight optical windows. It is the only ISS rack dedicated to combustion.' },
-    es: { title: 'Llega el Combustion Integrated Rack', text: 'Entregado en STS-126, el CIR da a la ISS una cámara de combustión de 100 litros con ocho ventanas ópticas. Es el único rack de la ISS dedicado a la combustión.' },
+    es: { title: 'Llega el Combustion Integrated Rack', text: 'Entregado en STS-126, el CIR da a la ISS una cámara de combustión de 100 litros con ocho ventanas ópticas. Es el único bastidor de la ISS dedicado a la combustión.' },
     src: GUIDE,
   },
   {
@@ -204,20 +204,20 @@ export const TIMELINE: TimelineEvent[] = [
   {
     id: 'bass-data', year: 2013, when: { en: '30 Jun 2013', es: '30 jun 2013' }, cat: 'data',
     en: { title: 'BASS data goes public in PSI', text: 'One of the first combustion data sets opens to everyone in NASA’s Physical Sciences Informatics repository.' },
-    es: { title: 'Los datos de BASS se hacen públicos en PSI', text: 'Uno de los primeros conjuntos de datos de combustión se abre a todos en el repositorio Physical Sciences Informatics de NASA.' },
+    es: { title: 'Los datos de BASS se hacen públicos en PSI', text: 'Uno de los primeros conjuntos de datos de combustión se abre a todos en el repositorio Physical Sciences Informatics de la NASA.' },
     src: PSI('PSI-26'),
   },
   {
     id: 'bass2-start', year: 2014, when: { en: 'Feb 2014', es: 'feb 2014' }, cat: 'research',
     en: { title: 'BASS-II begins with thicker, realistic fuels', text: 'Six principal investigators run 129 tests on PMMA, SIBAL fabric and other samples, asking whether NASA’s 1-g material test protects crews in microgravity.' },
-    es: { title: 'BASS-II arranca con combustibles más gruesos y realistas', text: 'Seis investigadores principales realizan 129 ensayos con PMMA, tela SIBAL y otras muestras, preguntándose si el test de materiales de 1 g de NASA protege a las tripulaciones en microgravedad.' },
+    es: { title: 'BASS-II arranca con combustibles más gruesos y realistas', text: 'Seis investigadores principales realizan 129 ensayos con PMMA, tela SIBAL y otras muestras, preguntándose si el ensayo de materiales de 1 g de la NASA protege a las tripulaciones en microgravedad.' },
     src: PSI('PSI-25'),
     link: { href: '/explorer/bass-ii', en: 'Open BASS-II', es: 'Abrir BASS-II' },
   },
   {
     id: 'guide', year: 2015, when: { en: 'Oct 2015', es: 'oct 2015' }, cat: 'research',
     en: { title: 'NASA publishes the Researcher’s Guide', text: 'A 56-page review of ISS combustion science states that NASA-STD-6001 Test 1 is not conservative: materials can burn at lower oxygen in microgravity than on Earth.' },
-    es: { title: 'NASA publica la Guía del Investigador', text: 'Una revisión de 56 páginas de la ciencia de la combustión en la ISS afirma que NASA-STD-6001 Test 1 no es conservadora: los materiales pueden arder con menos oxígeno en microgravedad que en la Tierra.' },
+    es: { title: 'La NASA publica la Guía del Investigador', text: 'Una revisión de 56 páginas de la ciencia de la combustión en la ISS afirma que el Test 1 de NASA-STD-6001 no es conservador: los materiales pueden arder con menos oxígeno en microgravedad que en la Tierra.' },
     src: GUIDE,
     link: { href: '/simulator', en: 'See why ventilation speed matters', es: 'Mira por qué importa la velocidad de ventilación' },
   },
@@ -276,14 +276,14 @@ export const TIMELINE: TimelineEvent[] = [
   {
     id: 'spaceapps', year: 2026, when: { en: '14–15 Nov 2026', es: '14–15 nov 2026' }, cat: 'next',
     en: { title: 'Flame in Freefall', text: 'NASA Space Apps asks the world to turn decades of microgravity combustion data into fire-safety insights for the Moon and Mars. This project is one answer.' },
-    es: { title: 'Flame in Freefall', text: 'NASA Space Apps pide al mundo convertir décadas de datos de combustión en microgravedad en conocimiento de seguridad contra incendios para la Luna y Marte. Este proyecto es una respuesta.' },
+    es: { title: 'Flame in Freefall', text: 'NASA Space Apps pide al mundo que convierta décadas de datos de combustión en microgravedad en conocimiento de seguridad contra incendios para la Luna y Marte. Este proyecto es una respuesta.' },
     src: { label: 'NASA Space Apps: challenge statement', url: 'https://www.spaceappschallenge.org' },
     link: { href: '/', en: 'Back to the overview', es: 'Volver al inicio' },
   },
   {
     id: 'next-moon', year: null, when: { en: 'Next', es: 'Próximamente' }, cat: 'next',
-    en: { title: 'The first fire experiments in lunar gravity', text: 'FM2 will burn materials such as SIBAL on the Moon at 1/6 g, LUCI (2025) gave the first limited partial-gravity data, SoFIE will test whether the 1-g flame test is conservative, and FLARE will relate ground limits to microgravity. Today, PSI holds zero partial-gravity data.' },
-    es: { title: 'Los primeros experimentos de fuego en gravedad lunar', text: 'FM2 quemará materiales como SIBAL en la Luna a 1/6 g, LUCI (2025) aportó los primeros datos limitados de gravedad parcial, SoFIE comprobará si el test de llama de 1 g es conservador y FLARE relacionará los límites de tierra con la microgravedad. Hoy, PSI no tiene ningún dato de gravedad parcial.' },
+    en: { title: 'The first fire experiments in lunar gravity', text: 'FM2 will burn materials such as SIBAL on the Moon at 1/6 g; LUCI (2025) gave the first limited partial-gravity data; SoFIE will test whether the 1-g flame test is conservative; and FLARE will relate ground limits to microgravity. Today, PSI holds zero partial-gravity data.' },
+    es: { title: 'Los primeros experimentos de fuego en gravedad lunar', text: 'FM2 quemará materiales como SIBAL en la Luna a 1/6 g; LUCI (2025) aportó los primeros datos limitados de gravedad parcial; SoFIE comprobará si el ensayo de llama de 1 g es conservador, y FLARE relacionará los límites obtenidos en tierra con los de microgravedad. Hoy PSI no contiene ningún dato de gravedad parcial.' },
     src: GLENN,
     link: { href: '/simulator', en: 'See what the Moon would change', es: 'Mira qué cambiaría en la Luna' },
   },

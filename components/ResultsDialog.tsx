@@ -115,6 +115,35 @@ function RunChart({ run }: { run: RunRecord }) {
   );
 }
 
+/**
+ * "Where to protect" panel: the Wald/WWII-bomber idea applied to this run. It only re-reads the RunRecord (no new data):
+ * components ranked by how early the fire reached them, with the ones that were damaged or ruptured flagged.
+ */
+function ProtectPanel({ run }: { run: RunRecord }) {
+  const { t } = useTr();
+  const reached = run.components
+    .filter((c): c is typeof c & { ignitionS: number } => c.ignitionS !== null)
+    .sort((a, b) => a.ignitionS - b.ignitionS);
+  const top = reached.slice(0, 3);
+  const applied = run.measures.filter((m) => m.status === "applied").length;
+  const harmed = reached.filter((c) => c.finalState === "ruptured" || c.damage !== "none").length;
+  return (
+    <section className="rounded-lg border border-accent bg-accent/10 p-3" data-testid="protect-panel" aria-labelledby="protect-title">
+      <h3 id="protect-title" className="text-sm font-semibold">{t("Where to protect to save lives")}</h3>
+      <p className="mt-1 text-ink-2">{t("Like the WWII bomber study, this run shows where the fire gets in and where it spreads, so protection goes there first. JaPax exists so no astronaut is lost to fire.")}</p>
+      {top.length ? (
+        <ol className="mt-2 list-decimal space-y-0.5 pl-5">
+          {top.map((c) => (
+            <li key={c.id}><strong>{c.name}</strong> · {t("reached at {s} s", { s: f1(c.ignitionS) })}</li>
+          ))}
+        </ol>
+      ) : <p className="mt-2">{t("The fire reached no component in this run.")}</p>}
+      <p className="mt-2 text-ink-2">{t("{r} of {n} components reached; {h} damaged or ruptured; {m} measure(s) applied. Apply a measure in the simulator and run it again to see how much time it gives the crew.", { r: reached.length, n: run.componentCount, h: harmed, m: applied })}</p>
+      <p className="mt-1 text-[11px] text-muted">{t("Simulation result for this scenario, not a measurement.")}</p>
+    </section>
+  );
+}
+
 const TABS = ["Summary", "Timeline", "Components", "Measures", "Evidence and gaps"] as const;
 type TabName = (typeof TABS)[number];
 
@@ -168,6 +197,7 @@ export default function ResultsDialog({ run, runEn, sessionRuns, onClose, onLigh
           {tab === "Summary" && (
             <div className="space-y-3">
               <PaxExplains run={run} />
+              <ProtectPanel run={run} />
               <ul className="list-disc space-y-1 pl-4 text-sm" data-testid="summary-lines">{run.summary.map((s, i) => <li key={i}>{s}</li>)}</ul>
               <RunChart run={run} />
               <h3 className="text-sm font-semibold">{t("Metrics")}</h3>

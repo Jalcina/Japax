@@ -16,9 +16,9 @@ const SEEN_KEY = "japax-pax-seen";
 const HINTS: Record<string, { en: [string, string]; es: [string, string] }> = {
   "/simulator": { en: ["Not sure what the verdict means?", "How should I read the simulator verdict?"], es: ["¿No tienes claro qué significa el veredicto?", "¿Cómo debo leer el veredicto del simulador?"] },
   "/lab": { en: ["Curious how the nearest tests are chosen?", "What happens when my conditions are outside the measured range?"], es: ["¿Quieres saber cómo se eligen los ensayos más cercanos?", "¿Qué pasa cuando mis condiciones quedan fuera del rango medido?"] },
-  "/explorer": { en: ["Lost among the investigations?", "Which NASA investigations matter most for the Moon?"], es: ["¿Perdido entre las investigaciones?", "¿Qué investigaciones de NASA importan más para la Luna?"] },
-  "/dashboard": { en: ["Want to know how scores are built?", "What fire data exists for the Moon or Mars?"], es: ["¿Quieres saber cómo se calculan las puntuaciones?", "¿Qué datos de fuego existen para la Luna o Marte?"] },
-  "/history": { en: ["Want the story behind an incident?", "Tell me about Apollo 1, Apollo 13 and Mir"], es: ["¿Quieres la historia detrás de un incidente?", "Cuéntame lo de Apollo 1, Apollo 13 y Mir"] },
+  "/explorer": { en: ["Lost among the investigations?", "Which NASA investigations matter most for the Moon?"], es: ["¿Te has perdido entre las investigaciones?", "¿Qué investigaciones de la NASA importan más para la Luna?"] },
+  "/dashboard": { en: ["Want to know how scores are built?", "What fire data exists for the Moon or Mars?"], es: ["¿Quieres saber cómo se calculan las puntuaciones?", "¿Qué datos sobre el fuego existen para la Luna o Marte?"] },
+  "/history": { en: ["Want the story behind an incident?", "Tell me about Apollo 1, Apollo 13 and Mir"], es: ["¿Quieres la historia detrás de un incidente?", "Cuéntame sobre Apollo 1, Apollo 13 y Mir"] },
   "/safety": { en: ["Questions about fire safety?", "Which suppressants were tested and how did the flames end?"], es: ["¿Dudas sobre seguridad contra incendios?", "¿Qué supresores se ensayaron y cómo terminaron las llamas?"] },
 };
 

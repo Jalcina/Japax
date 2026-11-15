@@ -69,7 +69,7 @@ const T = {
     informs: "Informa",
     rows: "filas de la tabla",
     plan: "plan de ensayos, no resultados",
-    notes: { teflon: "4 filas con valores (Teflon)", inventory: "solo inventario", noOutcomes: "condiciones, sin resultados", samples: "2 muestras", publication: "resultados en la publicación", burns: "{n} con combustión" } as Record<string, string>,
+    notes: { teflon: "4 filas con valores (Teflón)", inventory: "solo inventario", noOutcomes: "condiciones, sin resultados", samples: "2 muestras", publication: "resultados en la publicación", burns: "{n} con combustión" } as Record<string, string>,
     open: "Abrir",
     measured: "medido",
     chk: "Enlazado con la ficha de la investigación en el catálogo de investigaciones",

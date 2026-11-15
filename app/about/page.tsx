@@ -17,7 +17,7 @@ const TEAM: { name: string; initials: string; github: string; linkedin?: string;
   },
   { name: "Pablo Triguero", initials: "PT", github: "ptricha", linkedin: "https://www.linkedin.com/in/pablotriguerochamizo/", photo: "/team/pablo.jpg",
     bio: {
-      en: "Studying Computer Engineering, with a specialisation in Data Science. Co-created JaPax for the NASA Space Apps Challenge 2026 in Seville.",
+      en: "Studying Computer Engineering, with a specialization in Data Science. Co-created JaPax for the NASA Space Apps Challenge 2026 in Seville.",
       es: "Estudia Ingeniería Informática con mención en Ciencia de Datos. Cocreó JaPax para el NASA Space Apps Challenge 2026 en Sevilla.",
     },
   },
@@ -45,12 +45,12 @@ const T = {
       "JaPax exists to save lives. In 1967 a fire in a pure-oxygen Apollo 1 cabin killed three astronauts, and today spacesuits and planned lunar habitats are still full of oxygen. In space there are no firefighters and no one to call, so every design choice has to be right before launch.",
       "Fire behaves very differently in microgravity, and no one has measured how it behaves on the Moon. NASA has run decades of combustion experiments on the ISS, but the results sit in tables that only specialists can read.",
       "JaPax turns those public experiments from NASA's Physical Sciences Informatics (PSI) into a traceable evidence base: what burns, at what spread rate, and where the evidence stops. It is aimed at combustion researchers, aerospace and fire-safety engineers, and space-agency and habitat-design professionals.",
-      "We follow one rule: every number shows its source (PSI ID and DOI), and anything not measured is labelled as predicted or estimated. Where no data exists, such as partial gravity, we say so instead of filling the gap.",
+      "We follow one rule: every number shows its source (PSI ID and DOI), and anything not measured is labeled as predicted or estimated. Where no data exists, such as partial gravity, we say so instead of filling the gap.",
     ],
     ptsEyebrow: "What you can do",
     pts: [
       ["Simulate", "Explore fire in different gravity and atmosphere conditions."],
-      ["Explore", "Browse the NASA experiments with their sources and licences."],
+      ["Explore", "Browse the NASA experiments with their sources and licenses."],
       ["Rank", "See which findings matter most for a lunar base."],
       ["Ask", "Question the data with an AI assistant grounded in the sources."],
     ],
@@ -76,10 +76,10 @@ const T = {
     projEyebrow: "El proyecto",
     projTitle: "Qué es JaPax y por qué lo hicimos",
     p: [
-      "JaPax existe para salvar vidas. En 1967 un fuego en una cabina del Apollo 1 llena de oxígeno puro mató a tres astronautas, y hoy los trajes espaciales y los hábitats lunares previstos siguen llenos de oxígeno. En el espacio no hay bomberos ni nadie a quien llamar, así que cada decisión de diseño tiene que ser correcta antes del despegue.",
+      "JaPax existe para salvar vidas. En 1967 un incendio en la cabina del Apollo 1, llena de oxígeno puro, mató a tres astronautas, y hoy los trajes espaciales y los hábitats lunares previstos siguen llenos de oxígeno. En el espacio no hay bomberos ni nadie a quien llamar, así que cada decisión de diseño tiene que ser correcta antes del despegue.",
       "El fuego se comporta de forma muy distinta en microgravedad, y nadie ha medido cómo lo hace en la Luna. La NASA lleva décadas haciendo experimentos de combustión en la ISS, pero los resultados están en tablas que solo entienden los especialistas.",
       "JaPax convierte esos experimentos públicos de la NASA (Physical Sciences Informatics, PSI) en una base de evidencia trazable: qué arde, con qué velocidad de propagación y dónde termina la evidencia. Está dirigido a investigadores en combustión, ingenieros aeroespaciales y de seguridad contra incendios, y profesionales de agencias espaciales y diseño de hábitats.",
-      "Seguimos una regla: cada número muestra su fuente (PSI ID y DOI), y lo que no está medido se marca como predicho o estimado. Donde no hay datos, como en la gravedad parcial, lo decimos en vez de rellenar la brecha.",
+      "Seguimos una regla: cada número muestra su fuente (PSI ID y DOI), y lo que no está medido se marca como predicho o estimado. Donde no hay datos, como en la gravedad parcial, lo decimos en vez de rellenar el hueco.",
     ],
     ptsEyebrow: "Qué puedes hacer",
     pts: [
@@ -91,7 +91,7 @@ const T = {
     pending: "Pendiente de añadir",
     contactEyebrow: "Trabaja con nosotros",
     contactTitle: "¿Te ha gustado JaPax?",
-    contact: "Si tu empresa o laboratorio ha visto algo que le interesa, nos encantaría hablar. Escríbenos por nuestros perfiles de GitHub o LinkedIn de arriba.",
+    contact: "Si a tu empresa o laboratorio le ha gustado lo que ha visto, nos encantaría hablar. Escríbenos a través de nuestros perfiles de GitHub o LinkedIn, arriba.",
     repo: "Repositorio del proyecto",
     back: "Volver al inicio",
   },
@@ -195,7 +195,7 @@ export default function AboutPage() {
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4"
           onClick={() => setZoom(null)}
         >
-          <button type="button" aria-label="Close" className="absolute right-4 top-4 rounded-full border border-line-2 bg-surface-2 px-3 py-1.5 text-sm text-ink" onClick={() => setZoom(null)}>✕</button>
+          <button type="button" aria-label={lang === "es" ? "Cerrar" : "Close"} className="absolute right-4 top-4 rounded-full border border-line-2 bg-surface-2 px-3 py-1.5 text-sm text-ink" onClick={() => setZoom(null)}>✕</button>
           <Image src={zoom.src} alt={zoom.name} width={480} height={480} className="aspect-square w-[min(90vw,80vh,32rem)] rounded-2xl border border-line-2 object-cover" onClick={(e) => e.stopPropagation()} />
         </div>
       )}

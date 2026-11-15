@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import { useLang } from "@/lib/i18n";
 
 export type PaxCharacterMood = "idle" | "happy" | "thinking" | "surprised" | "worried" | "sleeping";
 /** One-shot reactions: hello (drop-in bounce + ring wave), spin (jump + barrel roll), oops (shake + "!"). */
@@ -59,6 +60,8 @@ function Sparkle({ x, y, s, delay }: { x: number; y: number; s: number; delay: n
  * Pax — the JaPax mascot: a small, cheerful planet with a ring and a
  * microgravity-flame companion. Pure SVG, blinks on its own, lip-syncs while `talking`.
  */
+const MOOD_ES: Record<string, string> = { idle: "en reposo", sleeping: "durmiendo", thinking: "pensando", surprised: "sorprendido", worried: "preocupado", happy: "contento" };
+
 export default function PaxCharacter({
   mood: moodProp = "idle",
   talking = false,
@@ -69,6 +72,7 @@ export default function PaxCharacter({
   gestureKey = 0,
   className = "",
 }: Props) {
+  const { lang } = useLang();
   const uid = useId().replace(/:/g, "");
   const id = (n: string) => `pxc-${n}-${uid}`;
   const url = (n: string) => `url(#${id(n)})`;
@@ -152,7 +156,7 @@ export default function PaxCharacter({
       height={size}
       viewBox="0 0 300 300"
       role="img"
-      aria-label={`Pax, the JaPax planet guide (${talking ? "talking" : mood})`}
+      aria-label={lang === "es" ? `Pax, el planeta guía de JaPax (${talking ? "hablando" : MOOD_ES[mood] ?? mood})` : `Pax, the JaPax planet guide (${talking ? "talking" : mood})`}
       className={`overflow-visible ${className}`}
     >
       {/* Pax always animates, even with prefers-reduced-motion: its motion is gentle and part of the character.
