@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-14T18:36:43.683Z",
+  "generatedAt": "2026-11-15T13:19:56.882Z",
   "sources": {
     "GUIDE": {
       "label": "A Researcher's Guide to Combustion Science (NASA, 2015)",
@@ -4787,11 +4787,8 @@
         "note": "Uncrewed experiment aboard the Cygnus cargo vehicle. ASSUMED: O2 21% and 1.013 atm are the ISS standard atmosphere, not stated in the PSI metadata for this investigation."
       },
       "sensors": [
-        "thermocouples (flow, flame and plume temperature)",
-        "two radiometers (flame radiation)",
-        "solid-state sensors (pressure, CO2 and O2 mole fraction)",
-        "two anemometers (flow velocity)",
-        "two cameras (flame images)"
+        "oxygen, carbon dioxide, heat and pressure instruments, plus flame-growth measurements",
+        "two video cameras (flame views)"
       ],
       "summary": "A large-scale fire deliberately set aboard an uncrewed cargo vehicle to study how a realistic fire grows in low gravity.",
       "findings": [

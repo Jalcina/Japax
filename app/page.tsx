@@ -18,7 +18,7 @@ const T = {
     s1: "NASA fire investigations",
     s1n: (n: number) => `${n} with a verified PSI DOI`,
     s2: "of raw experiment data",
-    s2n: "nearly 13 terabytes across all investigations, published by NASA in PSI",
+    s2n: "sum of the file sizes NASA lists in PSI for the 19 investigations (PSI API, 15 Nov 2026)",
     s3: "public files catalogued",
     s3n: "tables, images and flame videos, summed across all investigations",
     s4: "datasets at lunar gravity",
@@ -56,7 +56,7 @@ const T = {
     ],
     mEyebrow: "Where the lights are off",
     mTitle: "The atmospheres nobody has tested yet",
-    mText: "Each region or marker is an atmosphere (O₂ mole fraction, total pressure) that was actually tested. The orange region is the expected lunar-habitat envelope: oxygen-enriched and sub-atmospheric. Coverage there is sparse, and no test was run at lunar gravity (0.16 g).",
+    mText: "Each region or marker is an atmosphere (O₂ mole fraction, total pressure) that was actually tested. The orange region is the expected lunar-habitat envelope: oxygen-enriched and sub-atmospheric. Coverage there is sparse, and no test was run at lunar gravity (0.166 g).",
     qEyebrow: "Why truth is part of saving lives",
     qTitle: "When lives are at stake, an invented number is a danger",
     qText: "In JaPax every number says where it comes from and whether it was measured, reported, estimated or simulated. Where there are no data we say it out loud, because a gap nobody sees can also cost a life. Our honesty is not a limitation: it is the reason you can trust us to decide.",
@@ -87,7 +87,7 @@ const T = {
     s1: "investigaciones de fuego de la NASA",
     s1n: (n: number) => `${n} con DOI de PSI verificado`,
     s2: "de datos brutos de experimentos",
-    s2n: "casi 13 terabytes entre todas las investigaciones, publicadas por la NASA en PSI",
+    s2n: "suma de los tamaños de archivo que la NASA lista en PSI para las 19 investigaciones (API de PSI, 15 nov 2026)",
     s3: "archivos públicos catalogados",
     s3n: "tablas, imágenes y vídeos de llamas, sumados en todas las investigaciones",
     s4: "conjuntos de datos a gravedad lunar",
@@ -125,7 +125,7 @@ const T = {
     ],
     mEyebrow: "Donde la luz está apagada",
     mTitle: "Las atmósferas que nadie ha ensayado todavía",
-    mText: "Cada región o marcador es una atmósfera (fracción molar de O₂, presión total) realmente ensayada. La región naranja es la envolvente prevista de un hábitat lunar: enriquecida en oxígeno y subatmosférica. La cobertura ahí es escasa y no se ha ensayado a gravedad lunar (0.16 g).",
+    mText: "Cada región o marcador es una atmósfera (fracción molar de O₂, presión total) realmente ensayada. La región naranja es la envolvente prevista de un hábitat lunar: enriquecida en oxígeno y subatmosférica. La cobertura ahí es escasa y no se ha ensayado a gravedad lunar (0.166 g).",
     qEyebrow: "Por qué la verdad es parte de salvar vidas",
     qTitle: "Cuando hay vidas en juego, una cifra inventada es un peligro",
     qText: "En JaPax cada número dice de dónde sale y si está medido, reportado, estimado o simulado. Donde no hay datos lo decimos en voz alta, porque un hueco que nadie ve también puede costar una vida. Nuestra honestidad no es una limitación: es la razón por la que puedes confiar en nosotros para decidir.",
@@ -208,7 +208,7 @@ export default function Home() {
 
         <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Stat value={String(data.investigations.length)} label={t.s1} note={t.s1n(withDoi)} />
-          <Stat value="≈13 TB" label={t.s2} note={t.s2n} />
+          <Stat value="≈6.3 TB" label={t.s2} note={t.s2n} />
           <Stat value={totalFiles.toLocaleString("en-US").replace(/,/g, loc === "es" ? " " : ",")} label={t.s3} note={t.s3n} />
           <Stat value="0" label={t.s4} note={t.s4n} />
         </div>
