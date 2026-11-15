@@ -15,8 +15,8 @@ export function openAsk(question?: string) {
 }
 
 const T = {
-  en: { title: "Ask Pax", sub: "Answers built from verified NASA data", close: "Close" },
-  es: { title: "Pregunta a Pax", sub: "Respuestas construidas con datos verificados de la NASA", close: "Cerrar" },
+  en: { title: "Ask Pax", sub: "The JaPax AI: ask it anything", close: "Close" },
+  es: { title: "Pregunta a Pax", sub: "La IA de JaPax: pregúntale lo que quieras", close: "Cerrar" },
 };
 
 /** Large Ask window. It replaces the old Ask AI page: every in-app link to /ask opens it. */

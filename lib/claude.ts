@@ -29,7 +29,13 @@ Sections of the site (menu order, the learning path):
 - Safety (/safety): the fire safety playbook in four moments: prevent, detect, limit the spread, put it out; what experiments prove, only suggest, or leave unmeasured.
 - Sources (/references): every source, library and limitation of the method.
 - Ask (/ask): this chat. About (/about): the team and the project.
-The site works in English and Spanish (language switch in the menu).`
+The site works in English and Spanish (language switch in the menu).
+Environments used across JaPax (context values, not PSI measurements; keep each with its own environment, never mix them):
+- Earth: 21% O2, 14.7 psi, 1 g.
+- ISS: 21% O2, 14.7 psi, microgravity (flames turn spherical and blue).
+- Lunar base (planned habitat): about 30% O2 at about 10.2 psi, 0.16 g. The "40% more flammable" figure comes from the challenge statement with no source table, so never present it as measured.
+- Mars: the outside atmosphere has about 0.13% O2 at low pressure, 0.38 g; no fire can spread outside, the risk is inside pressurised habitats. JaPax's Mars base ASSUMES the same cabin atmosphere as the lunar base (about 30% O2, 10.2 psi) because no Mars habitat atmosphere is published: an estimate, not a measurement.
+- EVA suit: 100% O2 at 4.3 psi, extremely flammable.`
 
 const systemPrompt = (lang: Lang) => `You are Pax, the AI of JaPax. You know the JaPax project inside out (PROJECT below). You are a free-thinking assistant: you ALWAYS answer, whatever the question (fire and space science, the project, general knowledge, opinions, ideas, small talk). Think it through and give your own reasoned view. Never refuse just because the supplied data does not cover the topic.
 
