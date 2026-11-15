@@ -22,7 +22,9 @@ export interface GNode { id: string; material: MaterialGuess; energetic?: Energe
 export interface GEdge { from: string; to: string; path: "contact" | "cable" | "proximity"; distanceM: number }
 export type GMeasure =
   | { id: string; kind: "cut_edge"; from: string; to: string; atS: number }
-  | { id: string; kind: "relieve"; target: string; atS: number };
+  | { id: string; kind: "relieve"; target: string; atS: number }
+  /** from `atS` on the airflow is `flowCmS` (e.g. the ventilation is shut off); fronts already travelling slow down or starve from that moment */
+  | { id: string; kind: "set_flow"; flowCmS: number; atS: number };
 export type CState = "burning" | "not_reached" | "ruptured" | "relieved" | "damaged";
 export interface CEvent {
   t: number;
@@ -89,13 +91,27 @@ export function simulate(input: SimInput): { events: CEvent[] } {
           blocked.set(other, { t: j.t, reason: "the flame starves: " + sp.note, tag: "reported" });
           continue;
         }
-        const arrive = j.t + (e.distanceM * 1000) / sp.mmS;
+        let arrive = j.t + (e.distanceM * 1000) / sp.mmS;
+        let how = `front reaches it at ${sp.mmS.toFixed(1)} mm/s (${sp.note})`;
+        const fl = measures.find((m): m is Extract<GMeasure, { kind: "set_flow" }> => m.kind === "set_flow");
+        if (fl && fl.atS < arrive) {
+          // the airflow changes while the front is travelling: part of the distance at the old speed, the rest at the new one (or the flame starves)
+          const sp2 = spreadFactors({ ...atm, flowCmS: fl.flowCmS }, target.material);
+          const from = Math.max(fl.atS, j.t);
+          if (sp2.mmS <= 0) {
+            blocked.set(other, { t: from, reason: `airflow changed by measure "${fl.id}" at ${fl.atS} s: the flame starves (${sp2.note})`, tag: "estimated" });
+            continue;
+          }
+          const left = Math.max(0, e.distanceM * 1000 - (from - j.t) * sp.mmS);
+          arrive = from + left / sp2.mmS;
+          how = `front slowed to ${sp2.mmS.toFixed(1)} mm/s after measure "${fl.id}" at ${fl.atS} s (${sp2.note})`;
+        }
         const cut = cutAt(e.from, e.to);
         if (cut && cut.atS <= arrive) {
           blocked.set(other, { t: j.t, reason: `edge cut by measure "${cut.id}" at ${cut.atS} s`, tag: "estimated" });
           continue;
         }
-        jobs.push({ t: arrive, kind: "ignite", id: other, cause: `spread:${j.id}`, reason: `front reaches it at ${sp.mmS.toFixed(1)} mm/s (${sp.note})`, tag: "estimated" });
+        jobs.push({ t: arrive, kind: "ignite", id: other, cause: `spread:${j.id}`, reason: how, tag: "estimated" });
       }
       if (node.energetic && input.forceRupture !== j.id) {
         const [lo, hi] = node.energetic.heatToRuptureS;

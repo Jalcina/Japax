@@ -7,7 +7,7 @@
     "build": "next build",
     "type-check": "tsc --noEmit",
     "start": "next start",
-    "test:lab": "node --test tests/labPhysics.test.mjs tests/labI18n.test.mjs tests/componentSpread.test.mjs tests/componentCatalog.test.mjs tests/labBlast.test.mjs tests/componentCsv.test.mjs"
+    "test:lab": "node --test tests/labPhysics.test.mjs tests/labI18n.test.mjs tests/componentSpread.test.mjs tests/componentCatalog.test.mjs tests/labBlast.test.mjs tests/componentCsv.test.mjs tests/issCatalog.test.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.7.0",

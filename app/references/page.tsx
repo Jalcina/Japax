@@ -46,6 +46,8 @@ const DOCS: [string, string][] = [
   ["Shuttle/ISS EMU Failure History (ICES-2015-327), NASA NTRS 20150009506 (Component engine: EMU oxygen tank pressures; tank volume is not stated)", "https://ntrs.nasa.gov/citations/20150009506"],
   ["Report of the Apollo 13 Review Board, Appendices F-H (special tests and analyses), NASA NTRS 19700078913 (Component engine: oxygen-tank failure timing, ignition energy; a different tank)", "https://ntrs.nasa.gov/citations/19700078913"],
   ["Apollo 13 oxygen tank case study based on the Review Board report (TMX-65270), NASA NTRS 20110015690 (Component engine: failure path, 93 s from fan power to data loss)", "https://ntrs.nasa.gov/citations/20110015690"],
+  ["Whitaker, Overview of ISS U.S. Fire Detection and Suppression System, NASA NTRS 20030053429 (Component engine, ISS: the fire alarm isolates the module by shutting off ventilation)", "https://ntrs.nasa.gov/citations/20030053429"],
+  ["Rodriguez and Young, Development of the International Space Station Fine Water Mist Portable Fire Extinguisher, NASA NTRS 20130011664 (Component engine, ISS: CO2 extinguisher in the US segment, water foam in the Russian segment)", "https://ntrs.nasa.gov/citations/20130011664"],
 ];
 
 const T = {

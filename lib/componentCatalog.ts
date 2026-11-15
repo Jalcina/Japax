@@ -11,7 +11,7 @@ import type { MaterialGuess } from "./labPhysics.ts";
 export type FactTag = "measured" | "reported" | "predicted" | "estimated";
 export interface CFact { tag: FactTag; text: string; src: string }
 export interface CNeighbor { id: string; path: "contact" | "cable" | "proximity"; distanceM: number; distanceNote: string }
-export type EngineAction = { kind: "cut_edge"; from: string; to: string } | { kind: "relieve"; target: string };
+export type EngineAction = { kind: "cut_edge"; from: string; to: string } | { kind: "relieve"; target: string } | { kind: "set_flow"; flowCmS: number };
 export interface CMeasure {
   id: string;
   kind: "prevent" | "suppress";
@@ -43,7 +43,8 @@ export interface ComponentMap {
   ignored: Record<string, string>;
   unidentified: string[];
 }
-export type Resolution = { componentId: string | null; method: "mesh" | "material" | "meshprefix" | "ignored" | "unidentified"; key?: string };
+/** `note` carries the declared reason of an ignored part (hidden by the scene, outside the pressurised volume...) */
+export type Resolution = { componentId: string | null; method: "mesh" | "material" | "meshprefix" | "ignored" | "unidentified"; key?: string; note?: string };
 
 const TAGS: FactTag[] = ["measured", "reported", "predicted", "estimated"];
 
@@ -63,7 +64,8 @@ export function validateCatalog(c: Catalog): string[] {
     const w = comp.id;
     if (!comp.material) out.push(`${w}: no material`);
     if (!comp.neighbors?.length) out.push(`${w}: no neighbours`);
-    if (!comp.measures?.length) out.push(`${w}: no measure`);
+    // a measure may be declared once on another component and apply here through appliesTo
+    if (!comp.measures?.length && !measuresFor(c, comp.id).length) out.push(`${w}: no measure`);
     checkFact(`${w} flammability`, comp.flammability, out);
     for (const n of comp.neighbors ?? []) {
       if (!ids.has(n.id)) out.push(`${w}: neighbour ${n.id} does not exist`);
@@ -102,11 +104,14 @@ export function resolveComponent(map: ComponentMap, pick: { mesh?: string; mater
   if (pick.mesh) {
     const hit = lookup(map.entries, "mesh", pick.mesh);
     if (hit) return { componentId: hit.value, method: "mesh", key: hit.key };
+    const ign = lookup(map.ignored, "mesh", pick.mesh);
+    if (ign) return { componentId: null, method: "ignored", key: ign.key, note: ign.value };
   }
   if (pick.material) {
     const hit = lookup(map.entries, "material", pick.material);
     if (hit) return { componentId: hit.value, method: "material", key: hit.key };
-    if (lookup(map.ignored, "material", pick.material)) return { componentId: null, method: "ignored" };
+    const ign = lookup(map.ignored, "material", pick.material);
+    if (ign) return { componentId: null, method: "ignored", key: ign.key, note: ign.value };
   }
   if (pick.mesh) {
     for (const k of Object.keys(map.entries)) {
@@ -155,7 +160,8 @@ export function engineMeasures(c: Catalog, applied: string[], atS: number): GMea
     for (const m of comp.measures) {
       if (!applied.includes(m.id) || seen.has(m.id)) continue;
       seen.add(m.id);
-      out.push(m.engine.kind === "cut_edge" ? { id: m.id, kind: "cut_edge", from: m.engine.from, to: m.engine.to, atS } : { id: m.id, kind: "relieve", target: m.engine.target, atS });
+      const a = m.engine;
+      out.push(a.kind === "cut_edge" ? { id: m.id, kind: "cut_edge", from: a.from, to: a.to, atS } : a.kind === "relieve" ? { id: m.id, kind: "relieve", target: a.target, atS } : { id: m.id, kind: "set_flow", flowCmS: a.flowCmS, atS });
     }
   }
   return out;

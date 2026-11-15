@@ -14,7 +14,7 @@ import pkg from "@/package.json";
 
 /** the suit model is fitted to 3.1 scene units for about 2 m, so one metre is about 1.55 units */
 const UNITS_PER_M = 1.55;
-const HORIZON_S = 600;
+const DEFAULT_HORIZON_S = 600;
 
 const TAGC: Record<string, string> = {
   measured: "bg-emerald-500/15 text-emerald-300",
@@ -145,6 +145,7 @@ export default function ComponentPanel(props: PanelProps) {
 function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated" }: PanelProps & { bundle: EnvBundle }) {
   const CATALOG = bundle.catalog;
   const MAP = bundle.map;
+  const HORIZON_S = bundle.horizonS ?? DEFAULT_HORIZON_S;
   const GRAPH = useMemo(() => toGraph(CATALOG), [CATALOG]);
   const BY_ID = useMemo(() => new Map(CATALOG.components.map((c) => [c.id, c])), [CATALOG]);
   const TANK = useMemo(() => energeticOf(CATALOG), [CATALOG]);
@@ -378,7 +379,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated" }:
         <div className="mt-3 text-sm">
           {res ? (
             <p className="rounded-lg border border-line p-2.5 text-xs text-ink-2">
-              {res.method === "ignored" ? "This layer is hidden in the 3D scene, so it has no component." : "Unidentified surface: the 3D model does not say what this part is. The fire still starts there, but the component engine has no data for it."} Pick a labelled part, or start at the oxygen tank below.
+              {res.method === "ignored" ? `Not a component: ${res.note ?? "declared as not simulated in the map"}.` : "Unidentified surface: the 3D model does not say what this part is. The fire still starts there, but the component engine has no data for it."} Pick a labelled part{TANK ? `, or start at the ${shortLabel(TANK)} below` : ""}.
             </p>
           ) : (
             <p className="text-xs text-ink-2">No part selected yet.</p>
@@ -427,7 +428,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated" }:
             <button onClick={() => { setT(0); setPlaying(true); }} className="rounded-lg border border-line-2 px-3 py-1.5 text-ink-2 hover:text-ink">Restart</button>
             <label className="text-ink-2">Speed
               <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))} className="ml-1 rounded-lg border border-line-2 bg-surface px-1.5 py-1 text-ink">
-                <option value={1}>×1</option><option value={4}>×4</option><option value={16}>×16</option>
+                <option value={1}>×1</option><option value={4}>×4</option><option value={16}>×16</option><option value={64}>×64</option><option value={256}>×256</option>
               </select>
             </label>
           </div>
@@ -438,7 +439,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated" }:
 
           <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
             <div className="rounded-lg border border-line p-2"><p className="text-muted">Components reached</p><p className="text-lg font-semibold tabular-nums">{reached} / {CATALOG.components.length}</p><Chip tag="estimated" /></div>
-            <div className="rounded-lg border border-line p-2"><p className="text-muted">Garment spread speed</p><p className="text-lg font-semibold tabular-nums">{speedNow.toFixed(1)} mm/s</p><Chip tag="estimated" /></div>
+            <div className="rounded-lg border border-line p-2"><p className="text-muted">Spread speed (fabric reference)</p><p className="text-lg font-semibold tabular-nums">{speedNow.toFixed(1)} mm/s</p><Chip tag="estimated" /></div>
             {TANK?.energetic && (
               <div className="col-span-2 rounded-lg border border-line p-2">
                 <p className="text-muted">{shortLabel(TANK)} outcome</p>
@@ -480,7 +481,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated" }:
       )}
 
       <h4 className="mt-3 text-sm font-semibold">Measures</h4>
-      <p className="text-[11px] text-muted">Applied at the current simulated time. Every measure here is an engineering proposal (hypothesis); none has test data for this suit.</p>
+      <p className="text-[11px] text-muted">Applied at the current simulated time. Every measure here is an engineering proposal (hypothesis); none has test data for this model.</p>
       <ul className="mt-1 space-y-2">
         {allMeasures.map((m) => (
           <li key={m.id} className="rounded-lg border border-line p-2 text-xs">

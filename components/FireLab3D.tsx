@@ -155,6 +155,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
     setStats(null);
     setReady(false);
     setView("site");
+    setPanelPick(null);
     setInferred(null);
   }, []);
 
@@ -225,7 +226,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
     if (hit) onPick([hit.point.x, hit.point.y, hit.point.z], { normal: [hit.normal.x, hit.normal.y, hit.normal.z], name: hit.name, material: hit.material });
   };
 
-  const switchView = (v: "site" | "overview") => { setView(v); setReady(false); setLit(false); setStats(null); setActivated(null); };
+  const switchView = (v: "site" | "overview") => { setView(v); setPanelPick(null); setReady(false); setLit(false); setStats(null); setActivated(null); };
 
   const reset = () => { labRef.current?.reset(); setActivated(null); setLit(false); setStats(null); };
   const reignite = () => { setActivated(null); labRef.current?.reignite(); };
@@ -345,7 +346,8 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
               </ul>
             </details>
           </div>
-          <ComponentPanel env={env} api={sceneApi} atm={atm} pick={panelPick} condTag={estimatedEnv ? "estimated" : "reported"} />
+          {/* the ISS catalog describes iss_hd.glb, which is only loaded in the whole-station view (the "fire site" scene is a different model) */}
+          {(env !== "iss" || view === "overview") && <ComponentPanel env={env} api={sceneApi} atm={atm} pick={panelPick} condTag={estimatedEnv ? "estimated" : "reported"} />}
         </div>
       </div>
 

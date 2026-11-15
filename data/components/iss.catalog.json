@@ -1,0 +1,562 @@
+{
+  "env": "iss",
+  "version": 1,
+  "model": "iss_hd.glb",
+  "components": [
+    {
+      "id": "iss-zarya",
+      "label": "Zarya (FGB)",
+      "function": "First ISS module (Russian-built); part of the Russian segment.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-pma",
+          "path": "contact",
+          "distanceM": 2,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-zvezda",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-russian-docking",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": [
+        {
+          "id": "m-iss-hatch-zarya-zvezda",
+          "kind": "prevent",
+          "appliesTo": [
+            "iss-zarya",
+            "iss-zvezda"
+          ],
+          "action": "Close the hatch between Zarya and Zvezda so a fire cannot cross.",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis): the engine removes this connection. A closed hatch breaks the continuous fuel and oxidiser path that the worst-case model assumes. No test of hatch closure against a fire exists in the sources used.",
+            "src": "Hypothesis; flame spread needs continuous fuel (stated, not measured, for this station)"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "cut_edge",
+            "from": "iss-zarya",
+            "to": "iss-zvezda"
+          }
+        }
+      ]
+    },
+    {
+      "id": "iss-zvezda",
+      "label": "Zvezda service module",
+      "function": "Russian service module: living quarters and the aft end of the Russian segment.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-zarya",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-russian-docking",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-nauka",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "iss-nauka",
+      "label": "Nauka (MLM)",
+      "function": "Russian multipurpose laboratory module.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-zvezda",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "iss-russian-docking",
+      "label": "Russian docking and mini-research modules (MRM1, MRM2, docking module)",
+      "function": "Russian docking and small research modules; three materials of the model grouped in one component.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-zarya",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-zvezda",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "iss-pma",
+      "label": "Pressurized mating adapter (PMA)",
+      "function": "Pressurised tunnel between the US and Russian segments (PMA-1 between Unity and Zarya). The model has one material for all PMAs.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-zarya",
+          "path": "contact",
+          "distanceM": 2,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-unity",
+          "path": "contact",
+          "distanceM": 2,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "iss-unity",
+      "label": "Unity (Node 1)",
+      "function": "First US node; connects the US and Russian segments.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-pma",
+          "path": "contact",
+          "distanceM": 2,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-destiny",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-quest",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-nodes-2-3",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": [
+        {
+          "id": "m-iss-vent-off",
+          "kind": "suppress",
+          "appliesTo": [
+            "iss-zarya",
+            "iss-zvezda",
+            "iss-nauka",
+            "iss-russian-docking",
+            "iss-pma",
+            "iss-unity",
+            "iss-destiny",
+            "iss-nodes-2-3",
+            "iss-cupola",
+            "iss-columbus",
+            "iss-kibo-pm",
+            "iss-kibo-ps",
+            "iss-quest",
+            "iss-beam",
+            "iss-pmm",
+            "iss-bishop"
+          ],
+          "action": "Shut off the ventilation of the burning module (intermodule ventilation valves and cabin fans) so the air stops moving.",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis for the engine): with no airflow a flame at 21 % O2 in 0 g starves, so the engine stops or slows the spread from the moment the measure is applied. The action is part of the documented ISS fire response (the alarm removes rack power, closes the intermodule ventilation valves and the cabin fans). Its effect on a real module fire is not tested: ACME BRE burned gas flames that emulate solids in still air.",
+            "src": "Action: NTRS 20030053429 (Overview of ISS U.S. Fire Detection and Suppression System, 2001). Effect: PSI-20 ACME BRE, DOI 10.60555/vb93-3y72 (reported by the authors); hypothesis for modules"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "set_flow",
+            "flowCmS": 0
+          }
+        },
+        {
+          "id": "m-iss-hatch-unity-destiny",
+          "kind": "prevent",
+          "appliesTo": [
+            "iss-unity",
+            "iss-destiny"
+          ],
+          "action": "Close the hatch between Unity and Destiny so a fire cannot cross.",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis): the engine removes this connection. A closed hatch breaks the continuous fuel and oxidiser path that the worst-case model assumes. No test of hatch closure against a fire exists in the sources used.",
+            "src": "Hypothesis; flame spread needs continuous fuel (stated, not measured, for this station)"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "cut_edge",
+            "from": "iss-unity",
+            "to": "iss-destiny"
+          }
+        },
+        {
+          "id": "m-iss-hatch-pma-unity",
+          "kind": "prevent",
+          "appliesTo": [
+            "iss-pma",
+            "iss-unity"
+          ],
+          "action": "Close the hatch between the PMA and Unity so a fire cannot cross.",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis): the engine removes this connection. A closed hatch breaks the continuous fuel and oxidiser path that the worst-case model assumes. No test of hatch closure against a fire exists in the sources used.",
+            "src": "Hypothesis; flame spread needs continuous fuel (stated, not measured, for this station)"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "cut_edge",
+            "from": "iss-pma",
+            "to": "iss-unity"
+          }
+        }
+      ]
+    },
+    {
+      "id": "iss-destiny",
+      "label": "Destiny (US Laboratory)",
+      "function": "US research laboratory, between Unity and Harmony.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-unity",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-nodes-2-3",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": [
+        {
+          "id": "m-iss-hatch-destiny-nodes-2-3",
+          "kind": "prevent",
+          "appliesTo": [
+            "iss-destiny",
+            "iss-nodes-2-3"
+          ],
+          "action": "Close the hatch between Destiny and the Harmony node so a fire cannot cross.",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis): the engine removes this connection. A closed hatch breaks the continuous fuel and oxidiser path that the worst-case model assumes. No test of hatch closure against a fire exists in the sources used.",
+            "src": "Hypothesis; flame spread needs continuous fuel (stated, not measured, for this station)"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "cut_edge",
+            "from": "iss-destiny",
+            "to": "iss-nodes-2-3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "iss-nodes-2-3",
+      "label": "Harmony and Tranquility (Nodes 2 and 3, one mesh)",
+      "function": "Two US nodes that the model draws as one mesh: Harmony links Destiny to the Columbus and Kibo laboratories; Tranquility carries the Cupola, BEAM and other modules.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-unity",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-destiny",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-columbus",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-kibo-pm",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-cupola",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-beam",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-pmm",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-bishop",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "iss-cupola",
+      "label": "Cupola node (material Node.Cupola)",
+      "function": "Observation Cupola and its node (material name in the model: Node.Cupola).",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-nodes-2-3",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "iss-columbus",
+      "label": "Columbus (ESA laboratory)",
+      "function": "European research laboratory.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-nodes-2-3",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "iss-kibo-pm",
+      "label": "Kibo pressurized module (JEM PM)",
+      "function": "Japanese Experiment Module, pressurised laboratory.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-nodes-2-3",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        },
+        {
+          "id": "iss-kibo-ps",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "iss-kibo-ps",
+      "label": "Kibo logistics pressurized section (JEM PS)",
+      "function": "Pressurised logistics section of Kibo.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-kibo-pm",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "iss-quest",
+      "label": "Quest airlock",
+      "function": "Joint airlock for spacewalks.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-unity",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "iss-beam",
+      "label": "BEAM (expandable module)",
+      "function": "Bigelow Expandable Activity Module attached to Tranquility.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-nodes-2-3",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "iss-pmm",
+      "label": "Permanent Multipurpose Module (PMM)",
+      "function": "Pressurised storage module.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-nodes-2-3",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "iss-bishop",
+      "label": "Bishop airlock",
+      "function": "Commercial airlock attached to the US segment (material BishopMaterial).",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material class assumed from the module's role: interior outfitting is a mix of polymers and fabrics. No flammability test of this module exists.",
+        "src": "Assumption (no PSI/NTRS test of this module); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "iss-nodes-2-3",
+          "path": "contact",
+          "distanceM": 1.5,
+          "distanceNote": "hatch-to-hatch crossing assumed from typical module dimensions (no interface drawing); worst case: open hatch and continuous fuel"
+        }
+      ],
+      "measures": []
+    }
+  ],
+  "gaps": [
+    "No PSI/NTRS combustion test exists for the inside of any ISS module as a whole. Spread speeds are the SAFFIRE anchor scaled by estimated factors, and a module is treated as one 'plastic' material class.",
+    "Module-to-module paths assume an open hatch and continuous fuel (worst case) and hatch-to-hatch distances of 1.5-2 m taken from typical module sizes; no interface drawing was used. The adjacency itself (which module attaches to which) comes from public descriptions read in this session, not from a NASA configuration document; the NASA 'Elements' fact sheet could not be retrieved.",
+    "Energetic components: none verified. The Quest high-pressure gas tanks, the truss batteries and the oxygen generation assembly were not verified with a source here, and none is a separately selectable mesh of the 3D model, so the ISS has no rupture in the component engine.",
+    "Harmony and Tranquility are one mesh and one material in the model, so they are one component: it is linked to Destiny, Unity, Columbus, Kibo, the Cupola, BEAM, PMM and Bishop, which makes the paths between those modules shorter than the real ones.",
+    "All PMAs share one material: only the PMA-1 link (Zarya to Unity) is modelled. Linking it to Harmony would create a false shortcut.",
+    "The exterior (truss, solar arrays, carriers, payloads, Kibo's exposed facility, insulation blankets) is outside the pressurised volume: without an oxidiser a flame cannot burn there, so those parts are not simulated.",
+    "Mesh IGOAL_SSREF_13 has no material and nothing visible when isolated in the labelling tool; it is declared ignored by mesh name and was not identified.",
+    "Portable fire extinguishers (CO2 in the US segment, water foam in the Russian segment; NTRS 20130011664) are not an engine measure: the engine cannot yet model local suppression.",
+    "The modules are labelled by the material names of the model (manual labelling by eye, confidence medium); the 'Russian docking and mini-research modules' component groups three materials and the 'Cupola node' component takes the material name Node.Cupola at face value."
+  ]
+}
