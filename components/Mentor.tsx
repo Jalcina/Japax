@@ -106,7 +106,7 @@ export default function Mentor() {
   const [quiet, setQuiet] = useState(false);
   useEffect(() => {
     setQuiet(false);
-    const id = setTimeout(() => setQuiet(true), 8000);
+    const id = setTimeout(() => setQuiet(true), 5000);
     return () => clearTimeout(id);
   }, [tick]);
 
@@ -202,7 +202,7 @@ export default function Mentor() {
         )}
 
         {!open && !asleep && !quiet && (
-          <section aria-label={t.bubbleAria} className={`${bubble} w-[13.5rem] p-3`}>
+          <section aria-label={t.bubbleAria} className={`${bubble} w-[13.5rem] p-3 max-sm:hidden`}>
             {tail}
             <p className="text-sm font-semibold leading-snug">{seen && hint ? hint[0] : t.bubbleHi}</p>
             <p className="mt-0.5 text-xs text-ink-2">{seen && hint ? t.hintLead : t.bubbleLead}</p>

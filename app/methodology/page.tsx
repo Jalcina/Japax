@@ -96,10 +96,10 @@ const T = {
 export default function Methodology() {
   const t = useT(T);
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-8 pt-10">
-      <p className="eyebrow">{t.eyebrow}</p>
-      <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">{t.title}</h1>
-      <p className="mt-3 text-ink-2">{t.intro}</p>
+    <div className="mx-auto max-w-4xl pb-8 pt-10">
+      <p className="eyebrow px-4">{t.eyebrow}</p>
+      <h1 className="mt-1 px-4 text-3xl font-semibold tracking-tight sm:text-4xl">{t.title}</h1>
+      <p className="mt-3 px-4 text-ink-2">{t.intro}</p>
 
       <Section title={t.tagsTitle}>
         <dl className="card mt-4 divide-y divide-line">
