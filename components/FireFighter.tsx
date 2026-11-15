@@ -65,7 +65,7 @@ const T = {
     howTitle: "Palancas de mitigación",
     h1: (f: string, no: number, any: number) => `Reducir la fracción de O₂. El O₂ más bajo al que una gota de ${f} medida siguió ardiendo fue ${no}% sin agente (${any}% con agente). Ningún ensayo medido ardió por debajo.`,
     h2: "Controlar el flujo opuesto. En baja gravedad, las llamas sobre sólidos pueden persistir con menos O₂ del previsto a 1 g, con las condiciones más favorables cerca de 10 cm/s, una velocidad de ventilación típica de una nave (Guía NASA, 2015).",
-    h3: "Especificar el material. En SAFFIRE-II (PSI-99) la silicona se encendió pero no se propagó en microgravedad, mientras el tejido de algodón-fibra de vidrio quemó sus 29 cm a 2,1-2,6 mm/s.",
+    h3: "Especificar el material. En SAFFIRE-II (PSI-99) la silicona se encendió pero no se propagó en microgravedad, mientras el tejido de algodón-fibra de vidrio quemó sus 29 cm a 2.1-2.6 mm/s.",
     h4: "Detectar pronto. Las mediciones del tamaño de partículas de humo (SAME, SAME-R) son la base de diseño de los detectores.",
     caveat: "Salvedad: son gotas de líquido en combustión en microgravedad, no un sólido ardiendo, ni gravedad parcial. El efecto del agente solo se ve donde hay suficientes ensayos. Las gotas de metanol se apagaban a menudo solas, así que una extinción aislada no prueba que el agente funcionara.",
     src: "PSI-69 FLEX · DOI 10.60555/mbq8-0451 · desenlaces definidos en NASA/TP-2015-216046",

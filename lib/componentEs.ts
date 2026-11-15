@@ -21,19 +21,19 @@ export function setCatalogEs(dict: Record<string, string>) {
 const EXACT: Record<string, string> = {
   // engine reasons (lib/componentSpread.ts)
   "ignition point chosen by the user": "punto de ignición elegido por el usuario",
-  "FORCED FAILURE scenario for the demo, not a prediction": "escenario de FALLO FORZADO para la demo, no una predicción",
+  "FORCED FAILURE scenario for the demo, not a prediction": "escenario de FALLO FORZADO para la demostración, no una predicción",
   "non-combustible material: it cannot carry the flame": "material no combustible: no puede transportar la llama",
   "ignited by the released fuel/oxidiser (estimated)": "encendido por el combustible/oxidante liberado (estimado)",
   "no path ignited it within this run": "ninguna vía lo encendió durante esta simulación",
   // labPhysics notes
-  "no airflow at ~21 % O2 in 0 g: the flame starves (PSI-20 BRE, reported)": "sin flujo de aire a ~21 % de O2 en 0 g: la llama se ahoga (PSI-20 BRE, reportado)",
+  "no airflow at ~21 % O2 in 0 g: the flame starves (PSI-20 BRE, reported)": "sin flujo de aire a ~21 % de O2 en 0 g: la llama se queda sin comburente (PSI-20 BRE, reportado)",
   "scaled from the SAFFIRE anchor; the factors are estimated": "escalado a partir del ancla SAFFIRE; los factores son estimados",
   // end reasons (engine + UI)
   "a measure stopped the fire from reaching at least one component, and nothing else was left to ignite": "una medida impidió que el fuego llegara al menos a un componente y no quedaba nada más por encender",
-  "the flame starved before reaching the next component (not enough airflow for this oxygen level and gravity)": "la llama se ahogó antes de llegar al siguiente componente (flujo de aire insuficiente para este nivel de oxígeno y esta gravedad)",
+  "the flame starved before reaching the next component (not enough airflow for this oxygen level and gravity)": "la llama se quedó sin comburente antes de llegar al siguiente componente (flujo de aire insuficiente para este nivel de oxígeno y esta gravedad)",
   "every component the fire could reach within the horizon has been reached; nothing is left to ignite": "se han alcanzado todos los componentes que el fuego podía alcanzar dentro del horizonte; no queda nada por encender",
   "an energetic component ruptured and its consequences have played out; nothing else is left to ignite": "un componente energético se rompió y sus consecuencias ya han ocurrido; no queda nada más por encender",
-  "the look-ahead limit of this environment was reached while the fire could still spread": "se alcanzó el límite de previsión de este entorno mientras el fuego aún podía propagarse",
+  "the look-ahead limit of this environment was reached while the fire could still spread": "se alcanzó el límite de horizonte de este entorno mientras el fuego aún podía propagarse",
   "the lab's own suppression system put the surface fire out": "el propio sistema de supresión del laboratorio apagó el fuego de superficie",
   "the run was stopped before it ended (a new ignition was started or the environment was left); events after that moment never happened": "la simulación se detuvo antes de terminar (se inició una nueva ignición o se salió del entorno); los eventos posteriores a ese momento nunca ocurrieron",
   "the run had not ended yet when this record was taken; events after that moment have not happened": "la simulación aún no había terminado cuando se tomó este registro; los eventos posteriores a ese momento no han ocurrido",
@@ -59,9 +59,9 @@ const EXACT: Record<string, string> = {
   "Airflow": "Flujo de aire",
   "Gravity": "Gravedad",
   "Material": "Material",
-  "Measured concurrent spread on thin fabric (SAFFIRE I-III, 1.8-2.6 mm/s).": "Propagación concurrente medida en tela fina (SAFFIRE I-III, 1.8-2.6 mm/s).",
+  "Measured concurrent spread on thin fabric (SAFFIRE I-III, 1.8-2.6 mm/s).": "Propagación a favor del flujo medida en tela fina (SAFFIRE I-III, 1.8-2.6 mm/s).",
   "Spread rises with O2 in microgravity (qualitative). The exponent 1.3 is a modelling choice, relative to 22 % O2.": "La propagación aumenta con el O2 en microgravedad (cualitativo). El exponente 1.3 es una decisión de modelado, relativa al 22 % de O2.",
-  "No airflow near 21 % O2 in 0 g: the flame starves.": "Sin flujo de aire cerca del 21 % de O2 en 0 g: la llama se ahoga.",
+  "No airflow near 21 % O2 in 0 g: the flame starves.": "Sin flujo de aire cerca del 21 % de O2 en 0 g: la llama se queda sin comburente.",
   "Flame quenches below about 1-5 cm/s at 16-21 % O2; the steps 15/5/1 cm/s are a discretisation. With gravity, buoyant convection supplies air, so low forced flow matters less.": "La llama se extingue por debajo de unos 1-5 cm/s con 16-21 % de O2; los escalones 15/5/1 cm/s son una discretización. Con gravedad, la convección por flotabilidad aporta aire, así que un flujo forzado bajo importa menos.",
   "1 g spread was faster than microgravity in PMMA rods and silicone tests. The slope 0.8 per g is a modelling choice; partial gravity (Moon) is an extrapolation.": "A 1 g la propagación fue más rápida que en microgravedad en varillas de PMMA y pruebas con silicona. La pendiente 0.8 por g es una decisión de modelado; la gravedad parcial (Luna) es una extrapolación.",
   "Thicker or non-fabric solids spread slower (PMMA rods: slower with diameter). The exact factor is a modelling choice; cable insulation has no flame-spread data at all.": "Los sólidos más gruesos o que no son tela propagan más despacio (varillas de PMMA: más lento con el diámetro). El factor exacto es una decisión de modelado; el aislante de cable no tiene datos de propagación de llama.",
@@ -94,9 +94,9 @@ const q = '"([^"]+)"';
 const TEMPLATES: Array<[RegExp, (m: RegExpExecArray) => string]> = [
   [new RegExp(`^fire put out by measure ${q} at (.+) s$`), (m) => `fuego apagado por la medida «${m[1]}» a los ${m[2]} s`],
   [/^oxygen (.+) % is below the 10 % lower edge of the model: the flame cannot spread \(estimated\)$/, (m) => `el oxígeno (${m[1]} %) está por debajo del límite inferior del 10 % del modelo: la llama no puede propagarse (estimado)`],
-  [/^the flame starves: (.+)$/, (m) => `la llama se ahoga: ${esText(m[1])}`],
+  [/^the flame starves: (.+)$/, (m) => `la llama se queda sin comburente: ${esText(m[1])}`],
   [/^front reaches it at (.+) mm\/s \((.+)\)$/, (m) => `el frente llega a ${m[1]} mm/s (${esText(m[2])})`],
-  [new RegExp(`^airflow changed by measure ${q} at (.+) s: the flame starves \\((.+)\\)$`), (m) => `el flujo de aire cambió por la medida «${m[1]}» a los ${m[2]} s: la llama se ahoga (${esText(m[3])})`],
+  [new RegExp(`^airflow changed by measure ${q} at (.+) s: the flame starves \\((.+)\\)$`), (m) => `el flujo de aire cambió por la medida «${m[1]}» a los ${m[2]} s: la llama se queda sin comburente (${esText(m[3])})`],
   [new RegExp(`^front slowed to (.+) mm/s after measure ${q} at (.+) s \\((.+)\\)$`), (m) => `el frente se frenó a ${m[1]} mm/s tras la medida «${m[2]}» a los ${m[3]} s (${esText(m[4])})`],
   [new RegExp(`^the fire was put out by measure ${q} at (.+) s, before the front arrived$`), (m) => `el fuego se apagó por la medida «${m[1]}» a los ${m[2]} s, antes de que llegara el frente`],
   [new RegExp(`^edge cut by measure ${q} at (.+) s$`), (m) => `unión cortada por la medida «${m[1]}» a los ${m[2]} s`],
@@ -136,7 +136,7 @@ export const TAG_ES: Record<string, string> = { measured: "medido", reported: "r
 export const MATERIAL_ES: Record<string, string> = { cable: "cable", fabric: "tela", inert: "inerte", liquid: "líquido", plastic: "plástico" };
 export const END_REASON_ES: Record<string, string> = {
   extinguished_by_measure: "apagado por una medida", self_extinguished: "se apagó solo", burned_out: "todo lo alcanzable ya ardió",
-  ruptured_and_settled: "rotura y consecuencias ya ocurridas", horizon_reached: "límite de previsión alcanzado",
+  ruptured_and_settled: "rotura y consecuencias ya ocurridas", horizon_reached: "límite de horizonte alcanzado",
   extinguished_by_suppression_system: "apagado por el sistema de supresión del laboratorio", interrupted_by_user: "interrumpida por el usuario", in_progress: "en curso",
 };
 export const ENERGETIC_KIND_ES: Record<string, string> = { pressure_vessel: "recipiente a presión" };

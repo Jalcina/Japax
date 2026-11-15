@@ -54,7 +54,7 @@ test("every literal passed to t() in the panel and the results window has a Span
 test("engine texts with numbers and measure ids are translated by template", () => {
   assert.equal(esText('fire put out by measure "x1" at 12 s'), "fuego apagado por la medida «x1» a los 12 s");
   assert.match(esText("Simulation ended (burned_out): every component the fire could reach within the horizon has been reached; nothing is left to ignite"), /^Simulación terminada \(burned_out\): se han alcanzado todos/);
-  assert.match(esText("the flame starves: no airflow at ~21 % O2 in 0 g: the flame starves (PSI-20 BRE, reported)"), /^la llama se ahoga: sin flujo de aire/);
+  assert.match(esText("the flame starves: no airflow at ~21 % O2 in 0 g: the flame starves (PSI-20 BRE, reported)"), /^la llama se queda sin comburente: sin flujo de aire/);
   assert.equal(esText("a sentence nobody translated"), "a sentence nobody translated");
 });
 

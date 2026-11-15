@@ -10,14 +10,14 @@ import type { Lang } from "@/lib/data";
 
 const T = {
   en: {
-    ignition: "Overview", chronicles: "Incident record", worlds: "Simulator", lab: "Data Lab", vault: "Investigations", radar: "Ranking", safety: "Fire safety", proof: "Sources",
+    ignition: "Overview", chronicles: "Chronology", worlds: "Simulator", lab: "Data Lab", vault: "Investigations", radar: "Ranking", safety: "Fire safety", proof: "Sources",
     main: "Main", language: "Language", guide: "Guide mode", guideOn: "Guide on", menu: "Menu",
-    hints: ["Programme overview and key findings", "Mishaps and lessons learned", "Component-level fire spread model", "PSI/NTRS combustion investigations", "Multi-criteria investigation ranking", "Prevention, detection, suppression", "Datasets, DOIs and licences"],
+    hints: ["Programme overview and key findings", "Mishaps, experiments and data releases", "Component-level fire spread model", "PSI/NTRS combustion investigations", "Multi-criteria investigation ranking", "Prevention, detection, suppression", "Datasets, DOIs and licences"],
   },
   es: {
-    ignition: "Resumen", chronicles: "Registro de incidentes", worlds: "Simulador", lab: "Laboratorio", vault: "Investigaciones", radar: "Ranking", safety: "Seguridad contra incendios", proof: "Fuentes",
+    ignition: "Resumen", chronicles: "Cronología", worlds: "Simulador", lab: "Laboratorio", vault: "Investigaciones", radar: "Ranking", safety: "Seguridad contra incendios", proof: "Fuentes",
     main: "Principal", language: "Idioma", guide: "Modo guía", guideOn: "Guía activa", menu: "Menú",
-    hints: ["Resumen del programa y hallazgos clave", "Siniestros y lecciones aprendidas", "Modelo de propagación entre componentes", "Investigaciones de combustión PSI/NTRS", "Ranking multicriterio de investigaciones", "Prevención, detección y supresión", "Conjuntos de datos, DOI y licencias"],
+    hints: ["Resumen del programa y hallazgos clave", "Siniestros, experimentos y publicación de datos", "Modelo de propagación entre componentes", "Investigaciones de combustión PSI/NTRS", "Ranking multicriterio de investigaciones", "Prevención, detección y supresión", "Conjuntos de datos, DOI y licencias"],
   },
 };
 

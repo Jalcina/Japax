@@ -55,10 +55,10 @@ const T = {
     title: "¿Qué investigación construye qué equipo de seguridad?",
     intro: "Cada tarjeta es un equipo de seguridad contra incendios para la Luna y más allá, con las investigaciones de la NASA que alimentan su diseño. El texto viene de las fichas de cada investigación; la línea de brecha dice qué no cubre todavía ningún experimento.",
     systems: {
-      detect: { name: "Detectores de humo y fuego", need: "Los detectores deben reconocer el humo en baja gravedad, que se comporta distinto que en la Tierra, y no confundirlo con polvo.", gap: "No hay medidas de humo con el oxígeno ni la gravedad lunares: las tablas son de la atmósfera de la ISS." },
+      detect: { name: "Detectores de humo y fuego", need: "Los detectores deben reconocer el humo en baja gravedad, que se comporta de forma distinta a como lo hace en la Tierra, y no confundirlo con polvo.", gap: "No hay medidas de humo con el oxígeno ni la gravedad lunares: las tablas son de la atmósfera de la ISS." },
       suppress: { name: "Sistemas de extinción", need: "El diseño de supresión necesita saber cuánto CO₂ o helio apaga una llama y con qué nivel de oxígeno.", gap: "FLEX quemó gotas de líquido, no materiales, y no se probó a gravedad lunar ni por encima del 34% de oxígeno." },
-      materials: { name: "Selección y cribado de materiales", need: "Elegir los materiales de la cabina exige saber cuáles siguen ardiendo en baja gravedad y con qué flujo de aire.", gap: "BASS-II solo llegó al 22,2% de oxígeno, por debajo del ~30% de un hábitat lunar; SAFFIRE tiene unas pocas muestras." },
-      models: { name: "Modelos de fuego y diseño de hábitats", need: "Los modelos por ordenador fijan el oxígeno y la presión de hábitats y trajes, y necesitan llamas medidas para contrastarlos.", gap: "Son llamas de gas o de gotas en microgravedad; los modelos aún no están validados a 0,16 g." },
+      materials: { name: "Selección y cribado de materiales", need: "Elegir los materiales de la cabina exige saber cuáles siguen ardiendo en baja gravedad y con qué flujo de aire.", gap: "BASS-II solo llegó al 22.2% de oxígeno, por debajo del ~30% de un hábitat lunar; SAFFIRE tiene unas pocas muestras." },
+      models: { name: "Modelos de fuego y diseño de hábitats", need: "Los modelos por ordenador fijan el oxígeno y la presión de hábitats y trajes, y necesitan llamas medidas para contrastarlos.", gap: "Son llamas de gas o de gotas en microgravedad; los modelos aún no están validados a 0.16 g." },
     } as Record<string, { name: string; need: string; gap: string }>,
     informs: "Informa",
     rows: "filas de la tabla",

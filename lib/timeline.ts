@@ -121,7 +121,7 @@ export const TIMELINE: TimelineEvent[] = [
   {
     id: 'airtank', year: 1976, when: { en: '1976', es: '1976' }, cat: 'spinoff',
     en: { title: 'Spacesuit tech lightens firefighters’ air tanks', text: 'A 20 lb backpack with 30 minutes of air at 4,500 psi, 13 lb lighter than conventional tanks, with an aluminum liner wrapped in glass fibers.' },
-    es: { title: 'La tecnología de trajes aligera los depósitos de los bomberos', text: 'Una mochila de 20 lb con 30 minutos de aire a 4.500 psi, 13 lb más ligera que los depósitos convencionales, con revestimiento de aluminio envuelto en fibra de vidrio.' },
+    es: { title: 'La tecnología de trajes aligera los depósitos de los bomberos', text: 'Una mochila de 20 lb con 30 minutos de aire a 4500 psi, 13 lb más ligera que los depósitos convencionales, con revestimiento de aluminio envuelto en fibra de vidrio.' },
     src: { label: 'NASA Spinoff: air tank', url: 'https://spinoff.nasa.gov/node/9582' },
   },
   {
@@ -270,7 +270,7 @@ export const TIMELINE: TimelineEvent[] = [
   {
     id: 'artemis', year: 2026, when: { en: 'Recently', es: 'Recientemente' }, cat: 'incident',
     en: { title: 'Artemis II: a smoke alarm 80,000 miles from home', text: 'The commander recalls that nothing gets attention like a fire alarm in your spacecraft when you are still about 80,000 miles from Earth.' },
-    es: { title: 'Artemis II: una alarma de humo a 80.000 millas de casa', text: 'El comandante recuerda que nada llama tanto la atención como una alarma de incendio en tu nave cuando aún estás a unas 80.000 millas de la Tierra.' },
+    es: { title: 'Artemis II: una alarma de humo a 80 000 millas de casa', text: 'El comandante recuerda que nada llama tanto la atención como una alarma de incendio en tu nave cuando aún estás a unas 80 000 millas de la Tierra.' },
     src: { label: 'NASA Space Apps: challenge statement', url: 'https://www.spaceappschallenge.org' },
   },
   {

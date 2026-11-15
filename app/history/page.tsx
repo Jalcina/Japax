@@ -7,7 +7,7 @@ import { CAT_COLOR, CAT_LABEL, ERAS, TIMELINE, type Cat, type TimelineEvent } fr
 
 const T = {
   en: {
-    eyebrow: "History",
+    eyebrow: "Chronology",
     title: "Six decades of fire in space",
     lead: "From a launch-pad tragedy to an open archive of flame experiments: the moments that taught us how fire behaves without gravity, and why the Moon needs new answers.",
     all: "All",
@@ -15,14 +15,14 @@ const T = {
     decades: "Milestones by decade",
     source: "Source",
     shown: "milestones",
-    scroll: "Scroll to travel through time",
+    scroll: "Scroll through the chronology",
     end: "The next chapter is still unwritten: the first fire data from lunar gravity.",
-    endCta: "See what we know and what we don't",
+    endCta: "Review what is measured and what is not",
     empty: "No milestones match this filter.",
     onlyOne: "Showing only",
   },
   es: {
-    eyebrow: "Historia",
+    eyebrow: "Cronología",
     title: "Seis décadas de fuego en el espacio",
     lead: "De una tragedia en la plataforma de lanzamiento a un archivo abierto de experimentos de llama: los momentos que nos enseñaron cómo se comporta el fuego sin gravedad y por qué la Luna necesita respuestas nuevas.",
     all: "Todo",
@@ -30,9 +30,9 @@ const T = {
     decades: "Hitos por década",
     source: "Fuente",
     shown: "hitos",
-    scroll: "Desplázate para viajar en el tiempo",
+    scroll: "Desplázate por la cronología",
     end: "El siguiente capítulo aún no está escrito: los primeros datos de fuego en gravedad lunar.",
-    endCta: "Mira qué sabemos y qué no",
+    endCta: "Consulta qué está medido y qué no",
     empty: "Ningún hito coincide con este filtro.",
     onlyOne: "Mostrando solo",
   },

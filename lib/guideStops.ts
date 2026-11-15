@@ -15,7 +15,7 @@ export const GUIDE_T = {
     restart: "Start over",
     resumed: "Welcome back. Resuming where you left off.",
     tryLabel: "Try it",
-    pageNames: { "/": "Overview", "/history": "Incident record", "/simulator": "Simulator", "/explorer": "Investigations", "/dashboard": "Ranking", "/references": "Sources" } as Record<string, string>,
+    pageNames: { "/": "Overview", "/history": "Chronology", "/simulator": "Simulator", "/explorer": "Investigations", "/dashboard": "Ranking", "/references": "Sources" } as Record<string, string>,
     steps: {
       "/": [
         { sel: "main h1", title: "Scope", body: "JaPax consolidates NASA's microgravity combustion investigations (PSI/NTRS) into a traceable evidence base for spacecraft and lunar-habitat fire safety. Every figure carries its PSI ID, DOI and an evidence tag: measured, reported, estimated or simulated." },
@@ -23,7 +23,7 @@ export const GUIDE_T = {
         { sel: "[data-pax]", title: "Pax", body: "Pax answers technical questions against the PSI corpus and flags every statement that falls outside it. Use it to query the data or to restart this tour." },
       ],
       "/history": [
-        { sel: "main h1", title: "Incident record", body: "Mishaps that shaped spacecraft fire-safety requirements, from the Apollo 1 cabin fire to the Mir oxygen-candle fire. Each entry links to its primary source." },
+        { sel: "main h1", title: "Chronology", body: "Mishaps that shaped spacecraft fire-safety requirements, from the Apollo 1 cabin fire to the Mir oxygen-candle fire. Each entry links to its primary source." },
         { sel: "main ol", title: "Timeline", body: "Chronological, from the first accidents to current flight experiments such as Saffire, SAME and FLEX.", tryIt: "Scroll down and open any event." },
       ],
       "/simulator": [
@@ -57,7 +57,7 @@ export const GUIDE_T = {
     restart: "Empezar de nuevo",
     resumed: "Bienvenido de nuevo. Retomamos donde lo dejaste.",
     tryLabel: "Pruébalo",
-    pageNames: { "/": "Resumen", "/history": "Registro de incidentes", "/simulator": "Simulador", "/explorer": "Investigaciones", "/dashboard": "Ranking", "/references": "Fuentes" } as Record<string, string>,
+    pageNames: { "/": "Resumen", "/history": "Cronología", "/simulator": "Simulador", "/explorer": "Investigaciones", "/dashboard": "Ranking", "/references": "Fuentes" } as Record<string, string>,
     steps: {
       "/": [
         { sel: "main h1", title: "Alcance", body: "JaPax consolida las investigaciones de combustión en microgravedad de NASA (PSI/NTRS) en una base de evidencia trazable para la seguridad contra incendios en naves y hábitats lunares. Cada cifra lleva su PSI ID, su DOI y una etiqueta de evidencia: medido, reportado, estimado o simulado." },
@@ -65,7 +65,7 @@ export const GUIDE_T = {
         { sel: "[data-pax]", title: "Pax", body: "Pax responde consultas técnicas sobre el corpus PSI y señala cada afirmación que queda fuera de él. Úsalo para consultar los datos o reiniciar este recorrido." },
       ],
       "/history": [
-        { sel: "main h1", title: "Registro de incidentes", body: "Siniestros que moldearon los requisitos de seguridad contra incendios en naves, desde el incendio de la cabina del Apollo 1 hasta el de la vela de oxígeno de la Mir. Cada entrada enlaza a su fuente primaria." },
+        { sel: "main h1", title: "Cronología", body: "Siniestros que moldearon los requisitos de seguridad contra incendios en naves, desde el incendio de la cabina del Apollo 1 hasta el de la vela de oxígeno de la Mir. Cada entrada enlaza a su fuente primaria." },
         { sel: "main ol", title: "Cronología", body: "En orden cronológico, desde los primeros accidentes hasta los experimentos en vuelo actuales, como Saffire, SAME y FLEX.", tryIt: "Baja y abre cualquier evento." },
       ],
       "/simulator": [

@@ -148,7 +148,7 @@ function narrative(topic: Topic, lang: Lang): { headline: string; body: string }
         body: L(
           lang,
           `Recent BASS results indicate that NASA-STD-6001 Test 1, a 1-g test used to choose spacecraft materials, is not conservative: materials can burn at lower oxygen levels in microgravity than on Earth. The easiest conditions sit around 10 cm/s, the airflow of a typical spacecraft ventilation system. BASS-II then ran ${c.bassN} tests on thicker, more realistic fuels, but with initial oxygen only up to ${c.bassMax}%.`,
-          `Los resultados recientes de BASS indican que NASA-STD-6001 Test 1, un ensayo de 1 g usado para elegir materiales de nave, no es conservador: los materiales pueden arder con menos oxígeno en microgravedad que en la Tierra. Las condiciones más fáciles están en torno a 10 cm/s, el flujo de aire de un sistema de ventilación típico de nave. BASS-II realizó después ${c.bassN} ensayos con combustibles más gruesos y realistas, pero con oxígeno inicial de solo hasta ${c.bassMax}%.`,
+          `Los resultados recientes de BASS indican que NASA-STD-6001 Test 1, un ensayo de 1 g usado para elegir materiales de nave, no es conservador: los materiales pueden arder con menos oxígeno en microgravedad que en la Tierra. Las condiciones más favorables están en torno a 10 cm/s, el flujo de aire de un sistema de ventilación típico de nave. BASS-II realizó después ${c.bassN} ensayos con combustibles más gruesos y realistas, pero con oxígeno inicial de solo hasta ${c.bassMax}%.`,
         ),
       }
     case 'smoke':
