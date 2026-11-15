@@ -13,6 +13,7 @@ const T = {
     title: "Ask anything about fire in space",
     lead: "Every answer comes with its evidence: real NASA experiments, the numbers behind them, and a clear mark where no data exists yet.",
     start: "Start with a question",
+    aiPitch: "These are not pre-written questions and answers. I am an AI trained by JaPax: ask me anything.",
     cats: { lunar: "Moon base", materials: "Materials", flex: "Suppression", smoke: "Detection", gap: "Data gaps", incidents: "History" } as Record<string, string>,
     suggested: [
       ["lunar", "What happens to fire when ventilation is turned off in a lunar habitat?"],
@@ -48,6 +49,7 @@ const T = {
     title: "Pregunta lo que quieras sobre el fuego en el espacio",
     lead: "Cada respuesta llega con su evidencia: experimentos reales de NASA, las cifras que hay detrás y una marca clara donde todavía no hay datos.",
     start: "Empieza con una pregunta",
+    aiPitch: "No son preguntas y respuestas prehechas. Soy una IA educada por JaPax: pregúntame lo que quieras.",
     cats: { lunar: "Base lunar", materials: "Materiales", flex: "Supresión", smoke: "Detección", gap: "Lagunas", incidents: "Historia" } as Record<string, string>,
     suggested: [
       ["lunar", "¿Qué le pasa al fuego cuando se apaga la ventilación en un hábitat lunar?"],
@@ -268,7 +270,7 @@ export default function AskChat({ embedded = false, initialQuestion }: { embedde
   const [turns, setTurns] = useState<Turn[]>([]);
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
-  const end = useRef<HTMLDivElement>(null);
+  const last = useRef<HTMLElement>(null);
 
   async function send(text: string) {
     const question = text.trim();
@@ -291,7 +293,8 @@ export default function AskChat({ embedded = false, initialQuestion }: { embedde
       setPaxMood("worried", 4000);
     } finally {
       setBusy(false);
-      setTimeout(() => end.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 80);
+      // show the start of the new answer (with its question), not the bottom of it
+      setTimeout(() => last.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
     }
   }
 
@@ -314,6 +317,13 @@ export default function AskChat({ embedded = false, initialQuestion }: { embedde
         <h1 className={embedded ? "max-w-2xl text-xl font-semibold leading-tight tracking-tight sm:text-2xl" : "mt-2 max-w-3xl text-3xl font-semibold leading-tight tracking-tight sm:text-5xl"}>{t.title}</h1>
         <p className={`max-w-2xl text-ink-2 ${embedded ? "mt-2 text-sm" : "mt-4"}`}>{t.lead}</p>
       </header>
+
+      {turns.length === 0 && (
+        <div className="mt-10 text-center">
+          <p className="text-5xl font-bold tracking-tight text-accent sm:text-7xl">JaPax</p>
+          <p className="mx-auto mt-3 max-w-2xl text-lg font-medium sm:text-xl">{t.aiPitch}</p>
+        </div>
+      )}
 
       {turns.length === 0 && (
         <section className="mt-10" aria-label={t.start}>
@@ -340,7 +350,7 @@ export default function AskChat({ embedded = false, initialQuestion }: { embedde
 
       <div className="mt-8 space-y-10" aria-live="polite">
         {turns.map((tn, i) => (
-          <section key={i} className="space-y-4">
+          <section key={i} ref={i === turns.length - 1 ? last : undefined} className="scroll-mt-24 space-y-4">
             <div className="flex justify-end">
               <p className="max-w-[85%] rounded-2xl rounded-br-sm bg-accent/15 px-4 py-2.5 text-sm"><span className="sr-only">{t.you}: </span>{tn.q}</p>
             </div>
@@ -361,7 +371,6 @@ export default function AskChat({ embedded = false, initialQuestion }: { embedde
             ) : <Thinking steps={t.steps} />}
           </section>
         ))}
-        <div ref={end} />
       </div>
      </div>
 
