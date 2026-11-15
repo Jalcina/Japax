@@ -307,14 +307,19 @@ function Cell({ inv }: { inv: Investigation }) {
   const o2 = fmtRange(inv.conditions.o2, "", 100, lang);
   const p = fmtRange(inv.conditions.pressureAtm, "atm", 1, lang);
   const f = fmtRange(inv.conditions.flowCmS, "cm/s", 1, lang) ?? inv.conditions.flowNote?.[lang] ?? null;
-  const assumed = /ASSUMED|SUPUESTO/.test(inv.conditions.note ?? "");
-  const tag = assumed ? <span className="ml-1 rounded border border-dashed border-line-2 px-1 text-[10px] text-muted">{t.assumed}</span> : null;
+  const note = inv.conditions.note ?? "";
+  // "PRESSURE ASSUMED" marks only the pressure (the O2 range is measured); a bare "ASSUMED" marks both.
+  const pressureOnly = /PRESSURE ASSUMED|PRESIÓN SUPUESTA/.test(note);
+  const assumed = !pressureOnly && /ASSUMED|SUPUESTO/.test(note);
+  const badge = <span className="ml-1 rounded border border-dashed border-line-2 px-1 text-[10px] text-muted">{t.assumed}</span>;
+  const tag = assumed ? badge : null;
+  const pTag = assumed || pressureOnly ? badge : null;
   return (
     <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
       <dt className="text-muted">O₂</dt>
       <dd>{o2 ? <>{`${o2.trim()}%`}{tag}</> : <Pending />}</dd>
       <dt className="text-muted">{t.pressure}</dt>
-      <dd>{p ? <>{p}{tag}</> : <Pending />}</dd>
+      <dd>{p ? <>{p}{pTag}</> : <Pending />}</dd>
       <dt className="text-muted">{t.airflow}</dt>
       <dd>{f ?? <Pending />}</dd>
     </dl>

@@ -1,0 +1,87 @@
+{
+  "source": "PSI public API, field totalFileSize, GET https://psi.nasa.gov/geode-py/ws/repo/investigations/{PSI-ID}",
+  "queried": "2026-11-15",
+  "investigations": 19,
+  "sumBytes": 12714262994089.0,
+  "sumTB_decimal": 12.71,
+  "sumTiB": 11.56,
+  "note": "Size NASA declares for the published data of these investigations; not data processed by JaPax. Re-run: sum totalFileSize over the PSI IDs in data/psi/.",
+  "perInvestigation": {
+    "PSI-10": {
+      "acronym": null,
+      "totalFileSize": 2180435304347
+    },
+    "PSI-20": {
+      "acronym": null,
+      "totalFileSize": 2035568427496.0
+    },
+    "PSI-21": {
+      "acronym": null,
+      "totalFileSize": 2005536295241.0
+    },
+    "PSI-22": {
+      "acronym": null,
+      "totalFileSize": 950212491107.0
+    },
+    "PSI-25": {
+      "acronym": null,
+      "totalFileSize": 274631106141.0
+    },
+    "PSI-26": {
+      "acronym": null,
+      "totalFileSize": 163551372412.0
+    },
+    "PSI-39": {
+      "acronym": null,
+      "totalFileSize": 718889568684.0
+    },
+    "PSI-47": {
+      "acronym": null,
+      "totalFileSize": 41765333.0
+    },
+    "PSI-60": {
+      "acronym": null,
+      "totalFileSize": 7743
+    },
+    "PSI-68": {
+      "acronym": null,
+      "totalFileSize": 1224752113090.0
+    },
+    "PSI-69": {
+      "acronym": null,
+      "totalFileSize": 923832535657.0
+    },
+    "PSI-98": {
+      "acronym": null,
+      "totalFileSize": 12250600201.0
+    },
+    "PSI-99": {
+      "acronym": null,
+      "totalFileSize": 16931016137.0
+    },
+    "PSI-100": {
+      "acronym": null,
+      "totalFileSize": 35210765052.0
+    },
+    "PSI-101": {
+      "acronym": null,
+      "totalFileSize": 6308124750.0
+    },
+    "PSI-102": {
+      "acronym": null,
+      "totalFileSize": 657608178.0
+    },
+    "PSI-106": {
+      "acronym": null,
+      "totalFileSize": 72914598688.0
+    },
+    "PSI-107": {
+      "acronym": null,
+      "totalFileSize": 6946864573.0
+    },
+    "PSI-159": {
+      "acronym": null,
+      "totalFileSize": 2085592429259
+    }
+  }
+}

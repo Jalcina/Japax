@@ -211,7 +211,7 @@ export default function CharacterPage() {
             <dt className="text-muted">Personality</dt>
             <dd>Curious, warm, upbeat · explains hard science simply</dd>
             <dt className="text-muted">Roles</dt>
-            <dd>Site guide · AI chat voice · 60-second video narrator</dd>
+            <dd>Site guide · AI chat voice · 30-second film narrator</dd>
             <dt className="text-muted">Alive details</dt>
             <dd>Random blinks, eye tracking, lip-sync, floating, ring sway</dd>
             <dt className="text-muted">Reactions</dt>

@@ -184,6 +184,6 @@ export function fmtRange(r: [number | null, number | null] | null, unit: string,
   const f = (v: number) => `${Math.round(v * scale * 100) / 100}`
   if (a == null && b != null) return `${lang === 'es' ? 'hasta' : 'up to'} ${f(b)} ${unit}`
   if (a != null && b == null) return `${lang === 'es' ? 'desde' : 'from'} ${f(a)} ${unit}`
-  if (a != null && b != null) return `${f(a)} – ${f(b)} ${unit}`
+  if (a != null && b != null) return f(a) === f(b) ? `${f(a)} ${unit}` : `${f(a)} – ${f(b)} ${unit}`
   return null
 }

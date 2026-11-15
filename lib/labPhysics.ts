@@ -29,7 +29,7 @@ export function spreadFactors(a: Atm, material: string): Speed {
   const fMat = material === "inert" ? 0 : material === "plastic" ? 0.6 : material === "cable" ? 0.5 : material === "liquid" ? 0.8 : 1;
 
   const factors: Factor[] = [
-    { key: "anchor", label: "Anchor", value: ANCHOR_MM_S, tag: "measured", why: "Measured concurrent spread on thin fabric (SAFFIRE I-III, 1.8-2.6 mm/s).", src: "NTRS 20180005168 Table 1; PSI-98, PSI-99, PSI-100" },
+    { key: "anchor", label: "Anchor", value: ANCHOR_MM_S, tag: "measured", why: "Representative value inside the measured concurrent spread on thin fabric (SAFFIRE I-III, 1.8-2.6 mm/s).", src: "NTRS 20180005168 Table 1; PSI-98, PSI-99, PSI-100" },
     { key: "o2", label: "Oxygen", value: fO2, tag: "estimated", why: "Spread rises with O2 in microgravity (qualitative). The exponent 1.3 is a modelling choice, relative to 22 % O2.", src: "NTRS 20160000593 (BASS-II, PMMA rods, O2 16-21 %)" },
     { key: "flow", label: "Airflow", value: fFlow, tag: raw === 0 ? "reported" : "estimated", why: raw === 0 ? "No airflow near 21 % O2 in 0 g: the flame starves." : "Flame quenches below about 1-5 cm/s at 16-21 % O2; the steps 15/5/1 cm/s are a discretisation. With gravity, buoyant convection supplies air, so low forced flow matters less.", src: "NTRS 20150008962 (SIBAL, flow 1-40 cm/s); PSI-20 ACME BRE" },
     { key: "g", label: "Gravity", value: fG, tag: "estimated", why: "1 g spread was faster than microgravity in PMMA rods and silicone tests. The slope 0.8 per g is a modelling choice; partial gravity (Moon) is an extrapolation.", src: "NTRS 20160000593; PSI-99 (silicone, 1 g vs 0 g)" },

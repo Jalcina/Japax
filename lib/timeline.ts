@@ -95,8 +95,8 @@ export const TIMELINE: TimelineEvent[] = [
   },
   {
     id: 'apollo1', year: 1967, when: { en: '27 Jan 1967', es: '27 ene 1967' }, cat: 'incident',
-    en: { title: 'Apollo 1: a flash fire in pure oxygen', text: 'During a launch-pad test, a fire sweeps a 100% oxygen cabin and kills Grissom, White and Chaffee. The three-piece hatch took about 90 seconds to open.' },
-    es: { title: 'Apollo 1: un incendio relámpago en oxígeno puro', text: 'En una prueba en la plataforma de lanzamiento, un fuego recorre una cabina de 100% de oxígeno y mata a Grissom, White y Chaffee. La escotilla de tres piezas tardaba unos 90 segundos en abrirse.' },
+    en: { title: 'Apollo 1: a flash fire in pure oxygen', text: 'During a launch-pad test, a fire sweeps a 100% oxygen cabin and kills Grissom, White and Chaffee. The three-piece hatch needed about 90 seconds to open even under ideal conditions and could not be opened against the rising pressure.' },
+    es: { title: 'Apollo 1: un incendio relámpago en oxígeno puro', text: 'En una prueba en la plataforma de lanzamiento, un fuego recorre una cabina de 100% de oxígeno y mata a Grissom, White y Chaffee. La escotilla de tres piezas necesitó unos 90 segundos en abrirse incluso en condiciones ideales y no pudo abrirse contra la presión creciente.' },
     src: APOLLO1,
     link: { href: '/explorer/acme-bre', en: 'Oxygen-rich atmospheres are still the question: see BRE', es: 'Las atmósferas ricas en oxígeno siguen siendo la cuestión: mira BRE' },
   },
@@ -151,9 +151,9 @@ export const TIMELINE: TimelineEvent[] = [
   },
   {
     id: 'iss2000', year: 2000, when: { en: '2000', es: '2000' }, cat: 'hardware',
-    en: { title: 'The ISS is first occupied', text: 'A permanent microgravity laboratory opens, making long-duration combustion experiments possible for the first time.' },
-    es: { title: 'La ISS se ocupa por primera vez', text: 'Se abre un laboratorio permanente de microgravedad, que hace posibles por primera vez los experimentos de combustión de larga duración.' },
-    src: { label: 'NASA Space Apps: challenge statement', url: 'https://www.spaceappschallenge.org' },
+    en: { title: 'The ISS gets its first long-term crew', text: 'Expedition 1, the station\'s first long-term crew, begins work aboard a permanent microgravity laboratory, where topics such as how space affects biology and physics are explored.' },
+    es: { title: 'La ISS recibe su primera tripulación de larga duración', text: 'La Expedición 1, la primera tripulación de larga duración de la estación, empieza a trabajar en un laboratorio permanente de microgravedad, donde se exploran, entre otros temas, cómo afecta el espacio a la biología y la física.' },
+    src: { label: 'NASA: Expedition 1', url: 'https://www.nasa.gov/mission/expedition-1/' },
   },
   {
     id: 'sts107', year: 2003, when: { en: '2003', es: '2003' }, cat: 'research',

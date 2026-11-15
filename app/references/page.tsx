@@ -1,7 +1,21 @@
 "use client";
 
-import { useData, useT } from "@/lib/i18n";
+import { useData, useLang, useT } from "@/lib/i18n";
 import { Section } from "@/components/ui";
+
+// Titles stay in English (they are document names); only JaPax's own usage notes are translated.
+const ES_NOTES: [string, string][] = [
+  ["Component engine", "Motor de componentes"],
+  ["Simulator data tab", "pestaña de datos del Simulador"],
+  ["the Simulator scenes", "las escenas del Simulador"],
+  ["Simulator", "Simulador"],
+  ["Touch to burn", "Toca y arde"],
+  ["3D models used in", "modelos 3D usados en"],
+  ["3D model used in", "modelo 3D usado en"],
+  ["free to use", "uso libre"],
+  ["abstract only", "solo resumen"],
+];
+const esNote = (s: string) => ES_NOTES.reduce((a, [en, es]) => a.split(en).join(es), s);
 
 const LIBS: [string, string][] = [
   ["Next.js 16 (MIT)", "https://nextjs.org"],
@@ -9,8 +23,8 @@ const LIBS: [string, string][] = [
   ["Tailwind CSS 4 (MIT)", "https://tailwindcss.com"],
   ["TypeScript (Apache-2.0)", "https://www.typescriptlang.org"],
   ["three.js 0.187 (MIT), WebGL 3D rendering of the flame lab and simulator; its OrbitControls and post-processing add-ons are part of the same package", "https://threejs.org"],
-  ["NASA 3D Resources: International Space Station (ISS) (D) (IGOAL), Mars 2020 Perseverance Rover, Apollo Lunar Module (3D models used in the Simulator and Data Lab scenes; free to use per NASA media guidelines)", "https://science.nasa.gov/3d-resources/"],
-  ["NASA 3D Resources: Extravehicular Mobility Unit (EMU) spacesuit (3D model used in the Simulator and Data Lab scenes; free to use per NASA media guidelines)", "https://science.nasa.gov/3d-resources/"],
+  ["NASA 3D Resources: International Space Station (ISS) (D) (IGOAL), Mars 2020 Perseverance Rover, Apollo Lunar Module (3D models used in the the Simulator scenes; free to use per NASA media guidelines)", "https://science.nasa.gov/3d-resources/"],
+  ["NASA 3D Resources: Extravehicular Mobility Unit (EMU) spacesuit (3D model used in the the Simulator scenes; free to use per NASA media guidelines)", "https://science.nasa.gov/3d-resources/"],
   ["Earth textures from the three.js examples (earth_atmos, earth_normal, earth_specular, earth_clouds), derived from NASA imagery", "https://github.com/mrdoob/three.js/tree/dev/examples/textures/planets"],
   ["Anthropic TypeScript SDK (MIT)", "https://github.com/anthropics/anthropic-sdk-typescript"],
   ["Geist and Geist Mono fonts (SIL Open Font License) via Google Fonts", "https://vercel.com/font"],
@@ -31,19 +45,21 @@ const DOCS: [string, string][] = [
   ["Ruff and Urban, The Spacecraft Fire Experiment (Saffire): Objectives, Development and Status, NASA NTRS 20170001636 (planned Saffire-III airflow)", "https://ntrs.nasa.gov/citations/20170001636"],
   ["Nayagam, Dietrich, Hicks and Williams, Methanol Droplet Combustion in Oxygen-Inert Environments in Microgravity, NASA NTRS 20130014061 (CO₂ and helium diluents, burning-rate constant)", "https://ntrs.nasa.gov/citations/20130014061"],
   ["NASA/TP-2015-216046, FLEX data report: test outcomes (Extinction, Completion, Disruption) and column definitions, NASA NTRS 20150023456", "https://ntrs.nasa.gov/citations/20150023456"],
-  ["FM2, Flammability of Materials on the Moon (planned atmospheres 21 % O2 at 14.7 psia and 34 % at 8.2 psia), NASA NTRS 20240015307 (Fire Lab: lunar atmosphere)", "https://ntrs.nasa.gov/citations/20240015307"],
-  ["LUCI, Lunar-g Combustion Investigation (first simulated lunar-gravity burns, 2025), NASA NTRS 20250010653 (Fire Lab: the only lunar-gravity anchor)", "https://ntrs.nasa.gov/citations/20250010653"],
-  ["PSI-20 ACME Burner Rig Experiment (BRE), DOI 10.60555/vb93-3y72 (Fire Lab: airflow-off behavior, reported by the authors)", "https://doi.org/10.60555/vb93-3y72"],
-  ["PSI-69 FLEX, DOI 10.60555/mbq8-0451, 274 droplet tests (Fire Lab: CO2 / helium suppression evidence)", "https://doi.org/10.60555/mbq8-0451"],
+  ["FM2, Flammability of Materials on the Moon (planned atmospheres 21 % O2 at 14.7 psia and 34 % at 8.2 psia), NASA NTRS 20240015307 (Simulator: lunar atmosphere)", "https://ntrs.nasa.gov/citations/20240015307"],
+  ["Ferkul et al., Material Flammability at Lunar and Martian Gravity, NASA NTRS 20260000646 (LPSC 2026 poster; FM2 planned launch in late 2026)", "https://ntrs.nasa.gov/citations/20260000646"],
+  ["LUCI, Lunar Combustion Investigation (first extended-duration burns in simulated lunar gravity, reported 2025), NASA NTRS 20250010653 (Simulator: the only lunar-gravity anchor)", "https://ntrs.nasa.gov/citations/20250010653"],
+  ["PSI-20 ACME Burning Rate Emulator (BRE), DOI 10.60555/vb93-3y72 (Simulator: airflow-off behavior, reported by the authors)", "https://doi.org/10.60555/vb93-3y72"],
+  ["PSI-69 FLEX, DOI 10.60555/mbq8-0451, 274 droplet tests (Simulator: CO2 / helium suppression evidence)", "https://doi.org/10.60555/mbq8-0451"],
   ["Urban et al., Preliminary Results from the Smoke Aerosol Measurement Experiment - Reflight, NASA NTRS 20130000422", "https://ntrs.nasa.gov/citations/20130000422"],
   ["ACME / CFI-G overview (thin-filament pyrometry and cool-flame results), NASA NTRS 20210022542", "https://ntrs.nasa.gov/citations/20210022542"],
-  ["Concurrent Flame Growth, Spread and Extinction over Composite Fabric Samples in Low Speed Purely Forced Flow in Microgravity (BASS / BASS-II, SIBAL quenching limit), NASA NTRS 20150008962 (Touch to burn)", "https://ntrs.nasa.gov/citations/20150008962"],
-  ["Thickness and Fuel Preheating Effects on Material Flammability in Microgravity from the BASS Experiment, NASA NTRS 20140011099 (Touch to burn)", "https://ntrs.nasa.gov/citations/20140011099"],
-  ["Combustion of Solids in Microgravity: Results from the BASS-II Experiment, NASA NTRS 20160000593 (Touch to burn)", "https://ntrs.nasa.gov/citations/20160000593"],
-  ["Comparison of Carbon Dioxide and Helium as Fire Extinguishing Agents for Spacecraft, NASA NTRS 20040161188 (Touch to burn)", "https://ntrs.nasa.gov/citations/20040161188"],
-  ["Preliminary Results from the Saffire VI Experiment, NASA NTRS 20240002981 (Touch to burn)", "https://ntrs.nasa.gov/citations/20240002981"],
-  ["Extinguishment of a Diffusion Flame Over a PMMA Cylinder by Depressurization in Low-Gravity, NASA NTRS 19970020617 (Touch to burn; abstract only)", "https://ntrs.nasa.gov/citations/19970020617"],
+  ["Concurrent Flame Growth, Spread and Extinction over Composite Fabric Samples in Low Speed Purely Forced Flow in Microgravity (BASS / BASS-II, SIBAL quenching limit), NASA NTRS 20150008962 (Simulator, Touch to burn)", "https://ntrs.nasa.gov/citations/20150008962"],
+  ["Thickness and Fuel Preheating Effects on Material Flammability in Microgravity from the BASS Experiment, NASA NTRS 20140011099 (Simulator, Touch to burn)", "https://ntrs.nasa.gov/citations/20140011099"],
+  ["Combustion of Solids in Microgravity: Results from the BASS-II Experiment, NASA NTRS 20160000593 (Simulator, Touch to burn)", "https://ntrs.nasa.gov/citations/20160000593"],
+  ["Comparison of Carbon Dioxide and Helium as Fire Extinguishing Agents for Spacecraft, NASA NTRS 20040161188 (Simulator, Touch to burn)", "https://ntrs.nasa.gov/citations/20040161188"],
+  ["Preliminary Results from the Saffire VI Experiment, NASA NTRS 20240002981 (Simulator, Touch to burn)", "https://ntrs.nasa.gov/citations/20240002981"],
+  ["Extinguishment of a Diffusion Flame Over a PMMA Cylinder by Depressurization in Low-Gravity, NASA NTRS 19970020617 (Simulator, Touch to burn; abstract only)", "https://ntrs.nasa.gov/citations/19970020617"],
   ["Shuttle/ISS EMU Failure History (ICES-2015-327), NASA NTRS 20150009506 (Component engine: EMU oxygen tank pressures; tank volume is not stated)", "https://ntrs.nasa.gov/citations/20150009506"],
+  ["Gernhardt et al., Biomedical Support of U.S. Extravehicular Activity, NASA NTRS 20080000344 (Spacesuit conditions: suit pressure of 4.3 psia, 29.6 kPa; 100 % oxygen suit environment)", "https://ntrs.nasa.gov/citations/20080000344"],
   ["Report of the Apollo 13 Review Board, Appendices F-H (special tests and analyses), NASA NTRS 19700078913 (Component engine: oxygen-tank failure timing, ignition energy; a different tank)", "https://ntrs.nasa.gov/citations/19700078913"],
   ["Apollo 13 oxygen tank case study based on the Review Board report (TMX-65270), NASA NTRS 20110015690 (Component engine: failure path, 93 s from fan power to data loss)", "https://ntrs.nasa.gov/citations/20110015690"],
   ["Whitaker, Overview of ISS U.S. Fire Detection and Suppression System, NASA NTRS 20030053429 (Component engine, ISS: the fire alarm isolates the module by shutting off ventilation)", "https://ntrs.nasa.gov/citations/20030053429"],
@@ -72,7 +88,7 @@ const T = {
       ["Relevance score.", "A JaPax editorial method (0–100) combining five factors with adjustable weights: habitat atmosphere match (default 35), fuel realism (25), fire-safety focus (20), data richness (10) and modeling value (10). Unknown inputs count as a neutral 0.5 and are flagged. It is a prioritization aid, not a NASA metric."],
       ["Partial gravity.", "PSI contains no partial-gravity combustion data. Lunar and Martian conditions are shown as gaps, not extrapolated. The flammability curve is a qualitative schematic."],
       ["Data volume.", "The figure of about 12.7 TB on the home page is the sum of the totalFileSize field that the PSI API reports for each of the 19 investigations, queried on 15 November 2026. It is the size NASA declares for its published data, not data processed by JaPax. The API lists file by file only about 6.3 TB of it (15,629 files); the rest, mostly videos and large raw sets, is declared but not enumerated. The 12,146 files shown on the home page are the per-investigation file counts in the PSI metadata that JaPax catalogued, a different count from the 15,629 the API enumerates."],
-      ["Data access.", "Investigation metadata and file inventories come from the PSI API. The Data Lab uses the experimental tables of FLEX (274 tests) and BASS-II (129 tests); counts and percentages are computed from the recorded rows, with no modeling. Other tables and the videos are linked to their PSI pages and are the next step of the roadmap."],
+      ["Data access.", "Investigation metadata and file inventories come from the PSI API. The Simulator data tab uses the experimental tables of FLEX (274 tests) and BASS-II (129 tests); counts and percentages are computed from the recorded rows, with no modeling. Other tables and the videos are linked to their PSI pages and are the next step of the roadmap."],
     ],
     gen: "Data generated",
     disclaimer: "JaPax is an independent project and is not affiliated with or endorsed by NASA.",
@@ -108,6 +124,7 @@ const T = {
 export default function References() {
   const t = useT(T);
   const data = useData();
+  const { lang } = useLang();
   return (
     <div className="mx-auto max-w-4xl px-4 pb-4 pt-10">
       <p className="eyebrow">{t.eyebrow}</p>
@@ -164,7 +181,7 @@ export default function References() {
           </li>
           {DOCS.map(([title, url]) => (
             <li key={url + title} className="p-3 text-sm">
-              {title}{" "}
+              {lang === "es" ? esNote(title) : title}{" "}
               <a className="link" href={url} target="_blank" rel="noreferrer">
                 ↗
               </a>
@@ -177,7 +194,7 @@ export default function References() {
         <ul className="card mt-4 divide-y divide-line">
           {LIBS.map(([title, url]) => (
             <li key={title} className="p-3 text-sm">
-              {title}{" "}
+              {lang === "es" ? esNote(title) : title}{" "}
               <a className="link" href={url} target="_blank" rel="noreferrer">
                 ↗
               </a>

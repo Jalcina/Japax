@@ -205,7 +205,7 @@
           null,
           40
         ],
-        "note": "O2 is the MEASURED initial O2 range (13.6–22.2 % by volume) across the 129 tests in the PSI-25 table. Primary variables per PSI: flow velocity and direction, ambient oxygen (via nitrogen dilution) and sample geometry. Airflow units are not stated in the table."
+        "note": "O2 is the MEASURED initial O2 range (13.6–22.2 % by volume) across the 129 tests in the PSI-25 table. Primary variables per PSI: flow velocity and direction, ambient oxygen (via nitrogen dilution) and sample geometry. Airflow units are not stated in the table. PRESSURE ASSUMED: 1 atm (ISS cabin). The PSI-25 table has no pressure column; one typical test is reported at 1 atm and 18.7 % O2 (NTRS 20160000593, p. 21)."
       },
       "sensors": [
         "video (296 videos in PSI)"
@@ -1184,7 +1184,7 @@
       "acronym": "FM2",
       "name": "Flammability of Materials on the Moon",
       "gravity": "1/6 g (Moon)",
-      "note": "A robotic combustion chamber for the lunar surface on CLPS mission CP-21, planned to launch in late 2026. It will test 21% O2 at 14.7 psia and 34% O2 at 8.2 psia on SIBAL fabric and acrylic rods burned upward and downward. SIBAL burns only downward in lunar gravity in air but extinguishes at once in 1 g (NASA NTRS 20240015307).",
+      "note": "A robotic combustion chamber for the lunar surface on CLPS mission CP-21, planned to launch in late 2026. It will test 21% O2 at 14.7 psia and 34% O2 at 8.2 psia on SIBAL fabric and acrylic rods burned upward and downward. SIBAL burns only downward in lunar gravity in air but extinguishes at once in 1 g (NASA NTRS 20240015307; launch date, NTRS 20260000646).",
       "src": "NTRS"
     },
     {
@@ -1263,8 +1263,8 @@
     {
       "year": 1967,
       "name": "Apollo 1",
-      "text": "A flash fire swept the Command Module during a pre-launch test in a 100% oxygen cabin. Grissom, White and Chaffee died. The three-piece hatch took about 90 seconds to open.",
-      "lesson": "A unified hatch that opens in 3 seconds, tightly restricted combustible materials and fire-resistant spacesuits.",
+      "text": "A flash fire swept the Command Module during a pre-launch test in a 100% oxygen cabin. Grissom, White and Chaffee died. The three-piece hatch needed about 90 seconds to open even under ideal conditions and could not be opened against the rising pressure.",
+      "lesson": "A unified hatch that can be opened from inside or outside in 3 seconds, tightly restricted combustible materials and fire-resistant spacesuits.",
       "src": "https://sma.nasa.gov/sma-disciplines/accllp/apollo-1"
     },
     {

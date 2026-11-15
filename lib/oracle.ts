@@ -204,7 +204,7 @@ function narrative(topic: Topic, lang: Lang): { headline: string; body: string }
         headline: L(lang, 'Three fires, three lessons that shaped spacecraft safety', 'Tres incendios, tres lecciones que moldearon la seguridad de las naves'),
         body: L(
           lang,
-          'In 1967 a flash fire in a 100% oxygen cabin killed the Apollo 1 crew; the hatch took about 90 seconds to open. In 1970 an oxygen tank exploded on the way to the Moon after its heaters overheated and degraded the Teflon insulation. In 1997 a solid-fuel oxygen generator canister caught fire on Mir. Each one changed hardware, materials or procedures, and the Artemis II smoke alarm shows why it still matters.',
+          'In 1967 a flash fire in a 100% oxygen cabin killed the Apollo 1 crew; the hatch needed about 90 seconds to open even under ideal conditions and could not be opened against the rising pressure. In 1970 an oxygen tank exploded on the way to the Moon after its heaters overheated and degraded the Teflon insulation. In 1997 a solid-fuel oxygen generator canister caught fire on Mir. Each one changed hardware, materials or procedures, and the Artemis II smoke alarm shows why it still matters.',
           'En 1967 un incendio relámpago en una cabina con 100% de oxígeno mató a la tripulación del Apollo 1; la escotilla tardaba unos 90 segundos en abrirse. En 1970 explotó un tanque de oxígeno camino de la Luna tras sobrecalentarse sus calentadores y degradar el aislante de teflón. En 1997 ardió un cartucho de generador de oxígeno de combustible sólido en Mir. Cada uno cambió equipos, materiales o procedimientos, y la alarma de humo de Artemis II muestra por qué sigue importando.',
         ),
       }

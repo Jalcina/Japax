@@ -10,18 +10,23 @@ import { useData, useT } from "@/lib/i18n";
  * data/lab.json. The "gap" lines are factual limits found in the Phase-1 audit (INFORME-FASE1.txt).
  */
 
-const ROWS: Record<string, { n: number; plan?: boolean; note?: string }> = {
-  same: { n: lab.same.rows.length, note: "4 rows with values (Teflon)" },
+const ROWS: Record<string, { n: number; plan?: boolean; note?: "teflon" | "inventory" | "noOutcomes" | "samples" | "publication" | "burns"; count?: number }> = {
+  same: { n: lab.same.rows.length, note: "teflon" },
   "same-r": { n: lab.samer.rows.length },
   "daft-daft-2": { n: lab.daft.rows.length },
   flex: { n: lab.flex.rows.length },
   "flex-2": { n: lab.flex2.rows.length, plan: true },
-  bass: { n: lab.bass.rows.length, note: "inventory only" },
-  "bass-ii": { n: lab.bass2.rows.length, note: "conditions, no outcomes" },
-  "saffire-i": { n: lab.saffire1.rows.length, note: "2 samples" },
+  bass: { n: lab.bass.rows.length, note: "inventory" },
+  "bass-ii": { n: lab.bass2.rows.length, note: "noOutcomes" },
+  "saffire-i": { n: lab.saffire1.rows.length, note: "samples" },
   "saffire-ii": { n: lab.saffire2.rows.length },
-  "saffire-iii": { n: lab.saffire3.rows.length, note: "results in the publication" },
-  "acme-cfi-g": { n: lab.cfigNormal.rows.length + lab.cfigInverse.rows.filter((r) => r.o2 != null).length },
+  "saffire-iii": { n: lab.saffire3.rows.length, note: "publication" },
+  // All table rows, and how many of them recorded a flame that actually burned (burn time > 0).
+  "acme-cfi-g": {
+    n: lab.cfigNormal.rows.length + lab.cfigInverse.rows.length,
+    note: "burns",
+    count: [...lab.cfigNormal.rows, ...lab.cfigInverse.rows].filter((r) => (r.burnTimeSec ?? 0) > 0).length,
+  },
   "acme-flame-design": { n: lab.acmeNormal.rows.length + lab.acmeInverse.rows.length },
 };
 
@@ -41,11 +46,12 @@ const T = {
       detect: { name: "Smoke and fire detectors", need: "Detectors must recognise low-gravity smoke, which behaves differently from smoke on Earth, and not confuse it with dust.", gap: "No smoke measurement exists at lunar oxygen or gravity: the tables are for the ISS atmosphere." },
       suppress: { name: "Extinguishing systems", need: "Suppression design needs to know how much CO₂ or helium stops a flame, and at which oxygen level.", gap: "FLEX burned liquid droplets, not materials, and nothing was tested at lunar gravity or above 34% oxygen." },
       materials: { name: "Material selection and screening", need: "Choosing cabin materials relies on knowing which ones keep burning in low gravity and at what airflow.", gap: "BASS-II reached only 22.2% oxygen, below the ~30% of a lunar habitat; SAFFIRE has a handful of samples." },
-      models: { name: "Fire models and habitat design", need: "Computer models set the oxygen and pressure of habitats and suits, and they need measured flames to be checked against.", gap: "These flames are gas or droplet flames in microgravity; the models are not yet validated at 0.16 g." },
+      models: { name: "Fire models and habitat design", need: "Computer models set the oxygen and pressure of habitats and suits, and they need measured flames to be checked against.", gap: "These flames are gas or droplet flames in microgravity; the models are not yet validated at 0.166 g." },
     } as Record<string, { name: string; need: string; gap: string }>,
     informs: "Informs",
     rows: "table rows",
     plan: "test plan, not results",
+    notes: { teflon: "4 rows with values (Teflon)", inventory: "inventory only", noOutcomes: "conditions, no outcomes", samples: "2 samples", publication: "results in the publication", burns: "{n} with a burn" } as Record<string, string>,
     open: "Open",
     measured: "measured",
     chk: "Linked to the investigation record in the investigation catalogue",
@@ -58,11 +64,12 @@ const T = {
       detect: { name: "Detectores de humo y fuego", need: "Los detectores deben reconocer el humo en baja gravedad, que se comporta de forma distinta a como lo hace en la Tierra, y no confundirlo con polvo.", gap: "No hay medidas de humo con el oxígeno ni la gravedad lunares: las tablas son de la atmósfera de la ISS." },
       suppress: { name: "Sistemas de extinción", need: "El diseño de supresión necesita saber cuánto CO₂ o helio apaga una llama y con qué nivel de oxígeno.", gap: "FLEX quemó gotas de líquido, no materiales, y no se probó a gravedad lunar ni por encima del 34% de oxígeno." },
       materials: { name: "Selección y cribado de materiales", need: "Elegir los materiales de la cabina exige saber cuáles siguen ardiendo en baja gravedad y con qué flujo de aire.", gap: "BASS-II solo llegó al 22.2% de oxígeno, por debajo del ~30% de un hábitat lunar; SAFFIRE tiene unas pocas muestras." },
-      models: { name: "Modelos de fuego y diseño de hábitats", need: "Los modelos por ordenador fijan el oxígeno y la presión de hábitats y trajes, y necesitan llamas medidas para contrastarlos.", gap: "Son llamas de gas o de gotas en microgravedad; los modelos aún no están validados a 0.16 g." },
+      models: { name: "Modelos de fuego y diseño de hábitats", need: "Los modelos por ordenador fijan el oxígeno y la presión de hábitats y trajes, y necesitan llamas medidas para contrastarlos.", gap: "Son llamas de gas o de gotas en microgravedad; los modelos aún no están validados a 0.166 g." },
     } as Record<string, { name: string; need: string; gap: string }>,
     informs: "Informa",
     rows: "filas de la tabla",
     plan: "plan de ensayos, no resultados",
+    notes: { teflon: "4 filas con valores (Teflon)", inventory: "solo inventario", noOutcomes: "condiciones, sin resultados", samples: "2 muestras", publication: "resultados en la publicación", burns: "{n} con combustión" } as Record<string, string>,
     open: "Abrir",
     measured: "medido",
     chk: "Enlazado con la ficha de la investigación en el catálogo de investigaciones",
@@ -102,7 +109,7 @@ export default function EquipmentMap() {
                       {inv.spaceApplication && <p className="mt-1 text-sm text-ink-2">{t.informs}: {inv.spaceApplication}</p>}
                       {r && (
                         <p className="mt-1 text-xs text-muted">
-                          {r.n} {t.rows}{r.plan ? ` · ${t.plan}` : r.note ? ` · ${r.note}` : ""}
+                          {r.n} {t.rows}{r.plan ? ` · ${t.plan}` : r.note ? ` · ${t.notes[r.note].replace("{n}", String(r.count ?? ""))}` : ""}
                         </p>
                       )}
                     </li>

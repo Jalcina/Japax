@@ -59,7 +59,7 @@ const EXACT: Record<string, string> = {
   "Airflow": "Flujo de aire",
   "Gravity": "Gravedad",
   "Material": "Material",
-  "Measured concurrent spread on thin fabric (SAFFIRE I-III, 1.8-2.6 mm/s).": "Propagación a favor del flujo medida en tela fina (SAFFIRE I-III, 1.8-2.6 mm/s).",
+  "Representative value inside the measured concurrent spread on thin fabric (SAFFIRE I-III, 1.8-2.6 mm/s).": "Valor representativo dentro de la propagación a favor del flujo medida en tela fina (SAFFIRE I-III, 1.8-2.6 mm/s).",
   "Spread rises with O2 in microgravity (qualitative). The exponent 1.3 is a modelling choice, relative to 22 % O2.": "La propagación aumenta con el O2 en microgravedad (cualitativo). El exponente 1.3 es una decisión de modelado, relativa al 22 % de O2.",
   "No airflow near 21 % O2 in 0 g: the flame starves.": "Sin flujo de aire cerca del 21 % de O2 en 0 g: la llama se queda sin comburente.",
   "Flame quenches below about 1-5 cm/s at 16-21 % O2; the steps 15/5/1 cm/s are a discretisation. With gravity, buoyant convection supplies air, so low forced flow matters less.": "La llama se extingue por debajo de unos 1-5 cm/s con 16-21 % de O2; los escalones 15/5/1 cm/s son una discretización. Con gravedad, la convección por flotabilidad aporta aire, así que un flujo forzado bajo importa menos.",

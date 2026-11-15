@@ -164,7 +164,7 @@ export default function Dashboard() {
                   className={`rounded-lg border px-3 py-2 text-left transition-colors ${profile === k ? "border-accent bg-accent/15" : "border-line-2 hover:bg-surface-2"}`}
                 >
                   <span className="block text-sm font-medium">{t.profiles[k]}</span>
-                  <span className="block text-xs text-muted">{t.profileHint[k]}</span>
+                  <span className={`block text-xs ${profile === k ? "text-ink-2" : "text-muted"}`}>{t.profileHint[k]}</span>
                 </button>
               ))}
               {profile === "custom" && <p className="rounded-lg border border-dashed border-accent px-3 py-2 text-sm">{t.profiles.custom}</p>}

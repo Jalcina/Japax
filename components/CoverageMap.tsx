@@ -36,6 +36,8 @@ const FLEX_PTS: Pt[] = (() => {
   return [...m.values()];
 })();
 const FLEX_N = FLEX_PTS.reduce((s, p) => s + p.n, 0);
+// FLEX rows left out of the chart (pressure code 0 is invalid in PSI-69), so the title says "N of TOTAL plotted".
+const FLEX_TOTAL = lab.flex.rows.length;
 
 const T = {
   en: {
@@ -63,7 +65,7 @@ const T = {
     ended: "ended in extinction",
     items: {
       habitat: ["Lunar habitat region", "O₂ ≥ 26.5% and pressure ≤ 0.69 atm (10.2 psi). This is where materials are more flammable than on Earth and where data matters most."],
-      flex: [`FLEX (PSI-69): ${FLEX_N} measured tests`, "Each circle is a group of tests at the same O₂ and pressure (bigger = more tests). Measured O₂ 12–34% and pressures from 0.70 to 3.05 atm, with heptane and methanol droplets and CO₂/He suppressants. The 0.70 atm column sits right at the lunar habitat pressure."],
+      flex: [`FLEX (PSI-69): ${FLEX_N} of ${FLEX_TOTAL} tests plotted${FLEX_TOTAL > FLEX_N ? ` (${FLEX_TOTAL - FLEX_N} with an invalid pressure of 0 left out)` : ""}`, "Each circle is a group of tests at the same O₂ and pressure (bigger = more tests). Measured O₂ 12–34% and pressures from 0.70 to 3.05 atm, with heptane and methanol droplets and CO₂/He suppressants. The 0.70 atm column sits right at the lunar habitat pressure."],
       bass2: ["BASS-II (PSI-25): initial O₂ 13.6–22.2%", "Measured initial oxygen across its 129 tests. None reached the 26.5% habitat threshold, so solid materials are not yet tested at lunar-habitat oxygen. Pressure is not recorded in the table, so only the O₂ span is marked."],
       bre: ["ACME BRE (PSI-20): habitat atmospheres tested", "Three atmospheres NASA considers for missions: 14.7 psia/21% O₂, 10.2 psia/26.5% O₂ and 8.2 psia/34% O₂. With elevated O₂ the flame kept burning with no air flow; at 21% it self-extinguished."],
       cfi: ["CFI (PSI-39): pressure 0.25–5 atm", "Cool flames in n-dodecane droplets. The O₂ concentration is not verified in the sources, so it is drawn as a margin bar rather than an area."],
@@ -98,7 +100,7 @@ const T = {
     ended: "terminaron en extinción",
     items: {
       habitat: ["Región de hábitat lunar", "O₂ ≥ 26.5% y presión ≤ 0.69 atm (10.2 psi). Es donde los materiales son más inflamables que en la Tierra y donde más importan los datos."],
-      flex: [`FLEX (PSI-69): ${FLEX_N} ensayos medidos`, "Cada círculo es un grupo de ensayos con el mismo O₂ y la misma presión (más grande = más ensayos). O₂ medido de 12 a 34% y presiones de 0.70 a 3.05 atm, con gotas de heptano y metanol y supresores CO₂/He. La columna de 0.70 atm queda justo en la presión de un hábitat lunar."],
+      flex: [`FLEX (PSI-69): ${FLEX_N} de ${FLEX_TOTAL} ensayos representados${FLEX_TOTAL > FLEX_N ? ` (${FLEX_TOTAL - FLEX_N} con presión 0 inválida, omitido)` : ""}`, "Cada círculo es un grupo de ensayos con el mismo O₂ y la misma presión (más grande = más ensayos). O₂ medido de 12 a 34% y presiones de 0.70 a 3.05 atm, con gotas de heptano y metanol y supresores CO₂/He. La columna de 0.70 atm queda justo en la presión de un hábitat lunar."],
       bass2: ["BASS-II (PSI-25): O₂ inicial 13.6–22.2%", "Oxígeno inicial medido en sus 129 ensayos. Ninguno llegó al umbral de hábitat de 26.5%, así que los materiales sólidos aún no se han ensayado con oxígeno de hábitat lunar. La presión no figura en la tabla, por eso solo se marca el intervalo de O₂."],
       bre: ["ACME BRE (PSI-20): atmósferas de hábitat ensayadas", "Tres atmósferas que NASA considera para misiones: 14.7 psia/21% O₂, 10.2 psia/26.5% O₂ y 8.2 psia/34% O₂. Con O₂ elevado la llama siguió ardiendo sin flujo de aire; a 21% se autoextinguió."],
       cfi: ["CFI (PSI-39): presión 0.25–5 atm", "Llamas frías en gotas de n-dodecano. La concentración de O₂ no está verificada en las fuentes, por eso se dibuja como barra en el margen y no como área."],

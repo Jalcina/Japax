@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import SkipLink from "@/components/SkipLink";
 import Mentor from "@/components/Mentor";
 import GuideTour from "@/components/GuideTour";
 import AskWindow from "@/components/AskWindow";
@@ -43,11 +44,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <LangProvider>
+          <SkipLink />
           <GuideProvider>
             <Suspense fallback={<div className="h-14" />}>
               <Nav />
             </Suspense>
-            <main className="flex-1">{children}</main>
+            <main id="main" tabIndex={-1} className="flex-1 outline-none">{children}</main>
             <Footer />
             <Mentor />
             <GuideTour />

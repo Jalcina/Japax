@@ -101,6 +101,14 @@ export default function Mentor() {
   const [asleep, setAsleep] = useState(false);
   const [tick, setTick] = useState(0);
   const [seen, setSeen] = useState(false);
+  // The greeting bubble hides itself after a few seconds so it never sits on top of page content;
+  // approaching Pax (hover, tap or focus) shows it again.
+  const [quiet, setQuiet] = useState(false);
+  useEffect(() => {
+    setQuiet(false);
+    const id = setTimeout(() => setQuiet(true), 8000);
+    return () => clearTimeout(id);
+  }, [tick]);
 
   // Returning visitors skip the full greeting; Pax only offers the page-specific nudge.
   useEffect(() => {
@@ -158,6 +166,9 @@ export default function Mentor() {
     </svg>
   );
 
+  // These pages already feature Pax large; a second floating Pax would only cover content.
+  if (path === "/ask" || path === "/character") return null;
+
   return (
     <div onPointerEnter={wake} onPointerDown={wake} onFocus={wake} className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
       <div>
@@ -190,7 +201,7 @@ export default function Mentor() {
           </button>
         )}
 
-        {!open && !asleep && (
+        {!open && !asleep && !quiet && (
           <section aria-label={t.bubbleAria} className={`${bubble} w-[13.5rem] p-3`}>
             {tail}
             <p className="text-sm font-semibold leading-snug">{seen && hint ? hint[0] : t.bubbleHi}</p>

@@ -51,7 +51,7 @@ function Visual({ i, local }: { i: number; local: number }) {
   if (i === 3)
     return (
       <div className="flex items-center gap-8 text-center">
-        {[["Earth", "1 g", true], ["Moon", "0.16 g", false], ["Mars", "0.38 g", false], ["ISS", "0 g", true]].map(([n, g, has]) => (
+        {[["Earth", "1 g", true], ["Moon", "0.166 g", false], ["Mars", "0.38 g", false], ["ISS", "0 g", true]].map(([n, g, has]) => (
           <div key={String(n)} className="flex flex-col items-center gap-2">
             <div className={`flex h-20 w-20 items-center justify-center rounded-full border-2 text-3xl ${has ? "border-flame bg-flame/20" : "border-dashed border-crit text-crit"}`}>{has ? "✓" : "?"}</div>
             <p className="text-sm font-semibold">{String(n)}</p>

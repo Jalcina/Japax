@@ -50,7 +50,7 @@
       "fuels": [
         "varillas, secciones esféricas, planchas, películas y telas (geometrías más gruesas y realistas)"
       ],
-      "note": "O2 es el rango MEDIDO de O2 inicial (13.6–22.2 % en volumen) en los 129 ensayos de la tabla PSI-25. Variables primarias según PSI: velocidad y dirección del flujo, oxígeno ambiente (por dilución con nitrógeno) y geometría de la muestra. Las unidades del flujo de aire no figuran en la tabla.",
+      "note": "O2 es el rango MEDIDO de O2 inicial (13.6–22.2 % en volumen) en los 129 ensayos de la tabla PSI-25. Variables primarias según PSI: velocidad y dirección del flujo, oxígeno ambiente (por dilución con nitrógeno) y geometría de la muestra. Las unidades del flujo de aire no figuran en la tabla. PRESIÓN SUPUESTA: 1 atm (cabina de la ISS). La tabla PSI-25 no tiene columna de presión; un ensayo típico se informa a 1 atm y 18.7 % de O2 (NTRS 20160000593, pág. 21).",
       "sensors": [
         "vídeo (296 vídeos en PSI)"
       ],
@@ -401,7 +401,7 @@
   "upcoming": {
     "FM2": {
       "gravity": "1/6 g (Luna)",
-      "note": "Una cámara de combustión robótica para la superficie lunar en la misión CLPS CP-21, prevista para finales de 2026. Ensayará 21% de O2 a 14.7 psia y 34% de O2 a 8.2 psia con tejido SIBAL y varillas de acrílico quemadas hacia arriba y hacia abajo. El SIBAL arde solo hacia abajo en gravedad lunar en aire, pero se apaga de inmediato a 1 g (NASA NTRS 20240015307)."
+      "note": "Una cámara de combustión robótica para la superficie lunar en la misión CLPS CP-21, prevista para finales de 2026. Ensayará 21% de O2 a 14.7 psia y 34% de O2 a 8.2 psia con tejido SIBAL y varillas de acrílico quemadas hacia arriba y hacia abajo. El SIBAL arde solo hacia abajo en gravedad lunar en aire, pero se apaga de inmediato a 1 g (NASA NTRS 20240015307; fecha de lanzamiento, NTRS 20260000646)."
     },
     "LUCI": {
       "gravity": "gravedad lunar (1/6 g) por aceleración centrífuga",
@@ -440,7 +440,7 @@
     "Apollo 1": {
       "year": 1967,
       "text": "Un incendio relámpago recorrió el módulo de mando durante una prueba previa al lanzamiento, en una cabina con 100% de oxígeno. Murieron Grissom, White y Chaffee. La escotilla de tres piezas tardaba unos 90 segundos en abrirse.",
-      "lesson": "Una escotilla unificada que se abre en 3 segundos, materiales combustibles muy restringidos y trajes ignífugos."
+      "lesson": "Una escotilla unificada que puede abrirse desde dentro o desde fuera en 3 segundos, materiales combustibles muy restringidos y trajes ignífugos."
     },
     "Apollo 13": {
       "year": 1970,

@@ -65,6 +65,26 @@ function Reveal({ children, className = "" }: { children: ReactNode; className?:
   );
 }
 
+// Source labels are English in lib/timeline.ts; this shows the Spanish wording when the UI is in Spanish.
+const SRC_ES: Record<string, string> = {
+  "NASA Space Apps: challenge statement": "NASA Space Apps: enunciado del reto",
+  "NASA: Expedition 1": "NASA: Expedición 1",
+  "NASA fact sheet: SAME": "Ficha de la NASA: SAME",
+  "NASA fact sheet: BASS (references)": "Ficha de la NASA: BASS (referencias)",
+  "NASA Spinoff: air tank": "NASA Spinoff: tanque de aire",
+  "NASA Spinoff: Fire Detector (NTRS)": "NASA Spinoff: detector de incendios (NTRS)",
+  "NASA Safety Center: Apollo 13": "Centro de Seguridad de la NASA: Apollo 13",
+  "NASA Safety Center: Apollo 1": "Centro de Seguridad de la NASA: Apollo 1",
+  "NASA History: Fire Aboard Mir": "NASA History: incendio a bordo de la Mir",
+  "NASA Glenn: Combustion Science": "NASA Glenn: ciencia de la combustión",
+  "NASA Researcher's Guide to Combustion Science (2015)": "Guía del investigador de la NASA sobre ciencia de la combustión (2015)",
+};
+function srcLabel(label: string, lang: "en" | "es") {
+  if (lang !== "es") return label;
+  const psi = label.match(/^NASA PSI (\S+) metadata$/);
+  return psi ? `NASA PSI ${psi[1]}, metadatos` : (SRC_ES[label] ?? label);
+}
+
 function Card({ ev, lang, left }: { ev: TimelineEvent; lang: "en" | "es"; left: boolean }) {
   const t = useT(T);
   const c = CAT_COLOR[ev.cat];
@@ -84,8 +104,8 @@ function Card({ ev, lang, left }: { ev: TimelineEvent; lang: "en" | "es"; left: 
       <h3 className="mt-2 text-lg font-semibold leading-snug">{tx.title}</h3>
       <p className="mt-2 text-sm text-ink-2">{tx.text}</p>
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-        <a href={ev.src.url} target="_blank" rel="noreferrer" title={ev.src.label} className="text-muted hover:text-ink">
-          ↗ {t.source}: {ev.src.label}
+        <a href={ev.src.url} target="_blank" rel="noreferrer" title={srcLabel(ev.src.label, lang)} className="text-muted hover:text-ink">
+          ↗ {t.source}: {srcLabel(ev.src.label, lang)}
         </a>
         {ev.link && (
           <Link href={ev.link.href} className="link font-medium">

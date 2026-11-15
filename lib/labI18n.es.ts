@@ -229,7 +229,7 @@ const ES: Record<string, string> = {
   "Keeps burning": "Sigue ardiendo",
   "Not proven to go out": "No demostrado que se apague",
   "Anchor": "Ancla",
-  "Measured concurrent spread on thin fabric (SAFFIRE I-III, 1.8-2.6 mm/s).": "Propagación a favor del flujo medida en tela fina (SAFFIRE I-III, 1.8-2.6 mm/s).",
+  "Representative value inside the measured concurrent spread on thin fabric (SAFFIRE I-III, 1.8-2.6 mm/s).": "Valor representativo dentro de la propagación a favor del flujo medida en tela fina (SAFFIRE I-III, 1.8-2.6 mm/s).",
   "NTRS 20180005168 Table 1; PSI-98, PSI-99, PSI-100": "NTRS 20180005168 Tabla 1; PSI-98, PSI-99, PSI-100",
   "NTRS 20160000593 (BASS-II, PMMA rods, O2 16-21 %)": "NTRS 20160000593 (BASS-II, varillas de PMMA, O2 16-21 %)",
   "No airflow near 21 % O2 in 0 g: the flame starves.": "Sin flujo de aire cerca del 21 % de O2 en 0 g: la llama se queda sin aire.",
