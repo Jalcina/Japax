@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import AiBadge from "@/components/AiBadge";
 import { useGuide } from "@/lib/guide";
 import { setPaxMood, usePaxMood } from "@/lib/paxMood";
 import { useLang, useT } from "@/lib/i18n";
@@ -218,6 +219,7 @@ export default function Mentor() {
         <button data-pax onPointerEnter={() => !asleep && mood === "idle" && setPaxMood("happy", 1500)} onClick={() => { markSeen(); setOpen((v) => !v); }} aria-label={t.open} aria-expanded={open} className="block rounded-full p-1 transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-accent">
           <PaxCharacter talking={talking} mood={asleep && !open ? "sleeping" : mood} size={size} />
         </button>
+        <AiBadge variant="compact" className="pointer-events-none absolute -bottom-1 left-1/2 -translate-x-1/2" />
       </div>
     </div>
   );

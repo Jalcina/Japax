@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useT } from "@/lib/i18n";
 import AskChat from "@/components/AskChat";
 import PaxCharacter from "@/components/PaxCharacter";
+import AiBadge from "@/components/AiBadge";
 import { usePaxMood } from "@/lib/paxMood";
 
 const EVENT = "pax:ask";
@@ -83,6 +84,7 @@ export default function AskWindow() {
             <h2 className="text-base font-semibold leading-tight">{t.title}</h2>
             <p className="truncate text-xs text-muted">{t.sub}</p>
           </div>
+          <AiBadge variant="compact" className="hidden shrink-0 sm:inline-flex" />
           <button ref={closeRef} onClick={() => setOpen(false)} aria-label={t.close} className="rounded-md px-2 py-1 text-ink-2 hover:text-ink">✕</button>
         </header>
         <div className="min-h-0 flex-1">

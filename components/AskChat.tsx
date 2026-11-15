@@ -7,6 +7,7 @@ import type { OracleAnswer } from "@/lib/oracle";
 import OracleViz from "@/components/OracleViz";
 import { setPaxMood } from "@/lib/paxMood";
 import PaxCharacter from "@/components/PaxCharacter";
+import AiBadge from "@/components/AiBadge";
 
 const T = {
   en: {
@@ -324,6 +325,7 @@ export default function AskChat({ embedded = false, initialQuestion }: { embedde
           <span className="absolute -bottom-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-b border-r border-accent/40 bg-surface-2" aria-hidden="true" />
         </div>
         <PaxCharacter size={embedded ? 150 : 220} mood="happy" talking={talking} gesture="hello" className="mt-3" />
+        <AiBadge className="mt-1" />
       </header>
 
       {turns.length === 0 && (

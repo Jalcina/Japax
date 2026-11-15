@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useLang, useT } from "@/lib/i18n";
 import { Section } from "@/components/ui";
+import AiBadge from "@/components/AiBadge";
 
 // Fill these in when available. Anything left empty is shown as "pending", never invented.
 // Photos: put a file in /public/team/ and set `photo` (e.g. "/team/jaime.jpg").
@@ -121,7 +122,8 @@ export default function AboutPage() {
         <p className="mt-4 max-w-3xl text-ink-2">{t.intro}</p>
       </div>
 
-      <div className="mx-auto mt-8 max-w-6xl px-4">
+      <div className="relative mx-auto mt-8 max-w-6xl px-4">
+        <AiBadge variant="overlay" className="!left-7 !top-3.5" />
         <video
           key={vl}
           controls
