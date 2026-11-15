@@ -17,7 +17,7 @@ npm run dev          # → http://localhost:3000
 npm run build
 npm run type-check
 node scripts/build-data.mjs   # regenera investigations.v2.json
-npm run test:lab     # motor de componentes, catálogos, CSV y RunRecord (node --test, 76 tests)
+npm run test:lab     # motor de componentes, catálogos, CSV y RunRecord (node --test, 90 tests)
 ```
 
 ## Motor de componentes (en `/simulator#fire`)
@@ -54,7 +54,7 @@ GET https://ntrs.nasa.gov/api/citations/search?q=microgravity+fire&rows=20
 |---------|-----|---------|----------|
 | Tierra | 21% | 14.7 psi | 1g |
 | ISS | 21% | 14.7 psi | 0g — llamas esféricas azules |
-| Base Lunar | ~30% | ~10.2 psi | 0.16g (la cifra "40% más inflamable" es del enunciado del reto, sin tabla ni fuente: no mostrarla como dato medido) |
+| Base Lunar | ~30% | ~10.2 psi | 0.166g (la cifra "40% más inflamable" es del enunciado del reto, sin tabla ni fuente: no mostrarla como dato medido) |
 | Marte | ~0.13% | baja | 0.38g |
 | Traje EVA | 100% | 4.3 psi | extremadamente inflamable |
 
