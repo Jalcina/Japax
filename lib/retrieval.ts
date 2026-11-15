@@ -152,16 +152,19 @@ export function retrieve(question: string, k = 5, lang: Lang = 'en'): Chunk[] {
   const partial = strong ? 4 : mentionsPartialGravity(question) ? 1.15 : 1
   const scored = chunks.map((c, i) => {
     let s = 0
+    let hits = 0
     for (const t of q) {
       const w = idf.get(t) ?? 0.5
-      if (docs[i].doc.has(t)) s += w
+      if (docs[i].doc.has(t)) { s += w; hits++ }
       if (norm(c.title).includes(t)) s += 0.5 * w
     }
     const gapBoost = c.id.startsWith('up:') ? partial : 1
-    return { c, s: (s / Math.sqrt(docs[i].len + 30)) * TYPE_WEIGHT(c.id) * gapBoost }
+    return { c, hits, s: (s / Math.sqrt(docs[i].len + 30)) * TYPE_WEIGHT(c.id) * gapBoost }
   })
+  // in a longer question, a passage that matches a single term is coincidence (e.g. "tiempo" = weather vs "tiempos de residencia"), not evidence
+  const minHits = q.length >= 3 ? 2 : 1
   return scored
-    .filter((r) => r.s > 0.15)
+    .filter((r) => r.s > 0.15 && r.hits >= minHits)
     .sort((a, b) => b.s - a.s)
     .slice(0, k)
     .map((r) => r.c)

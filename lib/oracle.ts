@@ -153,7 +153,7 @@ function narrative(topic: Topic, lang: Lang): { headline: string; body: string }
       }
     case 'smoke':
       return {
-        headline: L(lang, 'Smoke in microgravity is made of tiny particles that detectors must learn to see', 'El humo en microgravedad son partículas diminutas que los detectores deben aprender a ver'),
+        headline: L(lang, 'Smoke in microgravity is a fine-particle aerosol that detectors must be able to resolve', 'El humo en microgravedad es un aerosol de partículas finas que los detectores deben poder resolver'),
         body: L(
           lang,
           'SAME burned 30 samples of five spacecraft materials and found mean particle diameters of 100 to 200 nm; for silicone, almost half the mass was in particles larger than 1000 nm. Ionization detectors see the sub-micron particles best, but a light-scattering detector would perform very well in most cases. The detection target is the early, pre-fire phase, and detectors that measure a wider range of sizes may be more reliable.',
@@ -166,7 +166,7 @@ function narrative(topic: Topic, lang: Lang): { headline: string; body: string }
         body: L(
           lang,
           'NASA’s PSI archive holds combustion data from microgravity and from 1 g, but none from the Moon’s 1/6 g or Mars’s gravity. LUCI, a spinning New Shepard sounding rocket, reported the first extended (>25 s) burns in simulated lunar gravity in 2025 (NASA NTRS 20250010653); FM2 will burn materials on the Moon (planned late 2026), SoFIE will test whether the 1-g flame test is conservative, and FLARE will relate ground limits to microgravity. Until then, microgravity and 1-g results bound what can happen in between, and an electric field in the ACME E-FIELD experiment is used to mimic partial gravity.',
-          'El archivo PSI de NASA contiene datos de combustión en microgravedad y a 1 g, pero ninguno con el 1/6 g de la Luna ni con la gravedad de Marte. LUCI, un cohete suborbital New Shepard giratorio, comunicó en 2025 las primeras combustiones prolongadas (>25 s) en gravedad lunar simulada (NASA NTRS 20250010653); FM2 quemará materiales en la Luna (previsto a finales de 2026), SoFIE comprobará si el test de llama de 1 g es conservador y FLARE relacionará los límites de tierra con la microgravedad. Hasta entonces, los resultados de microgravedad y de 1 g acotan lo que puede pasar entre medias, y en el experimento ACME E-FIELD se usa un campo eléctrico para imitar la gravedad parcial.',
+          'El archivo PSI de NASA contiene datos de combustión en microgravedad y a 1 g, pero ninguno con el 1/6 g de la Luna ni con la gravedad de Marte. LUCI, un cohete suborbital New Shepard giratorio, comunicó en 2025 las primeras combustiones prolongadas (>25 s) en gravedad lunar simulada (NASA NTRS 20250010653); FM2 quemará materiales en la Luna (previsto a finales de 2026), SoFIE comprobará si el test de llama de 1 g es conservador y FLARE relacionará los límites de tierra con la microgravedad. Hasta entonces, los resultados de microgravedad y de 1 g acotan lo que puede ocurrir en el rango intermedio, y en el experimento ACME E-FIELD se usa un campo eléctrico para imitar la gravedad parcial.',
         ),
       }
     case 'incidents':
@@ -244,7 +244,14 @@ export function buildAnswer(question: string, lang: Lang): { answer: OracleAnswe
   const base = narrative(topic, lang)
   const conf = confidence(topic, context, lang)
   const top = context[0]
-  const fallbackHeadline = top ? top.text.replace(/^[^:]+:\s*/, '').split(/(?<=[.!?])\s/)[0].slice(0, 150) : L(lang, 'No verified data for that question', 'No hay datos verificados para esa pregunta')
+  // first sentence of a passage, capitalised and never cut mid-word (fallback text is assembled from retrieved passages)
+  const firstSentence = (t: string, max = 150) => {
+    const s = t.replace(/^[^:]+:\s*/, '').split(/(?<=[.!?])\s/)[0].trim()
+    const cutAt = s.lastIndexOf(' ', max - 1) > 0 ? s.lastIndexOf(' ', max - 1) : max - 1
+    const cut = s.length > max ? `${s.slice(0, cutAt).trimEnd()}…` : s
+    return cut.charAt(0).toUpperCase() + cut.slice(1)
+  }
+  const fallbackHeadline = top ? firstSentence(top.text) : L(lang, 'No verified data for that question', 'No hay datos verificados para esa pregunta')
   const answer: OracleAnswer = {
     mode: 'evidence',
     topic,
@@ -252,7 +259,7 @@ export function buildAnswer(question: string, lang: Lang): { answer: OracleAnswe
     body:
       base?.body ??
       (context.length
-        ? context.slice(0, 3).map((c) => c.text.replace(/^[^:]+:\s*/, '').split(/(?<=[.!?])\s/)[0]).join(' ')
+        ? context.slice(0, 3).map((c) => firstSentence(c.text, 400)).map((s) => (/[.!?…]$/.test(s) ? s : `${s}.`)).join(' ')
         : L(lang, 'Try asking about an investigation (BASS, FLEX, SAME, BRE), an environment (Moon, ISS) or a topic (smoke detection, suppression, ventilation).', 'Prueba a preguntar por una investigación (BASS, FLEX, SAME, BRE), un entorno (Luna, ISS) o un tema (detección de humo, supresión, ventilación).')),
     keyFacts: facts(topic, lang),
     evidence: toEvidence(context),
