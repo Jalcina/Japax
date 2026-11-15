@@ -19,7 +19,7 @@ export const GUIDE_T = {
     steps: {
       "/": [
         { sel: "main h1", title: "Scope", body: "JaPax consolidates NASA's microgravity combustion investigations (PSI/NTRS) into a traceable evidence base for spacecraft and lunar-habitat fire safety. Every figure carries its PSI ID, DOI and an evidence tag: measured, reported, estimated or simulated." },
-        { sel: MENU, title: "Navigation", body: "Sections follow the safety-engineering workflow: incident record, simulation, investigations, multi-criteria ranking, fire-safety evidence and sources." },
+        { sel: MENU, title: "Navigation", body: "Sections follow the safety-engineering workflow: chronology, simulation, investigations, multi-criteria ranking, fire-safety evidence and sources." },
         { sel: "[data-pax]", title: "Pax", body: "Pax answers technical questions against the PSI corpus and flags every statement that falls outside it. Use it to query the data or to restart this tour." },
       ],
       "/history": [
@@ -61,7 +61,7 @@ export const GUIDE_T = {
     steps: {
       "/": [
         { sel: "main h1", title: "Alcance", body: "JaPax consolida las investigaciones de combustión en microgravedad de NASA (PSI/NTRS) en una base de evidencia trazable para la seguridad contra incendios en naves y hábitats lunares. Cada cifra lleva su PSI ID, su DOI y una etiqueta de evidencia: medido, reportado, estimado o simulado." },
-        { sel: MENU, title: "Navegación", body: "Las secciones siguen el flujo de trabajo de ingeniería de seguridad: registro de incidentes, simulación, investigaciones, ranking multicriterio, evidencia de seguridad contra incendios y fuentes." },
+        { sel: MENU, title: "Navegación", body: "Las secciones siguen el flujo de trabajo de ingeniería de seguridad: cronología, simulación, investigaciones, ranking multicriterio, evidencia de seguridad contra incendios y fuentes." },
         { sel: "[data-pax]", title: "Pax", body: "Pax responde consultas técnicas sobre el corpus PSI y señala cada afirmación que queda fuera de él. Úsalo para consultar los datos o reiniciar este recorrido." },
       ],
       "/history": [
@@ -84,7 +84,7 @@ export const GUIDE_T = {
         { sel: "input[type=range]", title: "Ponderación de criterios", body: "Cada control fija el peso de un criterio; el ranking se recalcula al instante.", tryIt: "Mueve un control y observa cómo cambia el ranking." },
       ],
       "/references": [
-        { sel: "main h1", title: "Procedencia", body: "Conjuntos de datos, librerías, licencias y limitaciones del método. Aquí termina el recorrido." },
+        { sel: "main h1", title: "Procedencia", body: "Conjuntos de datos, bibliotecas, licencias y limitaciones del método. Aquí termina el recorrido." },
       ],
     } as Record<string, Step[]>,
   },
