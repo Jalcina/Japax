@@ -91,7 +91,7 @@ const fmt = (x: number, d = 1) => (Number.isFinite(x) ? x.toFixed(d) : "—");
 
 function Tile({ label, value, tag, eli5 }: { label: string; value: string; tag?: string; eli5: string }) {
   return (
-    <div className="rounded-lg border border-line bg-surface-2 px-2.5 py-2" title={eli5}>
+    <div className="flex flex-col justify-center rounded-lg border border-line bg-surface-2 px-2.5 py-2" title={eli5}>
       <p className="truncate text-[10px] uppercase tracking-wide text-muted">{label}</p>
       <div className="flex flex-wrap items-baseline justify-between gap-x-2">
         <p className="text-base font-semibold tabular-nums leading-tight sm:text-lg">{value}</p>
@@ -146,6 +146,9 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
   /** "View last results": counts button presses (the panel opens its window on every change) and how many runs this session has */
   const [resultsSignal, setResultsSignal] = useState(0);
   const [runsN, setRunsN] = useState(0);
+  /** a component run exists (started from the engine): the live-data card keeps its natural size and sticks instead of stretching */
+  const [compActive, setCompActive] = useState(false);
+  const idle = !lit && !compActive;
   const labRef = useRef<LabFire | null>(null);
   const apiRef = useRef<SceneApi | null>(null);
   const [sceneApi, setSceneApi] = useState<SceneApi | null>(null);
@@ -301,14 +304,14 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
         </div>
 
         {/* ---- live data and component engine, side by side under the scene ---- */}
-        <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
-          <div className="card flex flex-col p-4 lg:sticky lg:top-24">
+        <div className={`grid gap-5 lg:grid-cols-2 ${idle ? "lg:items-stretch" : "lg:items-start"}`}>
+          <div className={`card flex flex-col p-4 ${idle ? "" : "lg:sticky lg:top-24"}`}>
             <div className="flex items-baseline justify-between">
               <h3 className="font-semibold">{t("Live data")}</h3>
               <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${SIM}`}>{t("all values simulated")}</span>
             </div>
             <p className="mt-1 text-sm" aria-live="polite"><strong>{t(live ? PHASE_LABEL[live.phase] : PHASE_LABEL.idle)}</strong></p>
-            <div className="mt-2 grid grid-cols-2 gap-2">
+            <div className={`mt-2 grid grid-cols-2 gap-2 ${idle ? "flex-1 auto-rows-fr" : ""}`}>
               <Tile label={t("Time")} value={live ? `${fmt(live.simT, 0)} s` : "—"} tag={t("simulated")} eli5={live ? t("Wall clock. The same spread would take about {m} min for real.", { m: fmt(live.realT / 60, 1) }) : t("Starts when you tap a surface.")} />
               <Tile label={t("Spread speed")} value={live ? `${fmt(live.speedMmS, 2)} mm/s` : "—"} tag={t("simulated")} eli5={live ? `${t(live.speedNote)}.` : t("How fast the flame front eats the surface.")} />
               <Tile label={t("Flame front")} value={live ? `${fmt(live.frontM * 100, 0)} cm` : "—"} tag={t("simulated")} eli5={t("Distance from the ignition point to the edge of the burning ring.")} />
@@ -340,7 +343,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
             </details>
           </div>
           {/* each scene has its own catalog: the "fire site" and the whole-place views are different models (see lib/componentEnvs) */}
-          {<ComponentPanel env={componentEnvKey(env, view)} api={sceneApi} atm={atm} pick={panelPick} condTag={estimatedEnv ? "estimated" : "reported"} labPhase={stats?.phase} resultsSignal={resultsSignal} onRuns={setRunsN} />}
+          {<ComponentPanel env={componentEnvKey(env, view)} api={sceneApi} atm={atm} pick={panelPick} condTag={estimatedEnv ? "estimated" : "reported"} labPhase={stats?.phase} resultsSignal={resultsSignal} onRuns={setRunsN} onActive={setCompActive} />}
         </div>
       </div>
 

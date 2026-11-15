@@ -152,6 +152,7 @@ interface PanelProps {
   /** phase of the surface-fire layer (LabFire): "out" means the lab's own suppression system put the fire out */ labPhase?: string;
   /** every change opens the results window of the last run (a button elsewhere on the page); 0 = never */ resultsSignal?: number;
   /** tells the page how many runs this session has, so its own "View last results" button knows when to enable */ onRuns?: (n: number) => void;
+  /** true while a component run exists (burning or ended): the page stops stretching its live-data card to this panel's height */ onActive?: (active: boolean) => void;
 }
 
 /** Generic panel: it renders for every environment that has a catalog in lib/componentEnvs and for no other. */
@@ -161,7 +162,7 @@ export default function ComponentPanel(props: PanelProps) {
   return <EnvPanel key={props.env} {...props} bundle={bundle} />;
 }
 
-function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", labPhase, resultsSignal = 0, onRuns }: PanelProps & { bundle: EnvBundle }) {
+function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", labPhase, resultsSignal = 0, onRuns, onActive }: PanelProps & { bundle: EnvBundle }) {
   const { lang, t: T, X } = useTr();
   const stateName = (st: string) => (lang === "es" ? STATE_ES : (LABEL as Record<string, string>))[st] ?? st;
   const CATALOG = bundle.catalog;
@@ -428,6 +429,8 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
   // only runs that already finished or were closed count: the run on screen has no results yet, so the page buttons stay disabled until one exists
   const doneRuns = sessionRuns.length;
   useEffect(() => { onRuns?.(doneRuns); }, [doneRuns, onRuns]);
+  const hasSource = !!source;
+  useEffect(() => { onActive?.(hasSource); return () => onActive?.(false); }, [hasSource, onActive]);
 
   return (
     <div className="card p-4" id="component-panel">
