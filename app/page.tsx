@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useData, useLang, useT } from "@/lib/i18n";
@@ -14,8 +13,6 @@ const T = {
     h1b: "before the fire decides.",
     lead: "In 1967 a fire inside a pure-oxygen cabin killed three astronauts; the hatch needed about ninety seconds to open even under ideal conditions. Today spacesuits and planned lunar habitats are still full of oxygen, and in space there is no one to call. JaPax turns NASA's fire experiments into one answer: where a fire starts, where it goes, how long it takes, and what must be protected so the crew comes home.",
     ctaSim: "Watch a fire cross a spacesuit",
-    ctaHint: "Free · no sign-up · 30 seconds: tap the suit and see what burns first",
-    ctaFloat: "Try the simulator",
     ctaExp: "Read the evidence",
     ctaAsk: "Ask Pax",
     s1: "NASA fire investigations",
@@ -85,8 +82,6 @@ const T = {
     h1b: "antes de que el fuego decida.",
     lead: "En 1967 un fuego dentro de una cabina de oxígeno puro mató a tres astronautas; la escotilla necesitó unos noventa segundos en abrirse incluso en condiciones ideales. Hoy los trajes espaciales y los hábitats lunares previstos siguen llenos de oxígeno, y en el espacio no hay a quién llamar. JaPax convierte los experimentos de fuego de la NASA en una sola respuesta: dónde empieza un fuego, a dónde llega, cuánto tarda y qué hay que proteger para que la tripulación vuelva a casa.",
     ctaSim: "Ver cómo se propaga un fuego por un traje espacial",
-    ctaHint: "Gratis · sin registro · 30 segundos: toca el traje y mira qué arde primero",
-    ctaFloat: "Probar el simulador",
     ctaExp: "Leer la evidencia",
     ctaAsk: "Preguntar a Pax",
     s1: "investigaciones de fuego de la NASA",
@@ -174,23 +169,6 @@ function Dots({ n, label }: { n: number; label: string }) {
   );
 }
 
-/** Appears once the visitor scrolls past the hero, so the simulator is always one tap away. */
-function FloatingSimCta({ label }: { label: string }) {
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > 600);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-  if (!show) return null;
-  return (
-    <Link href="/simulator" className="cta-sim fixed bottom-5 left-4 z-30 px-5 py-3 text-sm shadow-xl sm:left-6">
-      <span aria-hidden="true">🔥</span> {label}
-    </Link>
-  );
-}
-
 export default function Home() {
   const t = useT(T);
   const { lang } = useLang();
@@ -217,10 +195,8 @@ export default function Home() {
         </h1>
         <p className="mt-5 max-w-3xl text-lg text-ink-2">{t.lead}</p>
         <div className="mt-7 flex flex-wrap gap-3">
-          <Link href="/simulator" className="cta-sim px-7 py-3.5 text-lg">
-            <span aria-hidden="true">🔥</span>
+          <Link href="/simulator" className="rounded-lg bg-accent px-5 py-2.5 font-medium text-black hover:brightness-110">
             {t.ctaSim}
-            <span aria-hidden="true">→</span>
           </Link>
           <Link href="/explorer" className="rounded-lg border border-line-2 px-5 py-2.5 text-ink hover:bg-surface-2">
             {t.ctaExp}
@@ -229,8 +205,6 @@ export default function Home() {
             {t.ctaAsk}
           </Link>
         </div>
-
-        <p className="mt-3 text-sm text-ink-2">{t.ctaHint}</p>
 
         <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Stat value={String(data.investigations.length)} label={t.s1} note={t.s1n(withDoi)} />
@@ -280,8 +254,8 @@ export default function Home() {
         </div>
         <p className="mt-4 max-w-3xl text-ink-2">{t.oText}</p>
         <p className="mt-3 max-w-3xl text-xs text-muted">{t.oNote}</p>
-        <Link href="/simulator" className="cta-sim mt-6 px-6 py-3">
-          {t.oCta} <span aria-hidden="true">→</span>
+        <Link href="/simulator" className="link mt-4 inline-block font-medium">
+          {t.oCta} →
         </Link>
       </Section>
 
@@ -375,11 +349,10 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4 pt-16 text-center">
         <h2 className="mx-auto max-w-3xl text-3xl font-semibold tracking-tight sm:text-4xl">{t.cTitle}</h2>
         <p className="mx-auto mt-3 max-w-2xl text-ink-2">{t.cText}</p>
-        <Link href="/simulator" className="cta-sim mt-6 px-7 py-3.5 text-lg">
-          {t.ctaSim} <span aria-hidden="true">→</span>
+        <Link href="/simulator" className="mt-6 inline-block rounded-lg bg-accent px-5 py-2.5 font-medium text-black hover:brightness-110">
+          {t.ctaSim}
         </Link>
       </section>
-      <FloatingSimCta label={t.ctaFloat} />
     </>
   );
 }
