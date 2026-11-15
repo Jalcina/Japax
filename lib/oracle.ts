@@ -2,6 +2,8 @@ import lab from '@/data/lab.json'
 import { type Lang } from './data'
 import { gapNote, mentionsPartialGravity, retrieve, type Chunk } from './retrieval'
 import { VIZ_IDS, type VizId } from './oracleGuard'
+import { SPREAD_POINTS } from './spreadModel'
+import { fmtBand, summarizeSpread } from './spreadSummary'
 
 export type { VizId } from './oracleGuard'
 export { VIZ_IDS }
@@ -24,7 +26,7 @@ export interface OracleAnswer {
   ctas: Cta[]
 }
 
-export type Topic = 'gap' | 'incidents' | 'smoke' | 'flex' | 'materials' | 'lunar' | 'earth' | 'general'
+export type Topic = 'gap' | 'incidents' | 'smoke' | 'spread' | 'flex' | 'materials' | 'lunar' | 'earth' | 'general'
 
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 
@@ -32,6 +34,7 @@ const RULES: [Topic, RegExp][] = [
   ['gap', /\b(mars|marte|marciana|martian|partial|parcial|luci|fm2|gravity data|datos de gravedad)\b/],
   ['incidents', /\b(apollo|mir|artemis|history|historia|incident\w*|accident\w*|tragedia|tragedy)\b/],
   ['smoke', /\b(smoke|humo|detector\w*|deteccion|detect\w*|aerosol\w*|dust|polvo|alarm\w*)\b/],
+  ['spread', /\b(spread\w*|propag\w*|how fast|que tan rapido|burn(ing)? rate)\b/],
   ['flex', /\b(flex|suppress\w*|supresor\w*|extinguish\w*|extingu\w*|droplet\w*|gota\w*|co2|helium|helio|heptane|heptano|methanol|metanol)\b/],
   ['materials', /\b(material\w*|solid\w*|solido\w*|flammab\w*|inflamab\w*|conservat\w*|test 1|std-6001|bass|sibal|pmma)\b/],
   ['lunar', /\b(moon|lunar|luna|habitat\w*|ventilat\w*|ventilacion|oxygen|oxigeno|base)\b/],
@@ -79,6 +82,16 @@ function facts(topic: Topic, lang: Lang): KeyFact[] {
         { label: L(lang, 'FLEX tests at lunar-like conditions', 'Ensayos de FLEX en condiciones lunares'), value: String(c.lunarN), note: L(lang, `${c.lunarExt} ended in extinction`, `${c.lunarExt} terminaron en extinción`) },
         { label: L(lang, 'BASS-II tests at ≥26.5% O₂', 'Ensayos de BASS-II con ≥26.5% de O₂'), value: `${c.bassHigh} / ${c.bassN}`, note: L(lang, 'solid materials, microgravity', 'materiales sólidos, microgravedad') },
       ]
+    case 'spread': {
+      const sp = summarizeSpread(SPREAD_POINTS)
+      const out: KeyFact[] = []
+      const cond = sp.flowCmS && sp.o2Pct ? L(lang, `flow ${sp.flowCmS[0]}-${sp.flowCmS[1]} cm/s, ${sp.o2Pct[0]}-${sp.o2Pct[1]}% O₂`, `flujo ${sp.flowCmS[0]}-${sp.flowCmS[1]} cm/s, ${sp.o2Pct[0]}-${sp.o2Pct[1]}% de O₂`) : ''
+      if (sp.withFlow) out.push({ label: L(lang, 'Spread with the flow (thin fabric, microgravity)', 'Propagación a favor del flujo (tela fina, microgravedad)'), value: fmtBand(sp.withFlow), note: L(lang, `${sp.withFlow.n} measurements · SAFFIRE · ${cond}`, `${sp.withFlow.n} mediciones · SAFFIRE · ${cond}`) })
+      if (sp.against) out.push({ label: L(lang, 'Spread against the flow', 'Propagación a contraflujo'), value: fmtBand(sp.against), note: L(lang, `${sp.against.n} measurements · SAFFIRE`, `${sp.against.n} mediciones · SAFFIRE`) })
+      if (sp.noSpreadN > 0) out.push({ label: L(lang, 'Silicone in microgravity', 'Silicona en microgravedad'), value: L(lang, 'no spread', 'sin propagación'), note: L(lang, 'ignited, but the flame did not spread (SAFFIRE-II)', 'se encendió, pero la llama no se propagó (SAFFIRE-II)') })
+      out.push({ label: L(lang, 'Lunar gravity', 'Gravedad lunar'), value: L(lang, 'no data', 'sin datos'), note: L(lang, 'LUCI (2025) and FM2 are the first', 'LUCI (2025) y FM2 son los primeros') })
+      return out
+    }
     case 'flex':
       return [
         { label: L(lang, 'Droplet tests recorded', 'Ensayos con gotas registrados'), value: String(c.flexN), note: 'FLEX, PSI-69' },
@@ -133,6 +146,23 @@ function narrative(topic: Topic, lang: Lang): { headline: string; body: string }
           `Se espera que un hábitat lunar funcione con un 30% de oxígeno y 10.2 psi, es decir, 43% más oxígeno que el aire de la Tierra. En los ensayos BRE de NASA, las llamas en atmósferas enriquecidas en oxígeno siguieron ardiendo en microgravedad sin ningún flujo de aire, mientras que a 21% se autoextinguían; cortar la ventilación es hoy un paso estándar para apagar un incendio en una nave. Las brechas importan tanto como los resultados: de los ${c.lunarN} ensayos de FLEX en condiciones lunares, ${c.lunarExt} terminaron en extinción; ninguno de los ${c.bassN} ensayos de materiales sólidos de BASS-II empezó con 26.5% de oxígeno o más; y nada se ha ensayado con gravedad lunar.`,
         ),
       }
+    case 'spread': {
+      const sp = summarizeSpread(SPREAD_POINTS)
+      if (!sp.withFlow) return null
+      const against = sp.against ? L(lang, `, ${fmtBand(sp.against)} against it`, `, ${fmtBand(sp.against)} a contraflujo`) : ''
+      const cond = sp.flowCmS && sp.o2Pct ? L(lang, `${sp.flowCmS[0]}-${sp.flowCmS[1]} cm/s of flow and ${sp.o2Pct[0]}-${sp.o2Pct[1]}% O₂`, `${sp.flowCmS[0]}-${sp.flowCmS[1]} cm/s de flujo y ${sp.o2Pct[0]}-${sp.o2Pct[1]}% de O₂`) : ''
+      const progs = sp.programs.join(', ')
+      const nRates = SPREAD_POINTS.filter((x) => x.rateMmS !== null).length
+      const nFabric = (sp.withFlow?.n ?? 0) + (sp.against?.n ?? 0)
+      return {
+        headline: L(lang, `On thin fabric in microgravity, flames spread at ${fmtBand(sp.withFlow)} with the flow${against}`, `En tela fina en microgravedad, la llama avanza a ${fmtBand(sp.withFlow)} a favor del flujo${against}`),
+        body: L(
+          lang,
+          `These are the only spread rates in the data: ${nRates} measured values from ${progs}, ${nFabric} on thin cotton-fiberglass fabric (SIBAL) in microgravity at ${cond}${sp.groundN ? ` and ${sp.groundN} ground tests on silicone` : ''}. No table gives a spread curve, so JaPax does not extrapolate: it compares each environment with the ranges actually tested. Silicone ignited but did not spread in microgravity, and there is no combustion data at lunar gravity (LUCI and FM2 are the first).`,
+          `Estas son las únicas velocidades de propagación de los datos: ${nRates} valores medidos de ${progs}, ${nFabric} sobre tela fina de algodón y fibra de vidrio (SIBAL) en microgravedad con ${cond}${sp.groundN ? ` y ${sp.groundN} ensayos en tierra con silicona` : ''}. Ninguna tabla da una curva de propagación, así que JaPax no extrapola: compara cada entorno con los rangos realmente ensayados. La silicona se encendió pero no se propagó en microgravedad, y no hay datos de combustión a gravedad lunar (LUCI y FM2 serán los primeros).`,
+        ),
+      }
+    }
     case 'flex':
       return {
         headline: L(lang, `${c.ext} of ${c.flexN} droplet tests ended with the flame going out`, `${c.ext} de ${c.flexN} ensayos con gotas terminaron con la llama apagada`),
@@ -197,13 +227,14 @@ const FOLLOW: Record<Topic, [string, string][]> = {
   flex: [['What happens to fire when ventilation is turned off in a lunar habitat?', '¿Qué le pasa al fuego cuando se apaga la ventilación en un hábitat lunar?'], ['How is smoke different in microgravity?', '¿Cómo es el humo en microgravedad?'], ['What data exists for partial gravity?', '¿Qué datos hay sobre gravedad parcial?']],
   materials: [['What happens to fire when ventilation is turned off in a lunar habitat?', '¿Qué le pasa al fuego cuando se apaga la ventilación en un hábitat lunar?'], ['Which suppressants were tested?', '¿Qué supresores se ensayaron?'], ['Tell me about Apollo 1, Apollo 13 and Mir', 'Cuéntame lo de Apollo 1, Apollo 13 y Mir']],
   smoke: [['What did firefighters gain from space research?', '¿Qué ganaron los bomberos con la investigación espacial?'], ['Is NASA\'s standard material flammability test conservative?', '¿Es conservador el test estándar de inflamabilidad de materiales de NASA?'], ['What data exists for partial gravity?', '¿Qué datos hay sobre gravedad parcial?']],
+  spread: [['What happens to fire when ventilation is turned off in a lunar habitat?', '¿Qué le pasa al fuego cuando se apaga la ventilación en un hábitat lunar?'], ['Is there any combustion data at lunar gravity?', '¿Hay datos de combustión a gravedad lunar?']],
   gap: [['What happens to fire when ventilation is turned off in a lunar habitat?', '¿Qué le pasa al fuego cuando se apaga la ventilación en un hábitat lunar?'], ['Which suppressants were tested?', '¿Qué supresores se ensayaron?'], ['Tell me about Apollo 1, Apollo 13 and Mir', 'Cuéntame lo de Apollo 1, Apollo 13 y Mir']],
   incidents: [['What happens to fire when ventilation is turned off in a lunar habitat?', '¿Qué le pasa al fuego cuando se apaga la ventilación en un hábitat lunar?'], ['What did firefighters gain from space research?', '¿Qué ganaron los bomberos con la investigación espacial?'], ['How is smoke different in microgravity?', '¿Cómo es el humo en microgravedad?']],
   earth: [['How is smoke different in microgravity?', '¿Cómo es el humo en microgravedad?'], ['Tell me about Apollo 1, Apollo 13 and Mir', 'Cuéntame lo de Apollo 1, Apollo 13 y Mir'], ['Which suppressants were tested?', '¿Qué supresores se ensayaron?']],
   general: [['What happens to fire when ventilation is turned off in a lunar habitat?', '¿Qué le pasa al fuego cuando se apaga la ventilación en un hábitat lunar?'], ['Is NASA\'s standard material flammability test conservative?', '¿Es conservador el test estándar de inflamabilidad de materiales de NASA?'], ['What data exists for partial gravity?', '¿Qué datos hay sobre gravedad parcial?']],
 }
 
-const VIZ_FOR: Record<Topic, VizId> = { lunar: 'coverage', flex: 'flexOutcomes', materials: 'bassOxygen', gap: 'gravityGap', smoke: 'none', incidents: 'none', earth: 'none', general: 'none' }
+const VIZ_FOR: Record<Topic, VizId> = { lunar: 'coverage', flex: 'flexOutcomes', materials: 'bassOxygen', gap: 'gravityGap', smoke: 'none', spread: 'none', incidents: 'none', earth: 'none', general: 'none' }
 
 function ctasFor(topic: Topic, lang: Lang): Cta[] {
   const m: Record<Topic, [string, string, string][]> = {
@@ -211,6 +242,7 @@ function ctasFor(topic: Topic, lang: Lang): Cta[] {
     flex: [['/lab', 'Explore the 274 tests', 'Explora los 274 ensayos'], ['/explorer/flex', 'Open FLEX', 'Abrir FLEX']],
     materials: [['/explorer/bass', 'Open BASS', 'Abrir BASS'], ['/simulator', 'See why airflow matters', 'Mira por qué importa el flujo de aire']],
     smoke: [['/explorer/same', 'Open SAME', 'Abrir SAME'], ['/explorer/daft-daft-2', 'Open DAFT', 'Abrir DAFT']],
+    spread: [['/simulator#evidence', 'Open the measured rates', 'Abrir las tasas medidas'], ['/simulator', 'Watch it in the Simulator', 'Míralo en el Simulador']],
     gap: [['/simulator', 'See the lunar environment', 'Mira el entorno lunar'], ['/history', 'See what comes next', 'Mira lo que viene']],
     incidents: [['/history', 'Open the timeline', 'Abrir la línea del tiempo']],
     earth: [['/history', 'Open the timeline', 'Abrir la línea del tiempo']],

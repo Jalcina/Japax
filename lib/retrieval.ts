@@ -109,7 +109,7 @@ function buildChunks(lang: Lang): Chunk[] {
         out.push({ id: `ntrs:t:${r.id}`, title: r.title, text: `NASA NTRS${r.year ? ` (${r.year})` : ''}, "${r.title}": ${r.abstract}`, cite: `NASA NTRS ${r.id}`, url: r.url, kind: 'reported' })
   // the measured flame-spread points (SAFFIRE I-III): the only spread rates there are, so "how fast does it spread" must be able to cite them
   const es = lang === 'es'
-  const matEs = (m: string) => m.replace('Cotton-fiberglass', 'Algodón y fibra de vidrio').replace('Silicone', 'Silicona').replace(' wide', ' de ancho')
+  const matEs = (m: string) => m.replace('Cotton-fiberglass', 'Algodón y fibra de vidrio').replace('Silicone', 'Silicona').replace(' wide', ' de ancho').replace('opposed', 'a contraflujo')
   for (const p of SPREAD_POINTS) {
     const fabric = /Cotton/.test(p.material)
     const o2 = p.o2Pct[0] === p.o2Pct[1] ? `${p.o2Pct[0]}` : `${p.o2Pct[0]}-${p.o2Pct[1]}`
