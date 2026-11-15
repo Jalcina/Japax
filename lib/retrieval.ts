@@ -1,4 +1,5 @@
 import { getData, fmtRange, type Lang } from './data'
+import { SPREAD_POINTS } from './spreadModel'
 
 /**
  * Tiny dependency-free retrieval over the verified JaPax data set, per language.
@@ -106,6 +107,25 @@ function buildChunks(lang: Lang): Chunk[] {
     for (const r of docs)
       if (r.abstract)
         out.push({ id: `ntrs:t:${r.id}`, title: r.title, text: `NASA NTRS${r.year ? ` (${r.year})` : ''}, "${r.title}": ${r.abstract}`, cite: `NASA NTRS ${r.id}`, url: r.url, kind: 'reported' })
+  // the measured flame-spread points (SAFFIRE I-III): the only spread rates there are, so "how fast does it spread" must be able to cite them
+  const es = lang === 'es'
+  const matEs = (m: string) => m.replace('Cotton-fiberglass', 'Algodón y fibra de vidrio').replace('Silicone', 'Silicona').replace(' wide', ' de ancho')
+  for (const p of SPREAD_POINTS) {
+    const fabric = /Cotton/.test(p.material)
+    const o2 = p.o2Pct[0] === p.o2Pct[1] ? `${p.o2Pct[0]}` : `${p.o2Pct[0]}-${p.o2Pct[1]}`
+    const grav = p.gravity === 'micro' ? (es ? 'microgravedad' : 'microgravity') : es ? 'gravedad normal (1 g)' : 'normal gravity (1 g)'
+    const dir = p.direction === 'Concurrent' ? (es ? 'a favor del flujo' : 'concurrent (with the flow)') : es ? 'a contraflujo' : 'opposed (against the flow)'
+    const fuel = es ? (fabric ? 'tela fina' : 'material fino') : fabric ? 'thin fabric' : 'thin material'
+    const fuelDesc = es ? `${fuel} (${matEs(p.material)}, espesor ${p.thickness})` : `${fuel} (${p.material}, ${p.thickness} thick)`
+    const text = es
+      ? p.rateMmS === null
+        ? `${p.program}: la llama se encendió pero no se propagó sobre ${fuelDesc}, ${dir}, flujo ${p.flowCmS} cm/s, O2 ${o2}%, en ${grav}. Longitud quemada ${p.burnLengthCm} cm.`
+        : `${p.program} midió una velocidad de propagación de la llama de ${p.rateMmS} mm/s sobre ${fuelDesc}, ${dir}, flujo ${p.flowCmS} cm/s, O2 ${o2}%, en ${grav}. Longitud quemada ${p.burnLengthCm} cm.`
+      : p.rateMmS === null
+        ? `${p.program}: the flame ignited but did not spread over ${fuelDesc}, ${dir} flow ${p.flowCmS} cm/s, O2 ${o2}%, in ${grav}. Burn length ${p.burnLengthCm} cm.${p.note ? ` ${p.note}` : ''}`
+        : `${p.program} measured a flame spread rate of ${p.rateMmS} mm/s over ${fuelDesc}, ${dir} flow ${p.flowCmS} cm/s, O2 ${o2}%, in ${grav}. Burn length ${p.burnLengthCm} cm.${p.note ? ` ${p.note}` : ''}`
+    out.push({ id: `spread:${p.id}`, title: p.program, text, cite: `${p.program} (${p.psiId}, DOI: ${p.doi})`, url: `https://doi.org/${p.doi}`, kind: 'measured' })
+  }
   for (const u of data.upcoming)
     out.push({ id: `up:${u.acronym}`, title: u.acronym, text: `${u.acronym} (${u.name}), ${l.upcoming}, ${u.gravity}: ${u.note}`, cite: `${u.acronym} (${l.upcoming}${u.src === 'NTRS' ? ', NASA NTRS' : ''})`, url: data.sources[u.src.split(' ')[0]]?.url ?? null })
   for (const i of data.incidents)
@@ -140,7 +160,7 @@ function index(lang: Lang): Index {
 
 // findings carry the real results; environment cards are only context
 const TYPE_WEIGHT = (id: string) =>
-  /:f\d+$/.test(id) ? 1.35 : id.startsWith('env:') ? 0.55 : id.startsWith('up:') ? 0.75 : id.startsWith('inc:') || id.startsWith('sp:') ? 0.9 : 1
+  /:f\d+$/.test(id) || id.startsWith('spread:') ? 1.35 : id.startsWith('env:') ? 0.55 : id.startsWith('up:') ? 0.75 : id.startsWith('inc:') || id.startsWith('sp:') ? 0.9 : 1
 
 export function retrieve(question: string, k = 5, lang: Lang = 'en'): Chunk[] {
   const base = tokenize(question)
