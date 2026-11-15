@@ -156,12 +156,12 @@ export default function ResultsDialog({ run, runEn, sessionRuns, onClose, onLigh
             <h2 id="results-title" className="text-base font-semibold">{t("Simulation results")} · {run.runId}</h2>
             <p className="text-xs text-ink-2"><Term k="end reason">{t("Ended")}</Term> {t("at t = {s} s", { s: f1(run.endT) })} · {endReason} · {t("simulation, not a measurement")}</p>
           </div>
-          <button onClick={onClose} className="rounded-lg border border-line-2 px-3 py-1.5 text-sm" data-testid="results-close">{t("Close")}</button>
+          <button onClick={onClose} className="min-h-9 rounded-lg border border-line-2 px-3 py-1.5 text-sm" data-testid="results-close">{t("Close")}</button>
         </div>
         <div role="tablist" aria-label={t("Result sections")} className="flex flex-wrap gap-1 border-b border-line px-3 pt-2">
           {TABS.map((tb) => (
             <button key={tb} role="tab" id={`tab-${tb}`} aria-selected={tab === tb} aria-controls="results-panel" onClick={() => setTab(tb)}
-              className={`rounded-t-lg border border-b-0 px-3 py-1.5 text-xs ${tab === tb ? "border-accent bg-accent/15 text-ink" : "border-line text-ink-2"}`}>{t(tb)}</button>
+              className={`min-h-9 rounded-t-lg border border-b-0 px-3 py-1.5 text-xs ${tab === tb ? "border-accent bg-accent/15 text-ink" : "border-line text-ink-2"}`}>{t(tb)}</button>
           ))}
         </div>
         <div id="results-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} className="min-h-0 flex-1 overflow-auto p-3 text-xs">
@@ -235,10 +235,10 @@ export default function ResultsDialog({ run, runEn, sessionRuns, onClose, onLigh
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2 border-t border-line p-3 text-xs">
-          <button onClick={() => downloadText(csvFileName(run.env).replace(".csv", `-${run.runId}.csv`), buildCsv([runEn()]), "text/csv;charset=utf-8")} className="rounded-lg border border-line-2 px-3 py-1.5" data-testid="dl-run-csv">{t("Download this run (.csv)")}</button>
-          <button onClick={() => downloadText(csvFileName(run.env), buildCsv(sessionRuns()), "text/csv;charset=utf-8")} className="rounded-lg border border-line-2 px-3 py-1.5" data-testid="dl-all-csv">{t("Download all session runs (.csv)")}</button>
-          <button onClick={() => downloadText(`japax-report-${run.env}-${run.runId}.txt`, buildReportTxt(run, lang), "text/plain;charset=utf-8")} className="rounded-lg border border-line-2 px-3 py-1.5" data-testid="dl-report">{t("Download report (.txt)")}</button>
-          <button onClick={() => { onClose(); onLightAgain(); }} className="ml-auto rounded-lg bg-accent px-3 py-1.5 font-semibold text-black" data-testid="light-again">{t("Light it again")}</button>
+          <button onClick={() => downloadText(csvFileName(run.env).replace(".csv", `-${run.runId}.csv`), buildCsv([runEn()]), "text/csv;charset=utf-8")} className="min-h-9 rounded-lg border border-line-2 px-3 py-1.5" data-testid="dl-run-csv">{t("Download this run (.csv)")}</button>
+          <button onClick={() => downloadText(csvFileName(run.env), buildCsv(sessionRuns()), "text/csv;charset=utf-8")} className="min-h-9 rounded-lg border border-line-2 px-3 py-1.5" data-testid="dl-all-csv">{t("Download all session runs (.csv)")}</button>
+          <button onClick={() => downloadText(`japax-report-${run.env}-${run.runId}.txt`, buildReportTxt(run, lang), "text/plain;charset=utf-8")} className="min-h-9 rounded-lg border border-line-2 px-3 py-1.5" data-testid="dl-report">{t("Download report (.txt)")}</button>
+          <button onClick={() => { onClose(); onLightAgain(); }} className="ml-auto min-h-9 rounded-lg bg-accent px-3 py-1.5 font-semibold text-black" data-testid="light-again">{t("Light it again")}</button>
         </div>
       </div>
     </div>

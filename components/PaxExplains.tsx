@@ -105,7 +105,7 @@ export default function PaxExplains({ run }: { run: RunRecord }) {
             key={x.id}
             onClick={() => { setCustom(null); setTopic(x.id); }}
             aria-pressed={topic === x.id && custom === null}
-            className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${topic === x.id && custom === null ? "border-accent bg-accent text-black" : "border-accent/50 text-ink hover:bg-accent/15"}`}
+            className={`min-h-9 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${topic === x.id && custom === null ? "border-accent bg-accent text-black" : "border-accent/50 text-ink hover:bg-accent/15"}`}
           >
             {x[l]}
           </button>
@@ -121,7 +121,7 @@ export default function PaxExplains({ run }: { run: RunRecord }) {
           title={t.example}
           className="min-w-0 flex-1 rounded-lg border border-line-2 bg-surface px-3 py-1.5 text-sm placeholder:text-muted"
         />
-        <button type="submit" disabled={busy || !q.trim()} className="rounded-lg bg-accent px-4 py-1.5 text-sm font-semibold text-black disabled:opacity-40">
+        <button type="submit" disabled={busy || !q.trim()} className="min-h-9 rounded-lg bg-accent px-4 py-1.5 text-sm font-semibold text-black disabled:opacity-40">
           {t.ask}
         </button>
       </form>
