@@ -183,7 +183,7 @@ export default function Mentor() {
         )}
 
         {!open && asleep && (
-          <button onClick={wake} aria-label={t.sleeping} className={`${bubble} flex items-end gap-0.5 px-4 py-2 font-semibold text-accent`}>
+          <button onClick={wake} aria-label={t.sleeping} className={`${bubble} flex w-[7.5rem] items-baseline justify-center gap-0.5 py-2 font-semibold leading-none text-accent`}>
             {tail}
             <span className="pax-z text-base" style={{ animationDelay: "0s" }}>z</span>
             <span className="pax-z text-xl" style={{ animationDelay: "0.4s" }}>z</span>
