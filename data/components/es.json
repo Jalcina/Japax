@@ -225,7 +225,7 @@
  "Thermal insulation blankets are assumed to be polymer foil. No flammability test of this object exists.": "Se supone que las mantas de aislamiento térmico son de lámina de polímero. No existe ninguna prueba de inflamabilidad de este objeto.",
  "Landing gear (legs and footpads)": "Tren de aterrizaje (patas y platos de apoyo)",
  "Four legs with footpads and struts.": "Cuatro patas con platos de apoyo y puntales.",
- "Reaction control thruster quads (4 clusters)": "Cuádruples de propulsores de control de actitud (4 grupos)",
+ "Reaction control thruster quads (4 clusters)": "Grupos de propulsores de control de actitud (4 grupos)",
  "Four thruster clusters around the ascent stage; named group13_g* in the model.": "Cuatro grupos de propulsores alrededor de la etapa de ascenso; llamados group13_g* en el modelo.",
  "Insulation around the clusters is assumed polymer foil; the propellant is not modelled. No flammability test of this object exists.": "Se supone que el aislamiento alrededor de los grupos es de lámina de polímero; el propelente no está modelado. No existe ninguna prueba de inflamabilidad de este objeto.",
  "Rendezvous radar antenna": "Antena del radar de encuentro",

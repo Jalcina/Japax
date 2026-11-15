@@ -125,3 +125,12 @@ test("the short labels the panel shows (parenthesis dropped) are translated too"
   assert.deepEqual(missing, []);
   assert.equal(esText("PLSS oxygen tank"), "Depósito de oxígeno del PLSS");
 });
+
+test("a Spanish record never shows a raw end-reason code to the reader", () => {
+  const codes = /\b(burned_out|self_extinguished|extinguished_by_measure|ruptured_and_settled|horizon_reached|extinguished_by_suppression_system|interrupted_by_user|in_progress)\b/;
+  for (const [env, cat] of Object.entries(catalogs)) {
+    const r = rec(cat, env, env === "emu" ? SUIT : ATM, cat.components[0].id, "es");
+    const shown = [...r.summary, ...r.metrics.filter((m) => m.key !== "end_reason").map((m) => m.note)];
+    for (const s of shown) assert.ok(!codes.test(s), `${env}: ${s}`);
+  }
+});

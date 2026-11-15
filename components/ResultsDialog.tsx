@@ -33,6 +33,8 @@ const TERM_ES: Record<string, string> = {
   "ignition point": "punto de ignición", "front speed": "velocidad del frente", "heating window": "ventana de calentamiento", "not reached": "no alcanzado", "end reason": "motivo de fin",
 };
 const RUPTURE_STATUS_ES: Record<string, string> = { heating: "calentándose", ruptured: "roto", relieved: "presión aliviada", none: "ninguno" };
+/** the chart rows are narrow: drop the trailing parenthesis of a component name */
+const shortName = (n: string) => n.replace(/\s*\([^()]*\)\s*$/, "");
 const f1 = (n: number) => (Math.round(n * 10) / 10).toString();
 
 export function downloadText(name: string, text: string, mime: string) {
@@ -83,7 +85,7 @@ function RunChart({ run }: { run: RunRecord }) {
           const y = top + i * rowH;
           return (
             <g key={c.id}>
-              <text x={left - 6} y={y + 13} fontSize="10" textAnchor="end" fill="currentColor">{c.name.length > 30 ? c.name.slice(0, 29) + "…" : c.name}</text>
+              <text x={left - 6} y={y + 13} fontSize="10" textAnchor="end" fill="currentColor">{shortName(c.name).length > 30 ? shortName(c.name).slice(0, 29) + "…" : shortName(c.name)}</text>
               <rect x={left} y={y + 3} width={W - left - right} height={rowH - 6} fill="currentColor" opacity="0.07" />
               {c.ignitionS !== null
                 ? <rect x={x(c.ignitionS)} y={y + 3} width={Math.max(3, x(run.endT) - x(c.ignitionS))} height={rowH - 6} fill="#f97316" stroke="#fdba74"><title>{t("{name}: burning from {a} s to {b} s", { name: c.name, a: f1(c.ignitionS), b: f1(run.endT) })}</title></rect>

@@ -9,7 +9,7 @@ import type { Catalog, CMeasure } from "./componentCatalog.ts";
 import { END_ID, type CEvent, type EndReason } from "./componentSpread.ts";
 import { energeticOf, ruptureReport, shortLabel, type RuptureReport } from "./componentReport.ts";
 import { spreadFactors, type Atm } from "./labPhysics.ts";
-import { esText, MATERIAL_ES } from "./componentEs.ts";
+import { esText, MATERIAL_ES, END_REASON_ES } from "./componentEs.ts";
 
 export interface TimelineRow { t: number; componentId: string; component: string; state: string; level: string; source: string; reason: string }
 export interface ComponentRow {
@@ -129,6 +129,8 @@ export function buildRunRecord(inp: BuildInput): RunRecord {
   const X = (t: string) => (es ? esText(t) : t);
   const NA = (why: string) => tr(`not available: ${why}`, `no disponible: ${why}`);
   const NAV = tr("not available", "no disponible");
+  /** the end reason as the reader should see it (the raw code stays in `endReason` and in the end_reason metric value) */
+  const reasonName = (r: string) => (es ? END_REASON_ES[r] ?? r : r);
   const comp = new Map(cat.components.map((c) => [c.id, c]));
   const label = (id: string) => (id === END_ID ? X("(whole simulation)") : X(comp.get(id)?.label ?? id));
   const tank = energeticOf(cat);
@@ -204,8 +206,8 @@ export function buildRunRecord(inp: BuildInput): RunRecord {
       ? { key: "time_to_rupture_s", label: tr("Time to rupture", "Tiempo hasta la rotura"), value: r1(ruptEv.t), unit: "s", note: ruptEv.forced ? tr("forced demo scenario, not a prediction", "escenario de demo forzado, no una predicción") : tr("mid-point of an assumed heating window (estimated, no dataset)", "punto medio de una ventana de calentamiento supuesta (estimado, sin conjunto de datos)") }
       : { key: "time_to_rupture_s", label: tr("Time to rupture", "Tiempo hasta la rotura"), value: NAV, unit: "s", note: NA(tank ? tr("no rupture in this run", "no hubo rotura en esta simulación") : tr("this environment has no verified energetic component", "este entorno no tiene ningún componente energético verificado")) },
     extinguished
-      ? { key: "time_to_extinction_s", label: tr("Time to extinction", "Tiempo hasta la extinción"), value: r1(endT), unit: "s", note: tr(`ended by ${endReason}`, `terminó por ${endReason}`) }
-      : { key: "time_to_extinction_s", label: tr("Time to extinction", "Tiempo hasta la extinción"), value: NAV, unit: "s", note: NA(tr(`the fire was not extinguished in this run (end reason: ${endReason})`, `el fuego no se apagó en esta simulación (motivo de fin: ${endReason})`)) },
+      ? { key: "time_to_extinction_s", label: tr("Time to extinction", "Tiempo hasta la extinción"), value: r1(endT), unit: "s", note: tr(`ended by ${endReason}`, `terminó: ${reasonName(endReason)}`) }
+      : { key: "time_to_extinction_s", label: tr("Time to extinction", "Tiempo hasta la extinción"), value: NAV, unit: "s", note: NA(tr(`the fire was not extinguished in this run (end reason: ${endReason})`, `el fuego no se apagó en esta simulación (motivo de fin: ${reasonName(endReason)})`)) },
     { key: "end_reason", label: tr("End reason", "Motivo de fin"), value: endReason, unit: tr("reason", "motivo"), note: endWhy },
   ];
 
@@ -241,7 +243,7 @@ export function buildRunRecord(inp: BuildInput): RunRecord {
            `${rupture?.tankLabel ? X(rupture.tankLabel) : "Un componente energético"} se rompió a t = ${r1(ruptEv.t)} s${ruptEv.forced ? " (escenario de demo forzado)" : ` tras unos ${r1(rupture?.exposureS ?? 0)} s de calentamiento (ventana supuesta, sin conjunto de datos)`}.`)
       : tank ? tr("No energetic component ruptured in this run.", "Ningún componente energético se rompió en esta simulación.") : tr("This environment has no verified energetic component, so no rupture can occur in the model.", "Este entorno no tiene ningún componente energético verificado, así que en el modelo no puede haber rotura."),
     tr(`The run ended at t = ${r1(endT)} s (${endReason}): ${endWhy}.${applied.length ? ` Measures applied: ${applied.map((m) => `${m.id} at ${r1(m.atS ?? 0)} s`).join("; ")}.` : " No measure was applied."}`,
-       `La simulación terminó a t = ${r1(endT)} s (${endReason}): ${endWhy}.${applied.length ? ` Medidas aplicadas: ${applied.map((m) => `${m.id} a los ${r1(m.atS ?? 0)} s`).join("; ")}.` : " No se aplicó ninguna medida."}`),
+       `La simulación terminó a t = ${r1(endT)} s (${reasonName(endReason)}): ${endWhy}.${applied.length ? ` Medidas aplicadas: ${applied.map((m) => `${m.id} a los ${r1(m.atS ?? 0)} s`).join("; ")}.` : " No se aplicó ninguna medida."}`),
     tr("Times are simulated seconds and equal real-equivalent seconds in this engine. Everything is simulated (estimated) unless a row says measured or reported.", "Los tiempos son segundos simulados e iguales a los segundos reales equivalentes en este motor. Todo es simulado (estimado) salvo que una fila diga medido o reportado."),
   ];
 
