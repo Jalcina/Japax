@@ -310,8 +310,8 @@ export function buildReportTxt(run: RunRecord, lang: "en" | "es" = "en"): string
       `${tr("Fire path", "Vía del fuego")}: ${r.chain.map((c) => `${X(c.label)} ${r1(c.t)} s`).join(" -> ") || NAV}`,
       `${tr("Heated for", "Calentado durante")}: ${r.exposureS === null ? NAV : r1(r.exposureS) + " s"}`,
       `${tr("Assumed window", "Ventana supuesta")}: ${r.window[0]}-${r.window[1]} s, ${tr("mid-point", "punto medio")} ${r1(r.usedS)} s [estimated]`,
-      `${tr("Rupture at", "Rotura en")}: ${r.ruptureAt === null ? tr("not available (no rupture)", "no disponible (sin rotura)") : r1(r.ruptureAt) + " s"}${r.forced ? tr(" (forced scenario)", " (escenario forzado)") : ""}`,
-      `${tr("Neighbours hit", "Componentes vecinos afectados")}: ${r.consequences.map((c) => `${X(c.label)} (${c.state}, ${r1(c.t)} s)`).join("; ") || tr("none", "ninguno")}`,
+      `${tr("Rupture at", "Rotura a los")}: ${r.ruptureAt === null ? tr("not available (no rupture)", "no disponible (sin rotura)") : r1(r.ruptureAt) + " s"}${r.forced ? tr(" (forced scenario)", " (escenario forzado)") : ""}`,
+      `${tr("Neighbours hit", "Vecinos afectados")}: ${r.consequences.map((c) => `${X(c.label)} (${c.state}, ${r1(c.t)} s)`).join("; ") || tr("none", "ninguno")}`,
     );
   }
   h(tr("Safety ladder", "Escalera de seguridad"));

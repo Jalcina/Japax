@@ -20,17 +20,17 @@ const T = {
   },
   es: {
     a: "JaPax · NASA Space Apps Challenge 2026 · reto",
-    b: "Datos del repositorio público de la NASA:",
+    b: "Datos del repositorio público de NASA",
     c: ". Consulta la página de",
     d: "para ver todas las fuentes y bibliotecas utilizadas.",
-    e: "Un proyecto independiente, sin afiliación ni respaldo de la NASA. Cuando hay vidas en juego, una cifra inventada es un peligro: cada dato muestra su fuente y si es medido, reportado, estimado o simulado, y lo que no está verificado se marca como pendiente y nunca se inventa.",
+    e: "Un proyecto independiente, sin afiliación ni respaldo de NASA. Cuando hay vidas en juego, una cifra inventada es un peligro: cada dato muestra su fuente y si es medido, reportado, estimado o simulado, y lo que no está verificado se marca como pendiente y nunca se inventa.",
     refs: "Referencias",
     about: "Sobre nosotros",
     demo: "Demo",
     ask: "Pregunta al Oráculo",
     method: "Método",
     glossary: "Glosario",
-    license: "Código y diseño originales bajo licencia Apache 2.0. Los datos de la NASA siguen siendo de dominio público.",
+    license: "Código y diseño originales bajo licencia Apache 2.0. Los datos de NASA siguen siendo de dominio público.",
   },
 };
 

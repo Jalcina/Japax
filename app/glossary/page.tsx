@@ -38,7 +38,7 @@ const T = {
           ["Lunar gravity", "0.166 g, about one sixth of Earth's. No PSI combustion data exists at this level."],
           ["Concurrent / opposed flow", "The flame spreads in the same direction as the airflow (concurrent) or against it (opposed). The two have different speeds."],
           ["Quiescent", "Still air, with no forced flow."],
-          ["Spread rate", "How fast a flame front moves across a material, in millimeters per second here."],
+          ["Spread rate", "How fast a flame front moves across a material, in millimetres per second here."],
           ["Limiting oxygen concentration", "The lowest oxygen fraction at which a flame keeps burning. It is lower in microgravity than at 1 g."],
           ["Mole fraction", "The share of a gas in a mixture by number of molecules. 21% oxygen means 0.21."],
           ["psi, psia, atm", "Units of pressure. Earth's air is 14.7 psi, or 1 atm. A lunar habitat of 10.2 psi is 0.69 atm; the suit at 4.3 psi is 0.29 atm."],
@@ -83,7 +83,7 @@ const T = {
         "Experimentos de fuego de la NASA",
         [
           ["BASS / BASS-II", "Burning and Suppression of Solids: muestras sólidas quemadas con un flujo de aire controlado en la ISS."],
-          ["SAFFIRE", "Spacecraft Fire Experiment (PSI lo llama Spacecraft Fire Safety Experiment): incendios de gran tamaño provocados a propósito en naves de carga no tripuladas para ver cómo crece un incendio real con poca gravedad."],
+          ["SAFFIRE", "Spacecraft Fire Experiment (PSI lo llama Spacecraft Fire Safety Experiment): incendios grandes provocados a propósito en naves de carga no tripuladas para ver cómo crece un fuego real con poca gravedad."],
           ["FLEX", "Flame Extinguishment Experiment: gotas de combustible quemadas con distintos niveles de oxígeno y diluyentes (CO₂, helio) para ver dónde se apagan las llamas."],
           ["ACME", "Advanced Combustion via Microgravity Experiments: un conjunto de estudios de llamas en la ISS. BRE es su experimento Burning Rate Emulator (emulador de tasa de quemado)."],
           ["SAME", "Smoke Aerosol Measurement Experiment: el tamaño de las partículas de humo que desprenden los materiales de las naves."],
@@ -107,7 +107,7 @@ const T = {
       [
         "Normas, equipos y lugares",
         [
-          ["NASA-STD-6001 Test 1", "El ensayo normalizado para seleccionar materiales de naves aptos para su uso: una llama que arde hacia arriba en gravedad normal. BASS indica que no es conservadora para microgravedad."],
+          ["NASA-STD-6001 Test 1", "La prueba estándar para seleccionar materiales de naves aptos para su uso: una llama que arde hacia arriba en gravedad normal. BASS indica que no es conservadora para microgravedad."],
           ["EMU", "Extravehicular Mobility Unit: el traje espacial que se usa fuera de la ISS. Trabaja a unos 4.3 psi."],
           ["EVA", "Actividad extravehicular: un paseo espacial."],
           ["ISS", "Estación Espacial Internacional: cerca del 21% de oxígeno a 14.7 psi, en microgravedad."],

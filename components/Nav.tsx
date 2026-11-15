@@ -12,7 +12,7 @@ const T = {
   en: {
     ignition: "Overview", chronicles: "Chronology", worlds: "Simulator", lab: "Data Lab", vault: "Investigations", radar: "Ranking", safety: "Fire safety", proof: "Sources",
     main: "Main", language: "Language", guide: "Guide mode", guideOn: "Guide on", menu: "Menu",
-    hints: ["Program overview and key findings", "Mishaps, experiments and data releases", "Component-level fire spread model", "PSI/NTRS combustion investigations", "Multi-criteria investigation ranking", "Prevention, detection, suppression", "Datasets, DOIs and licenses"],
+    hints: ["Programme overview and key findings", "Mishaps, experiments and data releases", "Component-level fire spread model", "PSI/NTRS combustion investigations", "Multi-criteria investigation ranking", "Prevention, detection, suppression", "Datasets, DOIs and licences"],
   },
   es: {
     ignition: "Inicio", chronicles: "Cronología", worlds: "Simulador", lab: "Laboratorio", vault: "Investigaciones", radar: "Ranking", safety: "Seguridad contra incendios", proof: "Fuentes",
@@ -152,11 +152,8 @@ export default function Nav() {
               href={l.href}
               title={t.hints[i]}
               aria-current={isActive(l.href) ? "page" : undefined}
-              className={l.href === "/simulator"
-                ? `nav-sim inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-accent px-4 py-1.5 font-bold text-black transition hover:brightness-110 ${isActive(l.href) ? "ring-2 ring-white/70" : ""}`
-                : `whitespace-nowrap rounded-md px-2.5 py-1.5 transition-colors ${isActive(l.href) ? "bg-surface-2 text-ink" : "text-ink-2 hover:text-ink"}`}
+              className={`whitespace-nowrap rounded-md px-2.5 py-1.5 transition-colors ${isActive(l.href) ? "bg-surface-2 text-ink" : "text-ink-2 hover:text-ink"}`}
             >
-              {l.href === "/simulator" && <span className="sim-dot" aria-hidden="true" />}
               {l.label}
             </Link>
           ))}
@@ -180,7 +177,7 @@ export default function Nav() {
           <ul className="mx-auto grid max-w-6xl gap-1 px-4 py-3 sm:grid-cols-2">
             {LINKS.map((l, i) => (
               <li key={l.href}>
-                <Link href={l.href} aria-current={isActive(l.href) ? "page" : undefined} className={`flex items-baseline justify-between gap-3 rounded-md px-3 py-2 ${l.href === "/simulator" ? "bg-accent font-bold text-black" : isActive(l.href) ? "bg-surface-2 text-ink" : "text-ink-2 hover:text-ink"}`}>
+                <Link href={l.href} aria-current={isActive(l.href) ? "page" : undefined} className={`flex items-baseline justify-between gap-3 rounded-md px-3 py-2 ${isActive(l.href) ? "bg-surface-2 text-ink" : "text-ink-2 hover:text-ink"}`}>
                   <span className="font-medium">{i + 1}. {l.label}</span>
                   <span className="text-xs text-muted">{t.hints[i]}</span>
                 </Link>

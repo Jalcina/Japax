@@ -12,7 +12,6 @@ const ES_NOTES: [string, string][] = [
   ["Touch to burn", "Toca y arde"],
   ["3D models used in", "modelos 3D usados en"],
   ["3D model used in", "modelo 3D usado en"],
-  ["free to use per NASA media guidelines", "uso libre según las directrices de medios de la NASA"],
   ["free to use", "uso libre"],
   ["abstract only", "solo resumen"],
 ];
@@ -24,8 +23,8 @@ const LIBS: [string, string][] = [
   ["Tailwind CSS 4 (MIT)", "https://tailwindcss.com"],
   ["TypeScript (Apache-2.0)", "https://www.typescriptlang.org"],
   ["three.js 0.187 (MIT), WebGL 3D rendering of the flame lab and simulator; its OrbitControls and post-processing add-ons are part of the same package", "https://threejs.org"],
-  ["NASA 3D Resources: International Space Station (ISS) (D) (IGOAL), Mars 2020 Perseverance Rover, Apollo Lunar Module (3D models used in the Simulator scenes; free to use per NASA media guidelines)", "https://science.nasa.gov/3d-resources/"],
-  ["NASA 3D Resources: Extravehicular Mobility Unit (EMU) spacesuit (3D model used in the Simulator scenes; free to use per NASA media guidelines)", "https://science.nasa.gov/3d-resources/"],
+  ["NASA 3D Resources: International Space Station (ISS) (D) (IGOAL), Mars 2020 Perseverance Rover, Apollo Lunar Module (3D models used in the the Simulator scenes; free to use per NASA media guidelines)", "https://science.nasa.gov/3d-resources/"],
+  ["NASA 3D Resources: Extravehicular Mobility Unit (EMU) spacesuit (3D model used in the the Simulator scenes; free to use per NASA media guidelines)", "https://science.nasa.gov/3d-resources/"],
   ["Earth textures from the three.js examples (earth_atmos, earth_normal, earth_specular, earth_clouds), derived from NASA imagery", "https://github.com/mrdoob/three.js/tree/dev/examples/textures/planets"],
   ["Anthropic TypeScript SDK (MIT)", "https://github.com/anthropics/anthropic-sdk-typescript"],
   ["Geist and Geist Mono fonts (SIL Open Font License) via Google Fonts", "https://vercel.com/font"],
@@ -97,28 +96,28 @@ const T = {
   es: {
     eyebrow: "Referencias y método",
     title: "Todas las fuentes, bibliotecas y limitaciones",
-    intro: "Esta página lista todos los recursos externos usados en JaPax (código, texto, datos y tipografías), como exigen las normas de entrega de NASA Space Apps. No se ha usado música, imágenes ni texto con derechos de autor; todos los gráficos son SVG originales.",
+    intro: "Esta página lista todos los recursos externos usados en JaPax (código, texto, datos y tipografías), como exigen las normas de entrega de NASA Space Apps. No se usó música, imágenes ni texto con derechos de autor; todos los gráficos son SVG originales.",
     dataEyebrow: "Datos",
-    dataTitle: "Datos de la NASA (núcleo del proyecto)",
-    dataPsi: "Metadatos de las investigaciones del repositorio Physical Sciences Informatics (PSI) de la NASA, obtenidos de la API pública de PSI (sin autenticación) al compilar: objetivos, hipótesis, hardware, inventarios de archivos, publicaciones y DOI de",
+    dataTitle: "Datos de NASA (núcleo del proyecto)",
+    dataPsi: "Metadatos de las investigaciones de NASA Physical Sciences Informatics (PSI), obtenidos de la API pública de PSI (sin autenticación) al compilar: objetivos, hipótesis, hardware, inventarios de archivos, publicaciones y DOI de",
     dataPsi2: "investigaciones.",
-    tables: "Tablas experimentales de PSI de la NASA: PSI-69 (FLEX) y PSI-25 (BASS-II), CC0. Los archivos sin modificar se obtuvieron de la copia pública del repositorio de otro equipo (github.com/ngu-ming-henn/Nasa-Space-Apps-Sarawak, data/raw/nasa_psi) porque el servicio de descargas de PSI no estaba disponible; sus tamaños en bytes (24 776 y 16 590) coinciden con los metadatos publicados por la NASA. JaPax calcula todas las estadísticas a partir de las filas.",
+    tables: "Tablas experimentales de NASA PSI PSI-69 (FLEX) y PSI-25 (BASS-II), CC0. Los archivos sin modificar se obtuvieron de la copia pública del repositorio de otro equipo (github.com/ngu-ming-henn/Nasa-Space-Apps-Sarawak, data/raw/nasa_psi) porque el servicio de descargas de PSI no estaba disponible; sus tamaños en bytes (24 776 y 16 590) coinciden con los metadatos publicados por NASA. JaPax calcula todas las estadísticas a partir de las filas.",
     docsEyebrow: "Documentos",
-    docsTitle: "Documentos y páginas de la NASA",
+    docsTitle: "Documentos y páginas de NASA",
     swEyebrow: "Software",
     swTitle: "Bibliotecas, tipografías y herramientas",
-    ai: "Asistencia de IA: el código se desarrolló con ayuda de Claude (Anthropic) mediante Claude Code, y la narración opcional por IA de Pax puede usar un modelo Claude, con cada cifra comprobada contra la evidencia verificada. Todas las respuestas se basan en los datos anteriores.",
+    ai: "Asistencia de IA: el código se desarrolló con ayuda de Claude (Anthropic) mediante Claude Code, y la narración opcional por IA de Pax puede usar un modelo Claude, con cada cifra comprobada contra la evidencia verificada. Todas las salidas se basan en los datos de arriba.",
     mEyebrow: "Método",
     mTitle: "Cómo leer las cifras",
     m: [
-      ["Verificado, nunca inventado.", "Cada valor mostrado procede de una fuente citada de la NASA. Cuando una condición no se pudo verificar, aparece como no verificada y se excluye de las afirmaciones."],
-      ["Puntuación de relevancia.", "Un método editorial de JaPax (0–100) que combina cinco factores con pesos ajustables: ajuste a la atmósfera de hábitat (35 por defecto), realismo del combustible (25), enfoque en seguridad contra incendios (20), riqueza de datos (10) y valor para modelado (10). Los datos desconocidos cuentan como un 0.5 neutro y se señalan. Es una ayuda de priorización, no una métrica de la NASA."],
-      ["Gravedad parcial.", "PSI no contiene datos de combustión en gravedad parcial. Las condiciones lunares y marcianas se muestran como lagunas de datos, sin extrapolar. La curva de inflamabilidad es un esquema cualitativo."],
+      ["Verificado, nunca inventado.", "Cada valor mostrado procede de una fuente de NASA citada. Cuando una condición no se pudo verificar, aparece como no verificada y se excluye de las afirmaciones."],
+      ["Puntuación de relevancia.", "Un método editorial de JaPax (0–100) que combina cinco factores con pesos ajustables: ajuste a la atmósfera de hábitat (35 por defecto), realismo del combustible (25), enfoque en seguridad contra incendios (20), riqueza de datos (10) y valor para modelado (10). Los datos desconocidos cuentan como un 0.5 neutro y se señalan. Es una ayuda de priorización, no una métrica de NASA."],
+      ["Gravedad parcial.", "PSI no contiene datos de combustión en gravedad parcial. Las condiciones lunares y marcianas se muestran como brechas, sin extrapolar. La curva de inflamabilidad es un esquema cualitativo."],
       ["Volumen de datos.", "La cifra de unos 12.7 TB de la portada es la suma del campo totalFileSize que la API de PSI declara para cada una de las 19 investigaciones, consultada el 15 de noviembre de 2026. Es el tamaño que la NASA declara para sus datos publicados, no datos procesados por JaPax. La API solo enumera archivo por archivo unos 6.3 TB (15 629 archivos); el resto, sobre todo vídeos y conjuntos brutos grandes, está declarado pero no enumerado. Los 12 146 archivos de la portada son los recuentos por investigación de los metadatos de PSI que JaPax catalogó, una cuenta distinta de los 15 629 que enumera la API."],
       ["Acceso a los datos.", "Los metadatos de las investigaciones y los inventarios de archivos vienen de la API de PSI. El Laboratorio de datos usa las tablas experimentales de FLEX (274 ensayos) y BASS-II (129 ensayos); los recuentos y porcentajes se calculan a partir de las filas registradas, sin modelado. Las demás tablas y los vídeos enlazan a sus páginas de PSI y son el siguiente paso de la hoja de ruta."],
     ],
     gen: "Datos generados el",
-    disclaimer: "JaPax es un proyecto independiente, sin afiliación ni respaldo de la NASA.",
+    disclaimer: "JaPax es un proyecto independiente, sin afiliación ni respaldo de NASA.",
   },
 };
 
@@ -154,8 +153,8 @@ export default function References() {
       </Section>
 
       {Object.keys(data.ntrsTopics ?? {}).length > 0 && (
-        <Section eyebrow="NASA NTRS" title={lang === "es" ? "Literatura del NASA Technical Reports Server" : "NASA Technical Reports Server literature"}>
-          <p className="mt-2 text-sm text-ink-2">{lang === "es" ? "Informes públicos obtenidos de la API de NTRS (ntrs.nasa.gov). Se listan como referencia para temas sobre los que PSI no tiene datos, como la gravedad lunar y la parcial." : "Public reports retrieved from the NTRS API (ntrs.nasa.gov). Listed here as references for topics where PSI holds no data, such as lunar and partial gravity."}</p>
+        <Section eyebrow="NASA NTRS" title="NASA Technical Reports Server literature">
+          <p className="mt-2 text-sm text-ink-2">Public reports retrieved from the NTRS API (ntrs.nasa.gov). Listed here as references for topics where PSI holds no data, such as lunar and partial gravity.</p>
           {Object.entries(data.ntrsTopics ?? {}).filter(([, l]) => l.length > 0).map(([topic, list]) => (
             <div key={topic} className="mt-4">
               <h3 className="text-sm font-semibold">{topic}</h3>

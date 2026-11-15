@@ -310,7 +310,7 @@
         "SIBAL",
         "plástico ABS"
       ],
-      "note": "Nuevo vuelo de SAME. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
+      "note": "Reenvío de SAME. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
       "sensors": [
         "equipo comparativo de diagnóstico de hollín"
       ],
@@ -364,7 +364,7 @@
     "PSI-106": {
       "fuelPhase": "gas",
       "note": "Usa el hardware de SPICE. Operó en 2012 según la guía. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
-      "summary": "Estructura y despegue de llamas de difusión laminares en microgravedad.",
+      "summary": "Estructura y despegue (lift-off) de llamas de difusión laminares en microgravedad.",
       "findings": [
         "Determina los límites de velocidad de despegue para distintos combustibles y diámetros de quemador, y el efecto de la dilución con nitrógeno."
       ],

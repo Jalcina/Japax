@@ -1,12 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useData, useLang, useT } from "@/lib/i18n";
 import { AreaBadge, Section, SourceTag, Stat } from "@/components/ui";
 import CoverageMap from "@/components/CoverageMap";
-import MissionLives from "@/components/MissionLives";
 
 const T = {
   en: {
@@ -15,8 +13,6 @@ const T = {
     h1b: "before the fire decides.",
     lead: "In 1967 a fire inside a pure-oxygen cabin killed three astronauts; the hatch needed about ninety seconds to open even under ideal conditions. Today spacesuits and planned lunar habitats are still full of oxygen, and in space there is no one to call. JaPax turns NASA's fire experiments into one answer: where a fire starts, where it goes, how long it takes, and what must be protected so the crew comes home.",
     ctaSim: "Watch a fire cross a spacesuit",
-    ctaHint: "Free · no sign-up · 30 seconds: tap the suit and see what burns first",
-    ctaFloat: "Try the simulator",
     ctaExp: "Read the evidence",
     ctaAsk: "Ask Pax",
     s1: "NASA fire investigations",
@@ -86,8 +82,6 @@ const T = {
     h1b: "antes de que el fuego decida.",
     lead: "En 1967 un fuego dentro de una cabina de oxígeno puro mató a tres astronautas; la escotilla necesitó unos noventa segundos en abrirse incluso en condiciones ideales. Hoy los trajes espaciales y los hábitats lunares previstos siguen llenos de oxígeno, y en el espacio no hay a quién llamar. JaPax convierte los experimentos de fuego de la NASA en una sola respuesta: dónde empieza un fuego, a dónde llega, cuánto tarda y qué hay que proteger para que la tripulación vuelva a casa.",
     ctaSim: "Ver cómo se propaga un fuego por un traje espacial",
-    ctaHint: "Gratis · sin registro · 30 segundos: toca el traje y mira qué arde primero",
-    ctaFloat: "Probar el simulador",
     ctaExp: "Leer la evidencia",
     ctaAsk: "Preguntar a Pax",
     s1: "investigaciones de fuego de la NASA",
@@ -101,23 +95,23 @@ const T = {
     wEyebrow: "Por qué existimos",
     wTitle: "El fuego en el espacio es una cuestión de vidas humanas",
     w: [
-      { kicker: "1967", title: "Un peligro que se subestimó", text: "Durante una prueba en tierra del Apollo 1 se declaró un incendio en una cabina llena de oxígeno puro. La escotilla necesitó unos noventa segundos en abrirse incluso en condiciones ideales y no pudo abrirse contra la presión creciente. Gus Grissom, Ed White y Roger Chaffee murieron dentro. No fue mala suerte: fue un riesgo subestimado." },
+      { kicker: "1967", title: "Un peligro que se subestimó", text: "Durante una prueba en tierra del Apollo 1 empezó un fuego en una cabina llena de oxígeno puro. La escotilla necesitó unos noventa segundos en abrirse incluso en condiciones ideales y no pudo abrirse contra la presión creciente. Gus Grissom, Ed White y Roger Chaffee murieron dentro. No fue mala suerte: fue un riesgo subestimado." },
       { kicker: "Hoy", title: "El peligro cambió de lugar, no desapareció", text: "Cuando un astronauta sale de la estación, lleva un traje lleno de oxígeno al 100%. Los hábitats lunares previstos tendrían más oxígeno que el aire que respiramos en la Tierra. El oxígeno mantiene viva a la tripulación y convierte cualquier chispa en una amenaza." },
-      { kicker: "En el espacio", title: "Sin bomberos, sin salida, sin nadie a quien llamar", text: "Si se declara un incendio, la tripulación solo tiene lo que alguien diseñó antes de despegar. Cada decisión, qué material usar, dónde poner una barrera, qué componente blindar, se convierte en la diferencia entre volver a casa o no." },
-      { kicker: "El punto ciego", title: "Decisiones tomadas con muy poca luz", text: "El fuego en el espacio no se comporta como en la Tierra. La NASA lleva años haciendo experimentos de combustión en microgravedad, pero su archivo no contiene ningún conjunto de datos a gravedad lunar. Quien diseña un traje, una nave o una base no tiene respuesta a la pregunta clave: si se declara un incendio, ¿qué protejo primero?" },
+      { kicker: "En el espacio", title: "Sin bomberos, sin salida, sin nadie a quien llamar", text: "Si empieza un fuego, la tripulación solo tiene lo que alguien diseñó antes de despegar. Cada decisión, qué material usar, dónde poner una barrera, qué componente blindar, se convierte en la diferencia entre volver a casa o no." },
+      { kicker: "El punto ciego", title: "Decisiones tomadas con muy poca luz", text: "El fuego en el espacio no se comporta como en la Tierra. La NASA lleva años haciendo experimentos de combustión en microgravedad, pero en su archivo no hay ningún conjunto de datos a gravedad lunar. Quien diseña un traje, una nave o una base no tiene respuesta a la pregunta clave: si empieza un fuego, ¿qué protejo primero?" },
     ],
     oEyebrow: "Nuestra respuesta",
     oTitle: "Protege lo que te mantiene vivo. No todo.",
-    oLead: "Iniciamos el incendio desde cada una de las seis partes de un traje espacial y dejamos correr el motor. Un incendio que empieza en la prenda superior llega al depósito de oxígeno en menos de un minuto, y el depósito revienta a los 2 minutos y 13 segundos.",
+    oLead: "Encendimos el fuego desde cada una de las seis partes de un traje espacial y dejamos correr el motor. Un fuego que empieza en la prenda superior llega al depósito de oxígeno en menos de un minuto, y el depósito revienta a los 2 minutos y 13 segundos.",
     tl: [
-      ["0:00", "El incendio empieza en la prenda superior"],
+      ["0:00", "El fuego empieza en la prenda superior"],
       ["0:58", "El depósito de oxígeno se incendia"],
       ["2:13", "El depósito revienta"],
     ] as [string, string][],
-    tlLabel: "Cronología de un incendio que empieza en la prenda superior del traje",
+    tlLabel: "Cronología de un fuego que empieza en la prenda superior del traje",
     unprot: "Sin protección",
     prot: "Depósito de oxígeno blindado",
-    burst: (n: number) => `El depósito revienta en ${n} de 6 incendios`,
+    burst: (n: number) => `El depósito revienta en ${n} de 6 fuegos`,
     oText: "En el modelo, blindar el depósito convierte seis reventones de seis en uno: el que empieza en el propio depósito. No hace falta proteger todo el traje. Hace falta proteger lo que mantiene vivo al astronauta.",
     oNote: "Simulado con el motor de componentes de JaPax, que parte de una velocidad de propagación medida por la NASA en tela fina (SAFFIRE I-III, 1.8-2.6 mm/s). Los factores que la adaptan al traje (oxígeno, flujo de aire, gravedad, material), la disposición de componentes y la ventana de rotura son estimaciones y así se etiquetan. Condiciones del traje: 100% de O₂ a 0.29 atm, sin flujo de aire. Es un modelo, no un ensayo.",
     oCta: "Pruébalo por tu cuenta en el simulador",
@@ -125,16 +119,16 @@ const T = {
     fTitle: "Tres resultados que cambian cómo se protege a una tripulación",
     see: "Ver",
     f: [
-      { kicker: "Atmósferas de hábitat", title: "Cortar la ventilación puede no bastar para apagar un incendio en atmósferas enriquecidas en O₂", text: "En ACME BRE, las llamas en atmósferas enriquecidas en O₂ se mantuvieron en microgravedad en condiciones de reposo, sin flujo forzado; a 21% de O₂ se autoextinguieron. Cortar la ventilación es un paso establecido para extinguir incendios en naves; los autores sugieren que puede no bastar en atmósferas ricas en oxígeno." },
-      { kicker: "Cualificación de materiales", title: "NASA-STD-6001 Test 1 no es conservador en microgravedad", text: "BASS indica que el Test 1, un ensayo de propagación ascendente a 1 g, no acota el peor caso: la concentración límite de oxígeno es menor en microgravedad. En la Guía del Investigador de la NASA (2015) el mínimo está hacia una velocidad de flujo opuesto de 10 cm/s (esquema cualitativo), típica de la ventilación de una nave." },
-      { kicker: "Supresión", title: "Las normas terrestres de agentes inertes ofrecen menos margen en gravedad reducida", text: "FLEX encontró que el límite de inflamabilidad es menor en gravedad reducida, por lo que las normas de diseño terrestres para supresores de gas inerte (CO₂, He) no proporcionan el mismo margen de seguridad." },
+      { kicker: "Atmósferas de hábitat", title: "Cortar la ventilación puede no bastar para apagar un fuego en atmósferas enriquecidas en O₂", text: "En ACME BRE, las llamas en atmósferas enriquecidas en O₂ se mantuvieron en microgravedad en condiciones de reposo, sin flujo forzado; a 21% de O₂ se autoextinguieron. Cortar la ventilación es un paso establecido para extinguir incendios en naves; los autores sugieren que puede no bastar en atmósferas ricas en oxígeno." },
+      { kicker: "Calificación de materiales", title: "NASA-STD-6001 Test 1 no es conservador en microgravedad", text: "BASS indica que el Test 1, un ensayo de propagación ascendente a 1 g, no acota el peor caso: la concentración límite de oxígeno es menor en microgravedad. En la Guía del Investigador de la NASA (2015) el mínimo está hacia una velocidad de flujo opuesto de 10 cm/s (esquema cualitativo), típica de la ventilación de una nave." },
+      { kicker: "Supresión", title: "Los estándares terrestres de agentes inertes ofrecen menos margen en gravedad reducida", text: "FLEX encontró que el límite de inflamabilidad es menor en gravedad reducida, por lo que los estándares de diseño terrestres para supresores de gas inerte (CO₂, He) no proporcionan el mismo margen de seguridad." },
     ],
     mEyebrow: "Donde la luz está apagada",
     mTitle: "Las atmósferas que nadie ha ensayado todavía",
     mText: "Cada región o marcador es una atmósfera (fracción molar de O₂, presión total) realmente ensayada. La región naranja es la envolvente prevista de un hábitat lunar: enriquecida en oxígeno y subatmosférica. La cobertura ahí es escasa y no se ha ensayado a gravedad lunar (0.166 g).",
     qEyebrow: "Por qué la verdad es parte de salvar vidas",
     qTitle: "Cuando hay vidas en juego, una cifra inventada es un peligro",
-    qText: "En JaPax cada número dice de dónde sale y si está medido, reportado, estimado o simulado. Donde no hay datos lo decimos en voz alta, porque una laguna que nadie ve también puede costar una vida. Nuestra honestidad no es una limitación: es la razón por la que puedes apoyarte en nosotros a la hora de decidir.",
+    qText: "En JaPax cada número dice de dónde sale y si está medido, reportado, estimado o simulado. Donde no hay datos lo decimos en voz alta, porque un hueco que nadie ve también puede costar una vida. Nuestra honestidad no es una limitación: es la razón por la que puedes apoyarte en nosotros a la hora de decidir.",
     q: [
       ["Medido", "Valor registrado en un conjunto de datos PSI, citado con PSI ID, DOI y tamaño muestral."],
       ["Reportado", "Valor expuesto en un artículo revisado por pares o un informe NTRS, no recalculado a partir de datos brutos."],
@@ -149,7 +143,7 @@ const T = {
     lesson: "Lección aprendida",
     source: "Fuente",
     cTitle: "Saber qué proteger, antes de que el fuego decida.",
-    cText: "Abre el simulador, inicia un incendio en cualquier parte del traje y mira qué alcanza y cuándo.",
+    cText: "Abre el simulador, enciende un fuego en cualquier parte del traje y mira qué alcanza y cuándo.",
   },
 };
 
@@ -175,23 +169,6 @@ function Dots({ n, label }: { n: number; label: string }) {
   );
 }
 
-/** Appears once the visitor scrolls past the hero, so the simulator is always one tap away. */
-function FloatingSimCta({ label }: { label: string }) {
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > 600);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-  if (!show) return null;
-  return (
-    <Link href="/simulator" className="cta-sim fixed bottom-5 left-4 z-30 px-5 py-3 text-sm shadow-xl sm:left-6">
-      <span aria-hidden="true">🔥</span> {label}
-    </Link>
-  );
-}
-
 export default function Home() {
   const t = useT(T);
   const { lang } = useLang();
@@ -206,7 +183,7 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4 pt-14 sm:pt-20">
         <Image
           src="/brand/japax-logo.png"
-          alt={lang === "es" ? "JaPax — Seguridad contra incendios en el espacio" : "JaPax — Space fire safety"}
+          alt="JaPax — Space fire safety"
           width={1305}
           height={1334}
           priority
@@ -218,10 +195,8 @@ export default function Home() {
         </h1>
         <p className="mt-5 max-w-3xl text-lg text-ink-2">{t.lead}</p>
         <div className="mt-7 flex flex-wrap gap-3">
-          <Link href="/simulator" className="cta-sim px-7 py-3.5 text-lg">
-            <span aria-hidden="true">🔥</span>
+          <Link href="/simulator" className="rounded-lg bg-accent px-5 py-2.5 font-medium text-black hover:brightness-110">
             {t.ctaSim}
-            <span aria-hidden="true">→</span>
           </Link>
           <Link href="/explorer" className="rounded-lg border border-line-2 px-5 py-2.5 text-ink hover:bg-surface-2">
             {t.ctaExp}
@@ -230,8 +205,6 @@ export default function Home() {
             {t.ctaAsk}
           </Link>
         </div>
-
-        <p className="mt-3 text-sm text-ink-2">{t.ctaHint}</p>
 
         <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Stat value={String(data.investigations.length)} label={t.s1} note={t.s1n(withDoi)} />
@@ -281,12 +254,10 @@ export default function Home() {
         </div>
         <p className="mt-4 max-w-3xl text-ink-2">{t.oText}</p>
         <p className="mt-3 max-w-3xl text-xs text-muted">{t.oNote}</p>
-        <Link href="/simulator" className="cta-sim mt-6 px-6 py-3">
-          {t.oCta} <span aria-hidden="true">→</span>
+        <Link href="/simulator" className="link mt-4 inline-block font-medium">
+          {t.oCta} →
         </Link>
       </Section>
-
-      <MissionLives />
 
       {/* FINDINGS */}
       <Section eyebrow={t.fEyebrow} title={t.fTitle}>
@@ -378,11 +349,10 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4 pt-16 text-center">
         <h2 className="mx-auto max-w-3xl text-3xl font-semibold tracking-tight sm:text-4xl">{t.cTitle}</h2>
         <p className="mx-auto mt-3 max-w-2xl text-ink-2">{t.cText}</p>
-        <Link href="/simulator" className="cta-sim mt-6 px-7 py-3.5 text-lg">
-          {t.ctaSim} <span aria-hidden="true">→</span>
+        <Link href="/simulator" className="mt-6 inline-block rounded-lg bg-accent px-5 py-2.5 font-medium text-black hover:brightness-110">
+          {t.ctaSim}
         </Link>
       </section>
-      <FloatingSimCta label={t.ctaFloat} />
     </>
   );
 }

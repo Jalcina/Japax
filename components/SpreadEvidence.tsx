@@ -63,7 +63,7 @@ const T = {
     pUnknown: "presión no incluida en la tabla",
     rows: "filas",
     kinds: { droplet: "gota de líquido", solid: "material sólido", "gas flame": "llama de gas" } as Record<string, string>,
-    flowNote: "Las fuentes del flujo difieren:",
+    flowNote: "Las fuentes difieren en el flujo:",
   },
 };
 

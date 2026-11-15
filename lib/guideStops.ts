@@ -59,7 +59,7 @@ export const GUIDE_T = {
     finish: "Terminar",
     skip: "Saltar recorrido",
     restart: "Empezar de nuevo",
-    resumed: "Te damos de nuevo la bienvenida. Retomamos donde lo dejaste.",
+    resumed: "Bienvenido de nuevo. Retomamos donde lo dejaste.",
     tryLabel: "Pruébalo",
     tour: "Recorrido",
     showTip: "Volver a este paso",
@@ -67,19 +67,19 @@ export const GUIDE_T = {
     pageNames: { "/": "Inicio", "/history": "Cronología", "/simulator": "Simulador", "/explorer": "Investigaciones", "/dashboard": "Ranking", "/references": "Fuentes" } as Record<string, string>,
     steps: {
       "/": [
-        { sel: "main h1", title: "Por qué existe JaPax", body: "En 1967 un incendio en una cabina de oxígeno puro mató a tres astronautas del Apollo 1. Hoy los trajes espaciales y los hábitats lunares previstos siguen ricos en oxígeno, y en el espacio no hay a quién llamar. JaPax responde a una pregunta: si se declara un incendio, ¿qué hay que proteger primero? Cada cifra lleva su PSI ID, su DOI y una etiqueta de evidencia: medido, reportado, estimado o simulado." },
-        { sel: "main ol[aria-label]", title: "Protege lo que te mantiene vivo", body: "En nuestra simulación, un incendio que empieza en la prenda superior de un traje espacial llega al depósito de oxígeno en menos de un minuto, y el depósito revienta a los 2:13. Blindar el depósito convierte seis reventones en seis incendios en uno. Es un modelo, etiquetado como tal, no un ensayo.", tryIt: "Abre el simulador y inicia un incendio en el traje." },
+        { sel: "main h1", title: "Por qué existe JaPax", body: "En 1967 un fuego en una cabina de oxígeno puro mató a tres astronautas del Apollo 1. Hoy los trajes espaciales y los hábitats lunares previstos siguen ricos en oxígeno, y en el espacio no hay a quién llamar. JaPax responde a una pregunta: si empieza un fuego, ¿qué hay que proteger primero? Cada cifra lleva su PSI ID, su DOI y una etiqueta de evidencia: medido, reportado, estimado o simulado." },
+        { sel: "main ol[aria-label]", title: "Protege lo que te mantiene vivo", body: "En nuestra simulación, un fuego que empieza en la prenda superior de un traje espacial llega al depósito de oxígeno en menos de un minuto, y el depósito revienta a los 2:13. Blindar el depósito convierte seis reventones de seis fuegos en uno. Es un modelo, etiquetado como tal, no un ensayo.", tryIt: "Abre el simulador y enciende un fuego en el traje." },
         { sel: MENU, title: "Navegación", body: "Las secciones siguen el camino desde las vidas perdidas hasta la respuesta: cronología, simulador, investigaciones, ranking, evidencia de seguridad contra incendios y fuentes." },
         { sel: "[data-pax]", title: "Pax", body: "Pax responde consultas técnicas sobre el corpus PSI y señala cada afirmación que queda fuera de él. Úsalo para consultar los datos o reiniciar este recorrido." },
       ],
       "/history": [
-        { sel: "main h1", title: "Cronología", body: "Siniestros que moldearon los requisitos de seguridad contra incendios en naves espaciales, desde el incendio de la cabina del Apollo 1 hasta el de la vela de oxígeno de la Mir. Cada entrada enlaza a su fuente primaria." },
-        { sel: "main ol", title: "Línea de tiempo", body: "En orden cronológico, desde los primeros accidentes hasta los experimentos en vuelo actuales, como Saffire, SAME y FLEX.", tryIt: "Desplázate y abre cualquier evento." },
+        { sel: "main h1", title: "Cronología", body: "Siniestros que moldearon los requisitos de seguridad contra incendios en naves, desde el incendio de la cabina del Apollo 1 hasta el de la vela de oxígeno de la Mir. Cada entrada enlaza a su fuente primaria." },
+        { sel: "main ol", title: "Cronología", body: "En orden cronológico, desde los primeros accidentes hasta los experimentos en vuelo actuales, como Saffire, SAME y FLEX.", tryIt: "Baja y abre cualquier evento." },
       ],
       "/simulator": [
-        { sel: "main h1", title: "Modelo de incendio por componentes", body: "Elige un entorno, inicia un incendio en un componente y observa la propagación por el grafo de componentes. Cada parámetro lleva su etiqueta: medido, reportado, estimado o simulado." },
+        { sel: "main h1", title: "Modelo de incendio por componentes", body: "Elige un entorno, inicia el fuego en un componente y observa la propagación por el grafo de componentes. Cada parámetro lleva su etiqueta: medido, reportado, estimado o simulado." },
         { sel: "#sim-tabs", title: "Tres vistas", body: "Toca y arde es el modelo de propagación y supresión. Evidencia resume los ensayos registrados. Datos expone las tablas de ensayos PSI sin tratar.", tryIt: "Abre la pestaña Evidencia y vuelve." },
-        { sel: "#fire-lab", title: "Toca y arde", body: "Inicia un incendio en cualquier componente de la escena 3D y observa cómo se actualizan las variables de estado. Después aplica medidas de mitigación y revisa el registro de la ejecución (CSV/TXT).", tryIt: "Selecciona un componente." },
+        { sel: "#fire-lab", title: "Toca y arde", body: "Inicia el fuego en cualquier componente de la escena 3D y observa cómo se actualizan las variables de estado. Después aplica medidas de mitigación y revisa el registro de la ejecución (CSV/TXT).", tryIt: "Selecciona un componente." },
         { sel: "section[aria-live=polite]", title: "Condiciones de contorno", body: "Los indicadores resumen el entorno: fracción molar de oxígeno, presión total y nivel de gravedad." },
       ],
       "/explorer": [
@@ -88,7 +88,7 @@ export const GUIDE_T = {
         { sel: "main input[type=checkbox]", title: "Comparación en paralelo", body: "Selecciona hasta tres investigaciones para comparar sus condiciones de ensayo en una tabla." },
       ],
       "/dashboard": [
-        { sel: "main h1", title: "Ranking multicriterio", body: "Las investigaciones no tienen el mismo peso para cada objetivo. Pondera los criterios para ordenarlas según tu caso de uso." },
+        { sel: "main h1", title: "Ranking multicriterio", body: "Las investigaciones no pesan igual para cada objetivo. Pondera los criterios para ordenarlas según tu caso de uso." },
         { sel: "input[type=range]", title: "Ponderación de criterios", body: "Cada control fija el peso de un criterio; el ranking se recalcula al instante.", tryIt: "Mueve un control y observa cómo cambia el ranking." },
       ],
       "/references": [
