@@ -25,11 +25,11 @@ const TEAM: { name: string; initials: string; github: string; linkedin?: string;
 ];
 
 /** Bump when the files in /public/about are re-rendered: they are cached for 7 days, so the URL must change. */
-const VIDEO_V = 3;
+const VIDEO_V = 4;
 
 const T = {
   en: {
-    videoLabel: "JaPax introduction video (about 70 seconds, with narration)",
+    videoLabel: "JaPax introduction video (about 95 seconds, with narration)",
     eyebrow: "About us",
     title: "The team behind JaPax",
     intro: "JaPax was built by two people for the NASA Space Apps Challenge 2026 (Seville), answering the challenge “Flame in Freefall”.",
@@ -63,7 +63,7 @@ const T = {
     back: "Back to home",
   },
   es: {
-    videoLabel: "Vídeo de presentación de JaPax (unos 70 segundos, con locución)",
+    videoLabel: "Vídeo de presentación de JaPax (unos 105 segundos, con locución)",
     eyebrow: "Sobre nosotros",
     title: "El equipo detrás de JaPax",
     intro: "JaPax lo hemos creado dos personas para el NASA Space Apps Challenge 2026 (Sevilla), respondiendo al reto “Flame in Freefall”.",
