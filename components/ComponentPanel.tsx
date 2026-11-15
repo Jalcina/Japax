@@ -13,6 +13,8 @@ import { buildRunRecord, type BuildInput, type RunRecord } from "@/lib/runRecord
 import { LabBlast } from "@/lib/labBlast";
 import { spreadFactors, type Atm } from "@/lib/labPhysics";
 import pkg from "@/package.json";
+import { useTr } from "@/lib/i18n";
+import { ENERGETIC_KIND_ES, END_REASON_ES, MATERIAL_ES, STATE_EN, STATE_ES, TAG_ES } from "@/lib/componentEs";
 
 /** the suit model is fitted to 3.1 scene units for about 2 m, so one metre is about 1.55 units */
 const UNITS_PER_M = 1.55;
@@ -32,13 +34,15 @@ const MEASURED = new Set(["measured", "reported"]);
 export interface PanelPick { name: string; material: string; n: number }
 
 function Chip({ tag }: { tag: string }) {
-  return <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${TAGC[tag] ?? TAGC.estimated}`}>{tag}</span>;
+  const { lang } = useTr();
+  return <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${TAGC[tag] ?? TAGC.estimated}`}>{lang === "es" ? TAG_ES[tag] ?? tag : tag}</span>;
 }
 function FactLine({ f, hide }: { f: CFact; hide: boolean }) {
-  if (hide && !MEASURED.has(f.tag)) return <p className="text-xs text-muted">Hidden: this statement is not measured data (switch off “measured only” to see it).</p>;
+  const { t, X } = useTr();
+  if (hide && !MEASURED.has(f.tag)) return <p className="text-xs text-muted">{t("Hidden: this statement is not measured data (switch off “measured only” to see it).")}</p>;
   return (
     <p className="text-xs text-ink-2">
-      <Chip tag={f.tag} /> {f.text} <span className="text-muted">Source: {f.src}</span>
+      <Chip tag={f.tag} /> {X(f.text)} <span className="text-muted">{t("Source:")} {X(f.src)}</span>
     </p>
   );
 }
@@ -79,18 +83,19 @@ const f1 = (n: number) => (Math.round(n * 10) / 10).toString();
 
 /** The alert (rupture) or status (tank under heat) shown when the fire reaches an energetic component. Every figure comes from lib/componentReport. */
 function RuptureNotice({ rep, atm, condTag, tank, applied }: { rep: NonNullable<ReturnType<typeof ruptureReport>>; atm: Atm; condTag: string; tank: CComponent; applied: Record<string, number> }) {
+  const { lang, t, X } = useTr();
   const [lo, hi] = rep.window;
-  const name = rep.tankLabel;
-  const conds = `O2 ${Math.round(atm.o2 * 100)} %, ${(atm.pressureAtm * 14.696).toFixed(1)} psi, ${atm.gravityG} g, airflow ${atm.flowCmS} cm/s`;
+  const name = X(rep.tankLabel);
+  const conds = t("O2 {o2} %, {psi} psi, {g} g, airflow {flow} cm/s", { o2: Math.round(atm.o2 * 100), psi: (atm.pressureAtm * 14.696).toFixed(1), g: atm.gravityG, flow: atm.flowCmS });
   const row = (k: string, v: string, tag: string) => (
     <li className="text-xs text-ink-2"><span className="font-medium text-ink">{k}:</span> {v} <Chip tag={tag} /></li>
   );
   if (rep.status === "heating") {
     return (
       <div role="status" className="mt-2 rounded-lg border border-amber-400/60 bg-amber-500/10 p-3" data-testid="heat-notice">
-        <p className="text-sm font-semibold text-amber-200">{name} under heat: the fire reached it at t = {f1(rep.reachedAt ?? 0)} s and has heated it for {f1(rep.exposureS ?? 0)} s.</p>
+        <p className="text-sm font-semibold text-amber-200">{t("{name} under heat: the fire reached it at t = {t0} s and has heated it for {exp} s.", { name, t0: f1(rep.reachedAt ?? 0), exp: f1(rep.exposureS ?? 0) })}</p>
         <p className="text-xs text-ink-2">
-          {rep.remainingToPlannedS !== null ? `The model plans the rupture in ${f1(rep.remainingToPlannedS)} s (mid-point of an assumed ${lo}-${hi} s heating window); across the whole window that is between ${f1(rep.remainingToWindowS?.[0] ?? 0)} and ${f1(rep.remainingToWindowS?.[1] ?? 0)} s left.` : `No rupture is planned in this run.`} <Chip tag="estimated" />
+          {rep.remainingToPlannedS !== null ? t("The model plans the rupture in {s} s (mid-point of an assumed {lo}-{hi} s heating window); across the whole window that is between {a} and {b} s left.", { s: f1(rep.remainingToPlannedS), lo, hi, a: f1(rep.remainingToWindowS?.[0] ?? 0), b: f1(rep.remainingToWindowS?.[1] ?? 0) }) : t("No rupture is planned in this run.")} <Chip tag="estimated" />
         </p>
       </div>
     );
@@ -98,33 +103,34 @@ function RuptureNotice({ rep, atm, condTag, tank, applied }: { rep: NonNullable<
   if (rep.status === "relieved") {
     return (
       <div role="status" className="mt-2 rounded-lg border border-sky-400/50 bg-sky-500/10 p-3" data-testid="relief-notice">
-        <p className="text-sm font-semibold text-sky-200">{name}: pressure relieved at t = {f1(rep.relievedAt ?? 0)} s, {f1(rep.exposureS ?? 0)} s after the fire reached it; no rupture in this run.</p>
-        <p className="text-xs text-muted">Engineering proposal (hypothesis): the engine removes the stored pressure before the assumed window ends. <Chip tag="estimated" /></p>
+        <p className="text-sm font-semibold text-sky-200">{t("{name}: pressure relieved at t = {t0} s, {exp} s after the fire reached it; no rupture in this run.", { name, t0: f1(rep.relievedAt ?? 0), exp: f1(rep.exposureS ?? 0) })}</p>
+        <p className="text-xs text-muted">{t("Engineering proposal (hypothesis): the engine removes the stored pressure before the assumed window ends.")} <Chip tag="estimated" /></p>
       </div>
     );
   }
-  const consequences = rep.consequences.map((c) => `${c.label} (${c.state}, t = ${f1(c.t)} s)`).join("; ");
-  const measures = Object.entries(applied).map(([id, at]) => `${id} at ${f1(at)} s`).join("; ");
+  const stateName = (s: string) => ((lang === "es" ? STATE_ES : STATE_EN)[s] ?? s);
+  const consequences = rep.consequences.map((c) => `${X(c.label)} (${stateName(c.state).toLowerCase()}, t = ${f1(c.t)} s)`).join("; ");
+  const measures = Object.entries(applied).map(([id, at]) => t("{id} at {s} s", { id, s: f1(at) })).join("; ");
   return (
     <div role="alert" className="mt-2 rounded-lg border border-red-400/70 bg-red-500/10 p-3" data-testid="rupture-alert">
       <p className="text-sm font-semibold text-red-200">
         {rep.forced
-          ? `${name} ruptured: forced demo scenario, the failure is imposed at t = 0 s without any heating.`
-          : `${name} ruptured: the fire reached the tank and heated it for ${f1(rep.exposureS ?? 0)} s.`}
+          ? t("{name} ruptured: forced demo scenario, the failure is imposed at t = 0 s without any heating.", { name })
+          : t("{name} ruptured: the fire reached the tank and heated it for {exp} s.", { name, exp: f1(rep.exposureS ?? 0) })}
       </p>
       <ul className="mt-1 space-y-1">
-        {row("Where it started", `${rep.chain[0]?.label ?? rep.originId} (ignition point chosen by the user, t = 0 s)`, "estimated")}
-        {row("Fire path to the tank", rep.chain.length > 1 ? rep.chain.map((s) => `${s.label} ${f1(s.t)} s`).join(" → ") : "the fire started at the tank itself", "estimated")}
-        {row("Time heated before the rupture", rep.forced ? "none (forced scenario)" : `${f1(rep.exposureS ?? 0)} s`, "estimated")}
-        {row("Rupture window used", `assumed ${lo}-${hi} s of heating, mid-point ${f1(rep.usedS)} s (no dataset for this tank)`, "estimated")}
-        {row("Conditions", conds, condTag)}
-        {row("Path", rep.forced ? "forced scenario (demo, not a prediction)" : "physical path: the heating window ran out", "estimated")}
-        {row("Neighbours hit", consequences || `none inside the declared radius of ${tank.energetic?.blastRadiusM ?? "?"} m`, "estimated")}
-        {row("Measures", measures ? `applied (${measures}) but they did not stop this rupture` : "none applied", "estimated")}
+        {row(t("Where it started"), t("{label} (ignition point chosen by the user, t = 0 s)", { label: X(rep.chain[0]?.label ?? rep.originId) }), "estimated")}
+        {row(t("Fire path to the tank"), rep.chain.length > 1 ? rep.chain.map((s) => `${X(s.label)} ${f1(s.t)} s`).join(" → ") : t("the fire started at the tank itself"), "estimated")}
+        {row(t("Time heated before the rupture"), rep.forced ? t("none (forced scenario)") : `${f1(rep.exposureS ?? 0)} s`, "estimated")}
+        {row(t("Rupture window used"), t("assumed {lo}-{hi} s of heating, mid-point {mid} s (no dataset for this tank)", { lo, hi, mid: f1(rep.usedS) }), "estimated")}
+        {row(t("Conditions"), conds, condTag)}
+        {row(t("Path"), rep.forced ? t("forced scenario (demo, not a prediction)") : t("physical path: the heating window ran out"), "estimated")}
+        {row(t("Neighbours hit"), consequences || t("none inside the declared radius of {r} m", { r: tank.energetic?.blastRadiusM ?? "?" }), "estimated")}
+        {row(t("Measures"), measures ? t("applied ({list}) but they did not stop this rupture", { list: measures }) : t("none applied"), "estimated")}
       </ul>
       <p className="mt-2 text-xs text-ink-2">
-        Why: the oxygen is not the cause by itself. It feeds the combustion and holds the pressure; heating the vessel is what the model counts toward the rupture.
-        The window is an assumption, not a pressure or strength calculation. <Chip tag="estimated" />
+        {t("Why: the oxygen is not the cause by itself. It feeds the combustion and holds the pressure; heating the vessel is what the model counts toward the rupture.")}{" "}
+        {t("The window is an assumption, not a pressure or strength calculation.")} <Chip tag="estimated" />
       </p>
       {tank.energetic && <FactLine f={tank.energetic.failureMode} hide={false} />}
     </div>
@@ -151,6 +157,8 @@ export default function ComponentPanel(props: PanelProps) {
 }
 
 function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", labPhase }: PanelProps & { bundle: EnvBundle }) {
+  const { lang, t: T, X } = useTr();
+  const stateName = (st: string) => (lang === "es" ? STATE_ES : (LABEL as Record<string, string>))[st] ?? st;
   const CATALOG = bundle.catalog;
   const MAP = bundle.map;
   const HORIZON_S = bundle.horizonS ?? DEFAULT_HORIZON_S;
@@ -174,8 +182,10 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
 
   const cur = useRef<CurRun | null>(null); // the run on screen while it has not ended
   const runMeta = useRef<{ runId: string; ts: string } | null>(null);
-  const mk = useRef<(c: CurRun, endAt?: BuildInput["endAt"]) => RunRecord>(() => { throw new Error("run record builder not ready"); });
+  const mk = useRef<(c: CurRun, endAt?: BuildInput["endAt"], lang?: "en" | "es") => RunRecord>(() => { throw new Error("run record builder not ready"); });
   const [ended, setEnded] = useState<RunRecord | null>(null);
+  /** inputs of the run that ended: the on-screen record is rebuilt from them when the language changes; files always use the English record */
+  const endedSrc = useRef<{ c: CurRun; endAt?: BuildInput["endAt"] } | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [, bump] = useState(0);
 
@@ -184,6 +194,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
     if (cur.current) { sessionRuns.push(mk.current(cur.current, { t: cur.current.t, reason: "interrupted_by_user" })); cur.current = null; }
     if (id) { runSeq += 1; runMeta.current = { runId: `run-${String(runSeq).padStart(3, "0")}`, ts: new Date().toISOString() }; } else runMeta.current = null;
     setEnded(null);
+    endedSrc.current = null;
     setDialogOpen(false);
     bump((n) => n + 1);
     setRes(r);
@@ -207,7 +218,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
   );
   // the files and the window are built from these very events (sim.events), through the immutable RunRecord, never from a second log
   cur.current = sim && source && runMeta.current && !ended ? { runId: runMeta.current.runId, ts: runMeta.current.ts, source, atm, forced, measuredOnly, applied, events: sim.events, t } : null;
-  mk.current = (c, endAt) => buildRunRecord({ runId: c.runId, timestampUtc: c.ts, appVersion: pkg.version, env, source: c.source, atm: c.atm, atmTag: condTag, forced: c.forced, measuredOnly: c.measuredOnly, applied: c.applied, events: c.events, catalog: CATALOG, endAt });
+  mk.current = (c, endAt, l) => buildRunRecord({ lang: l, runId: c.runId, timestampUtc: c.ts, appVersion: pkg.version, env, source: c.source, atm: c.atm, atmTag: condTag, forced: c.forced, measuredOnly: c.measuredOnly, applied: c.applied, events: c.events, catalog: CATALOG, endAt });
   // leaving the environment closes the run on screen
   useEffect(() => () => { if (cur.current) { sessionRuns.push(mk.current(cur.current, { t: cur.current.t, reason: "interrupted_by_user" })); cur.current = null; } }, []);
   /** the engine's own end of the run: playback stops exactly there */
@@ -216,14 +227,19 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
 
   const finishWith = (endAt?: BuildInput["endAt"]) => {
     if (!cur.current) return;
-    const rec = mk.current(cur.current, endAt);
-    sessionRuns.push(rec);
+    const c = cur.current;
+    sessionRuns.push(mk.current(c, endAt));
+    endedSrc.current = { c, endAt };
+    const rec = mk.current(c, endAt, lang);
     cur.current = null;
     setEnded(rec);
     setDialogOpen(true); // opens once per run; it never reopens by itself (the "View results" button does)
     setPlaying(false);
     if (endAt) setT(endAt.t);
   };
+  useEffect(() => {
+    if (endedSrc.current) setEnded(mk.current(endedSrc.current.c, endedSrc.current.endAt, lang));
+  }, [lang]);
   // natural end: the clock reached the engine's terminal event
   useEffect(() => {
     if (sim && source && !ended && cur.current && t >= endT) finishWith();
@@ -281,8 +297,8 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
     if (getComputedStyle(host).position === "static") host.style.position = "relative";
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.textContent = "PLSS O2 tank";
-    btn.setAttribute("aria-label", "PLSS (portable life-support backpack) oxygen tank, a virtual component on the back of the suit: start the fire here");
+    btn.textContent = T("PLSS O2 tank");
+    btn.setAttribute("aria-label", T("PLSS (portable life-support backpack) oxygen tank, a virtual component on the back of the suit: start the fire here"));
     btn.setAttribute("data-testid", "tank-marker");
     btn.style.cssText = "position:absolute;left:0;top:0;z-index:5;padding:6px 12px;min-height:32px;border-radius:9999px;border:1px solid #fbbf24;background:rgba(10,12,18,.82);color:#fde68a;font:600 11px system-ui;cursor:pointer;white-space:nowrap;display:none;will-change:transform";
     btn.onclick = () => start(tank.id, { componentId: tank.id, method: "material", key: "virtual component" });
@@ -309,7 +325,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
       btn.style.transform = `translate(${Math.round(sx)}px,${Math.round(sy)}px) translate(-50%,-50%)`;
     });
     return () => { dead = true; btn.remove(); };
-  }, [api, start, TANK, env]);
+  }, [api, start, TANK, env, lang]);
 
   useEffect(() => {
     if (!api) return;
@@ -360,7 +376,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
     return CATALOG.components.flatMap((c) => c.measures).filter((m) => (seen.has(m.id) ? false : (seen.add(m.id), true)));
   }, []);
   const last: CEvent | undefined = visible.at(-1);
-  const label = (id: string) => BY_ID.get(id)?.label ?? id;
+  const label = (id: string) => X(BY_ID.get(id)?.label ?? id);
   const speedNow = spreadFactors(atm, "fabric").mmS;
   const rep = sim && TANK && source ? ruptureReport(sim.events, t, CATALOG, source) : null;
 
@@ -375,25 +391,25 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
   return (
     <div className="card p-4" id="component-panel">
       <div className="flex items-baseline justify-between gap-2">
-        <h3 className="font-semibold">Component engine</h3>
-        <span className="rounded bg-fuchsia-500/15 px-1.5 py-0.5 text-[10px] font-medium text-fuchsia-300">simulation</span>
+        <h3 className="font-semibold">{T("Component engine")}</h3>
+        <span className="rounded bg-fuchsia-500/15 px-1.5 py-0.5 text-[10px] font-medium text-fuchsia-300">{T("simulation")}</span>
       </div>
-      <p className="mt-1 text-xs text-muted">Tap a part of the model to identify it and see how a fire could move between components. The timeline, the colours on the model and the numbers come from the same engine.</p>
+      <p className="mt-1 text-xs text-muted">{T("Tap a part of the model to identify it and see how a fire could move between components. The timeline, the colours on the model and the numbers come from the same engine.")}</p>
       <label className="mt-2 flex items-center gap-2 text-xs text-ink-2">
         <input type="checkbox" checked={measuredOnly} onChange={(e) => setMeasuredOnly(e.target.checked)} />
-        Measured only (hide our simulation)
+        {T("Measured only (hide our simulation)")}
       </label>
 
-      {pick && <p className="mt-2 text-[11px] text-muted" data-testid="model-part">Model part tapped: {pick.material || "(no material name)"} · mesh {pick.name || "(unnamed)"}</p>}
+      {pick && <p className="mt-2 text-[11px] text-muted" data-testid="model-part">{T("Model part tapped: {material} · mesh {mesh}", { material: pick.material || T("(no material name)"), mesh: pick.name || T("(unnamed)") })}</p>}
 
       {!source && (
         <div className="mt-3 text-sm">
           {res ? (
             <p className="rounded-lg border border-line p-2.5 text-xs text-ink-2">
-              {res.method === "ignored" ? `Not a component: ${res.note ?? "declared as not simulated in the map"}.` : "Unidentified surface: the 3D model does not say what this part is. The fire still starts there, but the component engine has no data for it."} Pick a labelled part{TANK ? `, or start at the ${shortLabel(TANK)} below` : ""}.
+              {res.method === "ignored" ? T("Not a component: {note}.", { note: X(res.note ?? "") || T("declared as not simulated in the map") }) : T("Unidentified surface: the 3D model does not say what this part is. The fire still starts there, but the component engine has no data for it.")} {TANK ? T("Pick a labelled part, or start at the {tank} below.", { tank: X(shortLabel(TANK)) }) : T("Pick a labelled part.")}
             </p>
           ) : (
-            <p className="text-xs text-ink-2">No part selected yet.</p>
+            <p className="text-xs text-ink-2">{T("No part selected yet.")}</p>
           )}
         </div>
       )}
@@ -403,28 +419,28 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
           <div className="mt-3 flex flex-wrap gap-2">
             <button onClick={() => start(TANK.id, { componentId: TANK.id, method: "material", key: TANK.virtual ? "virtual component" : "catalog" })}
               className="rounded-lg border border-line-2 px-3 py-1.5 text-sm text-ink-2 hover:text-ink">
-              Start at the {shortLabel(TANK)}
+              {T("Start at the {tank}", { tank: X(shortLabel(TANK)) })}
             </button>
             <label className="flex items-center gap-2 text-sm text-ink-2">
               <input type="checkbox" checked={forced} onChange={(e) => { setForced(e.target.checked); setT(0); setPlaying(!!source); }} />
-              Forced failure (demo scenario, not a prediction)
+              {T("Forced failure (demo scenario, not a prediction)")}
             </label>
           </div>
-          {TANK.virtual && env === "suit" && <p className="mt-1 text-[11px] text-muted">PLSS = the portable life-support backpack. The suit model has no separately selectable oxygen tank, so it is a virtual component (tap the “PLSS O2 tank” marker on the back of the suit). Its effects are drawn at the torso.</p>}
+          {TANK.virtual && env === "suit" && <p className="mt-1 text-[11px] text-muted">{T("PLSS = the portable life-support backpack. The suit model has no separately selectable oxygen tank, so it is a virtual component (tap the “PLSS O2 tank” marker on the back of the suit). Its effects are drawn at the torso.")}</p>}
         </>
       )}
 
       {comp && (
         <div className="mt-3 rounded-lg border border-line p-3">
-          <p className="text-sm font-semibold">{comp.label}</p>
-          <p className="text-xs text-ink-2">{comp.function}</p>
+          <p className="text-sm font-semibold">{X(comp.label)}</p>
+          <p className="text-xs text-ink-2">{X(comp.function)}</p>
           <p className="mt-1 text-xs text-muted">
-            Material class: {comp.material}. Identified by: {res?.method === "material" && !comp.virtual ? "material name in the model (manual label, medium confidence)" : comp.virtual ? "virtual component (not in the 3D model)" : res?.method}.
+            {T("Material class: {material}. Identified by: {how}.", { material: lang === "es" ? MATERIAL_ES[comp.material] ?? comp.material : comp.material, how: res?.method === "material" && !comp.virtual ? T("material name in the model (manual label, medium confidence)") : comp.virtual ? T("virtual component (not in the 3D model)") : res?.method ?? "" })}
           </p>
           <FactLine f={comp.flammability} hide={measuredOnly} />
           {comp.energetic && (
             <div className="mt-2 space-y-1 border-t border-line pt-2">
-              <p className="text-xs font-semibold text-amber-300">Energetic component: {comp.energetic.kind.replace("_", " ")}, contents {comp.energetic.contents}</p>
+              <p className="text-xs font-semibold text-amber-300">{T("Energetic component: {kind}, contents {contents}", { kind: lang === "es" ? ENERGETIC_KIND_ES[comp.energetic.kind] ?? comp.energetic.kind.replace("_", " ") : comp.energetic.kind.replace("_", " "), contents: X(comp.energetic.contents) })}</p>
               <FactLine f={comp.energetic.pressureNote} hide={measuredOnly} />
               <FactLine f={comp.energetic.failureMode} hide={measuredOnly} />
             </div>
@@ -436,18 +452,18 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
         <>
           {ended ? (
             <div className="mt-3 rounded-lg border border-line-2 bg-surface p-3" role="status" data-testid="ended-status">
-              <p className="text-sm font-semibold">Simulation ended · {ended.endReason}</p>
-              <p className="text-xs text-ink-2">At t = {ended.endT.toFixed(1)} s. The timeline, the numbers and the colours on the model are stopped. {ended.endWhy}.</p>
+              <p className="text-sm font-semibold">{T("Simulation ended · {reason}", { reason: lang === "es" ? END_REASON_ES[ended.endReason] ?? ended.endReason : ended.endReason })}</p>
+              <p className="text-xs text-ink-2">{T("At t = {t0} s. The timeline, the numbers and the colours on the model are stopped. {why}.", { t0: ended.endT.toFixed(1), why: ended.endWhy })}</p>
               <div className="mt-2 flex flex-wrap gap-2 text-sm">
-                <button onClick={() => setDialogOpen(true)} className="rounded-lg border border-line-2 px-3 py-1.5" data-testid="view-results">View results</button>
-                <button onClick={lightAgain} className="rounded-lg bg-accent px-3 py-1.5 font-semibold text-black" data-testid="light-again-panel">Light it again</button>
+                <button onClick={() => setDialogOpen(true)} className="rounded-lg border border-line-2 px-3 py-1.5" data-testid="view-results">{T("View results")}</button>
+                <button onClick={lightAgain} className="rounded-lg bg-accent px-3 py-1.5 font-semibold text-black" data-testid="light-again-panel">{T("Light it again")}</button>
               </div>
             </div>
           ) : (
             <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-              <button onClick={() => setPlaying((p) => !p)} className="rounded-lg border border-line-2 px-3 py-1.5">{playing ? "Pause" : "Play"}</button>
-              <button onClick={() => { setT(0); setPlaying(true); }} className="rounded-lg border border-line-2 px-3 py-1.5 text-ink-2 hover:text-ink">Restart</button>
-              <label className="text-ink-2">Speed
+              <button onClick={() => setPlaying((p) => !p)} className="rounded-lg border border-line-2 px-3 py-1.5">{playing ? T("Pause") : T("Play")}</button>
+              <button onClick={() => { setT(0); setPlaying(true); }} className="rounded-lg border border-line-2 px-3 py-1.5 text-ink-2 hover:text-ink">{T("Restart")}</button>
+              <label className="text-ink-2">{T("Speed")}
                 <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))} className="ml-1 rounded-lg border border-line-2 bg-surface px-1.5 py-1 text-ink">
                   <option value={1}>×1</option><option value={4}>×4</option><option value={16}>×16</option><option value={64}>×64</option><option value={256}>×256</option>
                 </select>
@@ -455,17 +471,17 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
             </div>
           )}
           <div className="mt-2">
-            <label htmlFor="cp-time" className="flex justify-between text-xs text-ink-2"><span>Simulated time</span><span className="tabular-nums">{t.toFixed(0)} s</span></label>
+            <label htmlFor="cp-time" className="flex justify-between text-xs text-ink-2"><span>{T("Simulated time")}</span><span className="tabular-nums">{t.toFixed(0)} s</span></label>
             <input id="cp-time" type="range" min={0} max={Math.max(maxT, 1)} step={0.5} value={t} disabled={!!ended} onChange={(e) => { setPlaying(false); setT(Number(e.target.value)); }} className="w-full" />
           </div>
 
           <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-            <div className="rounded-lg border border-line p-2"><p className="text-muted">Components reached</p><p className="text-lg font-semibold tabular-nums">{reached} / {CATALOG.components.length}</p><Chip tag="estimated" /></div>
-            <div className="rounded-lg border border-line p-2"><p className="text-muted">Spread speed (fabric reference)</p><p className="text-lg font-semibold tabular-nums">{speedNow.toFixed(1)} mm/s</p><Chip tag="estimated" /></div>
+            <div className="rounded-lg border border-line p-2"><p className="text-muted">{T("Components reached")}</p><p className="text-lg font-semibold tabular-nums">{reached} / {CATALOG.components.length}</p><Chip tag="estimated" /></div>
+            <div className="rounded-lg border border-line p-2"><p className="text-muted">{T("Spread speed (fabric reference)")}</p><p className="text-lg font-semibold tabular-nums">{speedNow.toFixed(1)} mm/s</p><Chip tag="estimated" /></div>
             {TANK?.energetic && (
               <div className="col-span-2 rounded-lg border border-line p-2">
-                <p className="text-muted">{shortLabel(TANK)} outcome</p>
-                <p className="font-semibold">{rupture ? `Ruptures at about ${rupture.t.toFixed(0)} s${rupture.forced ? " (forced scenario)" : ` (mid-point of an assumed ${TANK.energetic.heatToRuptureS[0]}-${TANK.energetic.heatToRuptureS[1]} s heating window, no dataset)`}` : relieved ? `Rupture avoided: pressure relieved at ${relieved.t.toFixed(0)} s` : "No rupture in this run"}</p>
+                <p className="text-muted">{T("{tank} outcome", { tank: X(shortLabel(TANK)) })}</p>
+                <p className="font-semibold">{rupture ? (rupture.forced ? T("Ruptures at about {s} s (forced scenario)", { s: rupture.t.toFixed(0) }) : T("Ruptures at about {s} s (mid-point of an assumed {lo}-{hi} s heating window, no dataset)", { s: rupture.t.toFixed(0), lo: TANK.energetic.heatToRuptureS[0], hi: TANK.energetic.heatToRuptureS[1] })) : relieved ? T("Rupture avoided: pressure relieved at {s} s", { s: relieved.t.toFixed(0) }) : T("No rupture in this run")}</p>
                 <Chip tag="estimated" />
               </div>
             )}
@@ -473,37 +489,37 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
 
           {rep && rep.status !== "none" && (
             measuredOnly
-              ? <p className="mt-2 text-xs text-muted">Rupture notice hidden: it is built from simulated (estimated) events, not measured data.</p>
+              ? <p className="mt-2 text-xs text-muted">{T("Rupture notice hidden: it is built from simulated (estimated) events, not measured data.")}</p>
               : <RuptureNotice rep={rep} atm={atm} condTag={condTag} tank={TANK as NonNullable<typeof TANK>} applied={applied} />
           )}
 
-          <h4 className="mt-3 text-sm font-semibold">Components</h4>
+          <h4 className="mt-3 text-sm font-semibold">{T("Components")}</h4>
           <ul className="mt-1 grid grid-cols-1 gap-1 text-xs sm:grid-cols-2">
             {CATALOG.components.map((c) => (
               <li key={c.id} className="flex items-center justify-between gap-2 rounded border border-line px-2 py-1">
-                <span>{c.label}</span>
-                <span className={states[c.id] === "burning" ? "text-orange-300" : states[c.id] === "intact" ? "text-muted" : "text-amber-300"}>{LABEL[states[c.id]]}</span>
+                <span>{X(c.label)}</span>
+                <span className={states[c.id] === "burning" ? "text-orange-300" : states[c.id] === "intact" ? "text-muted" : "text-amber-300"}>{stateName(states[c.id])}</span>
               </li>
             ))}
           </ul>
 
-          <h4 className="mt-3 text-sm font-semibold">Timeline</h4>
-          <p className="sr-only" aria-live="polite">{last ? `${label(last.componentId)}: ${LABEL[last.state as Shown]} at ${last.t.toFixed(0)} seconds` : ""}</p>
+          <h4 className="mt-3 text-sm font-semibold">{T("Timeline")}</h4>
+          <p className="sr-only" aria-live="polite">{last ? T("{component}: {state} at {s} seconds", { component: label(last.componentId), state: stateName(last.state), s: last.t.toFixed(0) }) : ""}</p>
           <ol className="mt-1 space-y-1 text-xs">
-            {visible.length === 0 && <li className="text-muted">{measuredOnly ? "Nothing measured to show: every event of this simulation is estimated." : "Press Play."}</li>}
+            {visible.length === 0 && <li className="text-muted">{measuredOnly ? T("Nothing measured to show: every event of this simulation is estimated.") : T("Press Play.")}</li>}
             {visible.map((e, i) => (
               <li key={i} className="rounded border border-line px-2 py-1">
-                <span className="tabular-nums text-ink">t = {e.t.toFixed(0)} s</span> · {label(e.componentId)} · <strong>{LABEL[e.state as Shown]}</strong> <Chip tag={e.tag} />
-                {e.forced && <span className="ml-1 text-fuchsia-300">forced scenario</span>}
-                <span className="block text-muted">{e.reason}</span>
+                <span className="tabular-nums text-ink">t = {e.t.toFixed(0)} s</span> · {label(e.componentId)} · <strong>{stateName(e.state)}</strong> <Chip tag={e.tag} />
+                {e.forced && <span className="ml-1 text-fuchsia-300">{T("forced scenario")}</span>}
+                <span className="block text-muted">{X(e.reason)}</span>
               </li>
             ))}
           </ol>
         </>
       )}
 
-      <h4 className="mt-3 text-sm font-semibold">Measures</h4>
-      <p className="text-[11px] text-muted">Applied at the current simulated time. Every measure here is an engineering proposal (hypothesis); none has test data for this model.</p>
+      <h4 className="mt-3 text-sm font-semibold">{T("Measures")}</h4>
+      <p className="text-[11px] text-muted">{T("Applied at the current simulated time. Every measure here is an engineering proposal (hypothesis); none has test data for this model.")}</p>
       {(!source || ended) && (
         <p className="mt-1 rounded border border-amber-400/40 px-2 py-1 text-[11px] text-amber-300" role="status" data-testid="measures-locked">
           {ended ? "The simulation ended, so measures are locked. Press “Light it again” to try another one." : "Measures unlock once a fire is burning: tap a part of the model (or use the button under the scene) to start one."}
@@ -512,30 +528,30 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
       <ul className="mt-1 space-y-2">
         {allMeasures.map((m) => (
           <li key={m.id} className="rounded-lg border border-line p-2 text-xs">
-            <p className="font-medium text-ink">{m.action}</p>
-            {measuredOnly ? <p className="text-muted">Hidden: not measured data.</p> : <FactLine f={m.effect} hide={false} />}
+            <p className="font-medium text-ink">{X(m.action)}</p>
+            {measuredOnly ? <p className="text-muted">{T("Hidden: not measured data.")}</p> : <FactLine f={m.effect} hide={false} />}
             <button onClick={() => apply(m.id)} disabled={!source || !!ended || m.id in applied}
               className="mt-1 rounded-lg bg-accent px-3 py-1 text-xs font-semibold text-black disabled:cursor-not-allowed disabled:opacity-40">
-              {m.id in applied ? `Applied at ${applied[m.id]} s` : "Apply measure"}
+              {m.id in applied ? T("Applied at {s} s", { s: applied[m.id] }) : T("Apply measure")}
             </button>
           </li>
         ))}
       </ul>
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
-<button onClick={() => setDialogOpen(true)} disabled={!ended} className="rounded-lg border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:text-ink disabled:opacity-40">View results</button>
-        <button onClick={downloadCsv} disabled={runCount === 0} data-testid="csv-download" className="rounded-lg border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:text-ink disabled:opacity-40">Download data (.csv)</button>
+<button onClick={() => setDialogOpen(true)} disabled={!ended} className="rounded-lg border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:text-ink disabled:opacity-40">{T("View results")}</button>
+        <button onClick={downloadCsv} disabled={runCount === 0} data-testid="csv-download" className="rounded-lg border border-line-2 px-3 py-1.5 text-xs text-ink-2 hover:text-ink disabled:opacity-40">{T("Download data (.csv)")}</button>
       </div>
       <p className="mt-1 text-[11px] text-muted" data-testid="csv-hint">
         {runCount === 0
-          ? "No simulation recorded yet: tap a part of the model to start a run, then download its data."
-          : `${runCount} run${runCount === 1 ? "" : "s"} this session, one row per engine event plus a summary row per run. Built in your browser; nothing is uploaded. Times are simulated seconds (equal to real-equivalent seconds in this engine).`}
+          ? T("No simulation recorded yet: tap a part of the model to start a run, then download its data.")
+          : T(runCount === 1 ? "{n} run this session, one row per engine event plus a summary row per run. Built in your browser; nothing is uploaded. Times are simulated seconds (equal to real-equivalent seconds in this engine). The file is in English." : "{n} runs this session, one row per engine event plus a summary row per run. Built in your browser; nothing is uploaded. Times are simulated seconds (equal to real-equivalent seconds in this engine). The file is in English.", { n: runCount })}
       </p>
       <details className="mt-3 text-xs">
-        <summary className="cursor-pointer text-ink-2 hover:text-ink">Data gaps</summary>
-        <ul className="mt-1 list-disc space-y-1 pl-4 text-muted">{CATALOG.gaps.map((g, i) => <li key={i}>{g}</li>)}</ul>
+        <summary className="cursor-pointer text-ink-2 hover:text-ink">{T("Data gaps")}</summary>
+        <ul className="mt-1 list-disc space-y-1 pl-4 text-muted">{CATALOG.gaps.map((g, i) => <li key={i}>{X(g)}</li>)}</ul>
       </details>
-      {ended && dialogOpen && <ResultsDialog run={ended} sessionRuns={allRuns} onClose={() => setDialogOpen(false)} onLightAgain={lightAgain} />}
+      {ended && dialogOpen && <ResultsDialog run={ended} runEn={() => (endedSrc.current ? mk.current(endedSrc.current.c, endedSrc.current.endAt) : ended)} sessionRuns={allRuns} onClose={() => setDialogOpen(false)} onLightAgain={lightAgain} />}
     </div>
   );
 }

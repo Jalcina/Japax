@@ -14,7 +14,10 @@
         "Los autores sugieren que NASA podría usar más su Test 2 alternativo de inflamabilidad (calorímetro de cono), que puede medir propiedades de material equivalentes a las llamas de microgravedad vistas con BRE."
       ],
       "spaceApplication": "Selección de materiales y protocolos de respuesta a incendios en atmósferas de hábitat lunar.",
-      "status": "resultados preliminares"
+      "status": "resultados preliminares",
+      "sensors": [
+        "sensor de flujo de calor (superficie del quemador)"
+      ]
     },
     "PSI-26": {
       "fuelPhase": "sólido",
@@ -99,7 +102,10 @@
         "Incluye variantes internacionales: FLEX-2J (JAXA, propagación de llama en filas de gotas) y FLEX-ICE-GA (biocombustibles, CNR de Italia)."
       ],
       "earthApplication": "Verifica modelos de combustibles reales de transporte e industria.",
-      "status": "completado"
+      "status": "completado",
+      "sensors": [
+        "vídeo con cámara en color (enlace descendente casi en tiempo real)"
+      ]
     },
     "PSI-39": {
       "fuelPhase": "líquido (gotas)",
@@ -115,7 +121,13 @@
       ],
       "spaceApplication": "Las llamas frías son una posible preocupación de seguridad (persistencia tras apagarse la llama visible); su efecto sobre la detección NO está verificado en las fuentes.",
       "earthApplication": "Diseño de combustibles y motores más limpios.",
-      "status": "completado"
+      "status": "completado",
+      "sensors": [
+        "cámara en blanco y negro (tamaño de la gota)",
+        "cámara UV (emisión de OH* y tamaño de la llama)",
+        "radiómetros de banda estrecha y ancha (radiación de la llama)",
+        "cámaras de alta resolución (monitorización)"
+      ]
     },
     "PSI-159": {
       "fuelPhase": "gas",
@@ -132,7 +144,13 @@
       ],
       "spaceApplication": "Datos en condiciones extremas de O2, relevantes para atmósferas de hábitat y de traje espacial.",
       "earthApplication": "Mejora la eficiencia de los motores de combustión interna.",
-      "status": "completado"
+      "status": "completado",
+      "sensors": [
+        "cámaras",
+        "radiómetros",
+        "tubos fotomultiplicadores",
+        "termopares"
+      ]
     },
     "PSI-10": {
       "fuelPhase": "gas",
@@ -146,7 +164,13 @@
         "Hipótesis: las llamas de difusión esféricas de microgravedad se extinguen cuando la temperatura máxima baja por primera vez de unos 1130 K."
       ],
       "earthApplication": "Ayuda a mejorar la eficiencia y a reducir las emisiones de combustores terrestres.",
-      "status": "completado"
+      "status": "completado",
+      "sensors": [
+        "cámaras",
+        "radiómetros",
+        "tubos fotomultiplicadores",
+        "termopares"
+      ]
     },
     "PSI-21": {
       "fuelPhase": "gas",
@@ -160,7 +184,10 @@
         "Caracteriza la forma de la llama, la altura de despegue, las temperaturas y los límites de extinción, y la tendencia a producir hollín con tiempos de residencia largos."
       ],
       "earthApplication": "Las llamas de difusión son el tipo de llama de la mayoría de los dispositivos de combustión prácticos.",
-      "status": "completado"
+      "status": "completado",
+      "sensors": [
+        "pirometría de filamento fino (temperatura de la llama en zonas sin hollín)"
+      ]
     },
     "PSI-22": {
       "fuelPhase": "gas",
@@ -170,7 +197,13 @@
         "Según el enunciado del reto, el campo eléctrico actúa sobre los iones presentes de forma natural en las llamas e imita la gravedad parcial.",
         "PSI aclara que no se realiza para aplicaciones espaciales, aunque sus resultados podrían ayudar a futuros dispositivos de combustión espaciales (p. ej., procesado de residuos sólidos)."
       ],
-      "status": "completado"
+      "status": "completado",
+      "spaceApplication": "No está diseñado para aplicaciones espaciales, pero PSI señala que los resultados podrían ayudar a futuros dispositivos de combustión en el espacio (por ejemplo, el procesamiento de residuos sólidos).",
+      "earthApplication": "Los campos eléctricos pueden reducir los contaminantes nocivos y el hollín y permitir una combustión más eficiente, con menos consumo de combustible y menos emisiones.",
+      "sensors": [
+        "cámaras de alta resolución (forma de la llama, luminosidad, hollín)",
+        "detectores termopila (emisión radiante de la llama)"
+      ]
     },
     "PSI-98": {
       "fuelPhase": "sólido (material de nave)",
@@ -199,7 +232,16 @@
       "findings": [
         "Mismos objetivos: rapidez de crecimiento de un fuego a gran escala en baja gravedad y límites de inflamabilidad frente al test de selección de NASA en gravedad normal."
       ],
-      "status": "completado"
+      "status": "completado",
+      "spaceApplication": "Un incendio realista en un vehículo de exploración, demasiado arriesgado para probarlo con tripulación. Los resultados fijan los límites de inflamabilidad en microgravedad de los materiales de las naves y ayudan a validar los criterios de selección de materiales de la NASA.",
+      "earthApplication": "Seguridad contra incendios en entornos pequeños y cerrados como minas, aviones o submarinos.",
+      "sensors": [
+        "termopares (flujo, temperatura de la llama y de la pluma)",
+        "dos radiómetros (radiación de la llama)",
+        "sensores de estado sólido (presión y fracción molar de CO2 y O2)",
+        "dos anemómetros (velocidad del flujo)",
+        "dos cámaras (imágenes de la llama)"
+      ]
     },
     "PSI-100": {
       "fuelPhase": "sólido (material de nave)",
@@ -208,7 +250,16 @@
       "findings": [
         "Mismos objetivos que Saffire-I: crecimiento de fuego a gran escala y límites de inflamabilidad."
       ],
-      "status": "completado"
+      "status": "completado",
+      "spaceApplication": "Un incendio realista en un vehículo de exploración, demasiado arriesgado para probarlo con tripulación. Los resultados fijan los límites de inflamabilidad en microgravedad de los materiales de las naves y ayudan a validar los criterios de selección de materiales de la NASA.",
+      "earthApplication": "Seguridad contra incendios en entornos pequeños y cerrados como minas, aviones o submarinos.",
+      "sensors": [
+        "termopares (flujo, temperatura de la llama y de la pluma)",
+        "dos radiómetros (radiación de la llama)",
+        "sensores de estado sólido (presión y fracción molar de CO2 y O2)",
+        "dos anemómetros (velocidad del flujo)",
+        "dos cámaras (imágenes de la llama)"
+      ]
     },
     "PSI-102": {
       "fuelPhase": "aerosol (humo)",
@@ -247,7 +298,8 @@
         "Hipótesis: sin flujos de flotabilidad, el crecimiento de partículas por nucleación, condensación y coagulación da partículas mayores que en 1 g."
       ],
       "spaceApplication": "Tecnología para un detector de incendios avanzado en misiones de larga duración.",
-      "status": "completado"
+      "status": "completado",
+      "earthApplication": "Los detectores de humo desarrollados a partir de SAME/SAME-R también pueden ser útiles en submarinos o laboratorios submarinos."
     },
     "PSI-47": {
       "fuelPhase": "aerosol (polvo)",
@@ -284,7 +336,8 @@
         "Cuantifica la tendencia a producir hollín de distintos combustibles y el efecto del diámetro del quemador y de la velocidad del coflujo."
       ],
       "spaceApplication": "Ayuda a diseñar entornos de nave más seguros.",
-      "status": "completado"
+      "status": "completado",
+      "earthApplication": "Aportes para mejores formulaciones de combustible y procesos de combustión, y una mejor comprensión de la formación de hollín."
     },
     "PSI-106": {
       "fuelPhase": "gas",
@@ -294,7 +347,11 @@
         "Determina los límites de velocidad de despegue para distintos combustibles y diámetros de quemador, y el efecto de la dilución con nitrógeno."
       ],
       "earthApplication": "Modelos numéricos que mejoran la eficiencia y reducen las emisiones.",
-      "status": "completado"
+      "status": "completado",
+      "sensors": [
+        "sensores integrados de caudal y temperatura",
+        "cámara de alta resolución (imágenes fijas con los datos de los sensores superpuestos)"
+      ]
     },
     "PSI-60": {
       "acronym": "Análisis de datos SPICE",
@@ -307,7 +364,9 @@
       "findings": [
         "Hipótesis: en microgravedad las llamas son más largas y difusas, con menor temperatura y mayor concentración de hollín que en gravedad normal."
       ],
-      "status": "análisis en tierra"
+      "status": "análisis en tierra",
+      "spaceApplication": "Favorece una detección y supresión de incendios más seguras y tecnologías de combustión más limpias para misiones de larga duración.",
+      "earthApplication": "Ayuda a reducir las emisiones contaminantes, optimizar la eficiencia de la combustión e informar sistemas energéticos e industriales más limpios."
     }
   },
   "upcoming": {

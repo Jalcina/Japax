@@ -2,6 +2,8 @@
  * Registry of the environments that have a component catalog. The panel is generic: adding an environment (ISS, lunar module...) is
  * adding its catalog + map here; nothing in the panel names the suit. `energeticOf(catalog)` may be undefined (no energetic component).
  */
+import catalogEs from "../data/components/es.json";
+import { setCatalogEs } from "./componentEs";
 import emuCatalog from "../data/components/emu.catalog.json";
 import emuMap from "../data/components/emu.map.json";
 import issCatalog from "../data/components/iss.catalog.json";
@@ -17,6 +19,8 @@ import moonMap from "../data/components/moon.map.json";
 import marsCatalog from "../data/components/mars.catalog.json";
 import marsMap from "../data/components/mars.map.json";
 import type { Catalog, ComponentMap } from "./componentCatalog.ts";
+
+setCatalogEs(catalogEs as Record<string, string>);
 
 /** `horizonS`: how long the engine looks ahead (simulated seconds). A fire crosses a hatch in minutes to hours, a suit in about a minute. */
 export interface EnvBundle { catalog: Catalog; map: ComponentMap; horizonS?: number }

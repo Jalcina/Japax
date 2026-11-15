@@ -2,6 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { getData, type DataSet, type Lang } from "./data";
+import { textFor } from "./componentEs";
+import { tr as labTr } from "./labI18n";
 
 /**
  * Language handling. English is the default because the NASA Space Apps rules require English;
@@ -49,6 +51,12 @@ export const useLang = () => useContext(LangContext);
 export function useData(): DataSet {
   const { lang } = useLang();
   return getData(lang);
+}
+
+/** Panel translator: const { t, X } = useTr(); t("English literal", { n: 3 }) uses the Fire Lab dictionary (lib/labI18n); X(engineOrCatalogText) translates engine and catalog text (lib/componentEs). */
+export function useTr() {
+  const { lang } = useLang();
+  return useMemo(() => ({ lang, t: (s: string, v?: Record<string, string | number>) => labTr(lang, s, v), X: textFor(lang) }), [lang]);
 }
 
 /** Pick the dictionary for the current language: const t = useT({ en: {...}, es: {...} }) */

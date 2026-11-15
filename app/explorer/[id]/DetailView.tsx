@@ -10,6 +10,8 @@ import ScoreBar from "@/components/ScoreBar";
 
 const T = {
   en: {
+    ntrsTitle: "Related NASA literature (NTRS)",
+    ntrsNote: "Reports and papers from the NASA Technical Reports Server that mention this investigation by name.",
     back: "← Back to the explorer",
     relTitle: "Relevance for a lunar base",
     relNote1: "Explainable score using the default weights; adjust them on the",
@@ -47,6 +49,8 @@ const T = {
     mbLabel: "MB",
   },
   es: {
+    ntrsTitle: "Literatura relacionada de la NASA (NTRS)",
+    ntrsNote: "Informes y artículos del servidor de informes técnicos de la NASA que mencionan esta investigación por su nombre.",
     back: "← Volver al explorador",
     relTitle: "Relevancia para una base lunar",
     relNote1: "Puntuación explicable con los pesos por defecto; ajústalos en la",
@@ -236,9 +240,9 @@ export default function DetailView({ id }: { id: string }) {
       {(inv.ntrsRelated?.length ?? 0) > 0 && (
         <section className="mt-10" aria-labelledby="ntrs">
           <h2 id="ntrs" className="text-xl font-semibold">
-            Related NASA literature (NTRS)
+            {t.ntrsTitle}
           </h2>
-          <p className="mt-1 text-xs text-muted">Reports and papers from the NASA Technical Reports Server that mention this investigation by name.</p>
+          <p className="mt-1 text-xs text-muted">{t.ntrsNote}</p>
           <ul className="card mt-3 divide-y divide-line">
             {inv.ntrsRelated!.map((r) => (
               <li key={r.id} className="p-3 text-sm">

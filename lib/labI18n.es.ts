@@ -1,5 +1,8 @@
 /** Spanish for the Fire Lab, keyed by the exact English text (see lib/labI18n.ts). Generated once from the source strings; edit by hand freely. */
+import COMPONENT_UI_ES from "./componentUi.es.ts";
+
 const ES: Record<string, string> = {
+  ...COMPONENT_UI_ES,
   "Earth": "Tierra",
   "ISS": "ISS",
   "Lunar base": "Base lunar",

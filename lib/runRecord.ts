@@ -9,6 +9,7 @@ import type { Catalog, CMeasure } from "./componentCatalog.ts";
 import { END_ID, type CEvent, type EndReason } from "./componentSpread.ts";
 import { energeticOf, ruptureReport, shortLabel, type RuptureReport } from "./componentReport.ts";
 import { spreadFactors, type Atm } from "./labPhysics.ts";
+import { esText, MATERIAL_ES } from "./componentEs.ts";
 
 export interface TimelineRow { t: number; componentId: string; component: string; state: string; level: string; source: string; reason: string }
 export interface ComponentRow {
@@ -92,7 +93,6 @@ export const SAFETY_EVIDENCE: Record<string, Record<string, string>> = {
 };
 
 const r1 = (n: number) => (Math.round(n * 10) / 10).toString();
-const NA = (why: string) => `not available: ${why}`;
 
 export function deepFreeze<T>(o: T): T {
   if (o && typeof o === "object" && !Object.isFrozen(o)) {
@@ -118,12 +118,19 @@ export interface BuildInput {
   catalog: Catalog;
   /** set when the run did NOT reach the engine's own end: it is cut at that moment with that reason */
   endAt?: { t: number; reason: EndReason };
+  /** language of the generated text; English (the default) is the canonical, tested record, Spanish is a display translation of it */
+  lang?: "en" | "es";
 }
 
 export function buildRunRecord(inp: BuildInput): RunRecord {
   const cat = inp.catalog;
+  const es = inp.lang === "es";
+  const tr = (en: string, sp: string) => (es ? sp : en);
+  const X = (t: string) => (es ? esText(t) : t);
+  const NA = (why: string) => tr(`not available: ${why}`, `no disponible: ${why}`);
+  const NAV = tr("not available", "no disponible");
   const comp = new Map(cat.components.map((c) => [c.id, c]));
-  const label = (id: string) => (id === END_ID ? "(whole simulation)" : comp.get(id)?.label ?? id);
+  const label = (id: string) => (id === END_ID ? X("(whole simulation)") : X(comp.get(id)?.label ?? id));
   const tank = energeticOf(cat);
 
   // cut the run when it was stopped early; otherwise the engine's own terminal event closes it
@@ -136,22 +143,23 @@ export function buildRunRecord(inp: BuildInput): RunRecord {
   const endEv = events[events.length - 1];
   const endReason = endEv.endReason as EndReason;
   const endT = endEv.t;
-  const endWhy = endEv.reason.replace(/^Simulation ended \([a-z_]+\): /, "");
+  const endWhy0 = endEv.reason.replace(/^Simulation ended \([a-z_]+\): /, "");
+  const endWhy = X(endWhy0);
 
   const measureById = new Map<string, CMeasure>();
   for (const c of cat.components) for (const m of c.measures) measureById.set(m.id, m);
   const sourceOf = (e: CEvent): string => {
     const m = /measure "([^"]+)"/.exec(e.reason);
     const mm = m ? measureById.get(m[1]) : undefined;
-    if (mm) return mm.effect.src;
-    if (tank?.energetic && e.componentId === tank.id && (e.state === "ruptured" || e.state === "relieved")) return tank.energetic.failureMode.src;
-    if (e.state === "end") return "JaPax component engine: end rule of lib/componentSpread.ts";
-    if (e.state === "not_reached" && e.tag === "reported") return "labPhysics.spreadFactors: PSI-20 ACME BRE (reported), no airflow near 21 % O2 in 0 g";
-    return "JaPax component engine (lib/componentSpread) with labPhysics.spreadFactors; SAFFIRE anchor NTRS 20180005168 scaled by estimated factors";
+    if (mm) return X(mm.effect.src);
+    if (tank?.energetic && e.componentId === tank.id && (e.state === "ruptured" || e.state === "relieved")) return X(tank.energetic.failureMode.src);
+    if (e.state === "end") return X("JaPax component engine: end rule of lib/componentSpread.ts");
+    if (e.state === "not_reached" && e.tag === "reported") return X("labPhysics.spreadFactors: PSI-20 ACME BRE (reported), no airflow near 21 % O2 in 0 g");
+    return X("JaPax component engine (lib/componentSpread) with labPhysics.spreadFactors; SAFFIRE anchor NTRS 20180005168 scaled by estimated factors");
   };
 
   const timeline: TimelineRow[] = events.map((e) => ({
-    t: e.t, componentId: e.componentId, component: label(e.componentId), state: e.state, level: e.tag, source: sourceOf(e), reason: e.reason,
+    t: e.t, componentId: e.componentId, component: label(e.componentId), state: e.state, level: e.tag, source: sourceOf(e), reason: X(e.reason),
   }));
 
   const startLabel = label(inp.source);
@@ -164,13 +172,13 @@ export function buildRunRecord(inp: BuildInput): RunRecord {
     const nr = ev.find((e) => e.state === "not_reached");
     const exe = ev.find((e) => e.state === "extinguished");
     const finalState = rup ? "ruptured" : dmg ? "damaged" : exe ? "extinguished" : burn ? "burning" : rel ? "relieved" : nr ? "not_reached" : "intact";
-    const from = !burn ? NA("the component never ignited in this run")
+    const from = !burn ? NA(tr("the component never ignited in this run", "el componente nunca se encendió en esta simulación"))
       : burn.cause?.startsWith("spread:") ? label(burn.cause.slice(7))
-      : burn.cause?.startsWith("rupture:") ? `blast of ${label(burn.cause.slice(8))}`
-      : "ignition point chosen by the user";
-    const damage = rup ? `ruptured at t = ${r1(rup.t)} s` : dmg ? `damaged at t = ${r1(dmg.t)} s (${dmg.reason})` : "none";
-    const note = !burn ? (nr ? nr.reason : "no path ignited it within this run") : exe ? exe.reason : "burns until the end of the run: the engine has no burn-out model";
-    return { id: c.id, name: c.label, material: c.material, finalState, ignitionS: burn ? burn.t : null, burningS: burn ? Math.max(0, (exe?.t ?? endT) - burn.t) : null, propagatedFrom: from, damage, note };
+      : burn.cause?.startsWith("rupture:") ? tr(`blast of ${label(burn.cause.slice(8))}`, `explosión de ${label(burn.cause.slice(8))}`)
+      : X("ignition point chosen by the user");
+    const damage = rup ? tr(`ruptured at t = ${r1(rup.t)} s`, `roto a t = ${r1(rup.t)} s`) : dmg ? tr(`damaged at t = ${r1(dmg.t)} s (${dmg.reason})`, `dañado a t = ${r1(dmg.t)} s (${X(dmg.reason)})`) : tr("none", "ninguno");
+    const note = !burn ? (nr ? X(nr.reason) : X("no path ignited it within this run")) : exe ? X(exe.reason) : tr("burns until the end of the run: the engine has no burn-out model", "arde hasta el final de la simulación: el motor no tiene modelo de agotamiento del combustible");
+    return { id: c.id, name: X(c.label), material: es ? (MATERIAL_ES[c.material] ?? c.material) : c.material, finalState, ignitionS: burn ? burn.t : null, burningS: burn ? Math.max(0, (exe?.t ?? endT) - burn.t) : null, propagatedFrom: from, damage, note };
   });
 
   const rupture = tank ? ruptureReport(events, endT, cat, inp.source) : null;
@@ -182,96 +190,133 @@ export function buildRunRecord(inp: BuildInput): RunRecord {
   const extinguished = endReason === "extinguished_by_measure" || endReason === "self_extinguished" || endReason === "extinguished_by_suppression_system";
 
   const metrics: MetricRow[] = [
-    { key: "duration_s", label: "Simulated duration", value: r1(endT), unit: "s", note: "from ignition to the end event" },
-    { key: "real_equivalent_s", label: "Real-equivalent duration", value: r1(endT), unit: "s", note: "equal to the simulated duration: the component engine already runs in physical seconds" },
-    { key: "components_reached", label: "Components reached", value: `${reached} of ${cat.components.length}`, unit: "components", note: "burning, damaged or ruptured" },
-    { key: "components_damaged", label: "Components damaged or ruptured", value: String(damaged), unit: "components", note: damaged ? "see the Components table" : "none in this run" },
-    { key: "components_not_reached", label: "Components not reached", value: String(cat.components.length - reached), unit: "components", note: "kept intact or blocked; reasons in the Components table" },
-    { key: "first_burning_component", label: "First component to burn", value: startLabel, unit: "name", note: "ignition point chosen by the user" },
+    { key: "duration_s", label: tr("Simulated duration", "Duración simulada"), value: r1(endT), unit: "s", note: tr("from ignition to the end event", "desde la ignición hasta el evento final") },
+    { key: "real_equivalent_s", label: tr("Real-equivalent duration", "Duración en tiempo real equivalente"), value: r1(endT), unit: "s", note: tr("equal to the simulated duration: the component engine already runs in physical seconds", "igual a la duración simulada: el motor de componentes ya trabaja en segundos físicos") },
+    { key: "components_reached", label: tr("Components reached", "Componentes alcanzados"), value: tr(`${reached} of ${cat.components.length}`, `${reached} de ${cat.components.length}`), unit: tr("components", "componentes"), note: tr("burning, damaged or ruptured", "ardiendo, dañados o rotos") },
+    { key: "components_damaged", label: tr("Components damaged or ruptured", "Componentes dañados o rotos"), value: String(damaged), unit: tr("components", "componentes"), note: damaged ? tr("see the Components table", "véase la tabla de Componentes") : tr("none in this run", "ninguno en esta simulación") },
+    { key: "components_not_reached", label: tr("Components not reached", "Componentes no alcanzados"), value: String(cat.components.length - reached), unit: tr("components", "componentes"), note: tr("kept intact or blocked; reasons in the Components table", "se mantuvieron intactos o bloqueados; los motivos están en la tabla de Componentes") },
+    { key: "first_burning_component", label: tr("First component to burn", "Primer componente en arder"), value: startLabel, unit: tr("name", "nombre"), note: tr("ignition point chosen by the user", "punto de ignición elegido por el usuario") },
     speeds.length
-      ? { key: "max_front_speed_mm_s", label: "Fastest fire front between components", value: r1(Math.max(...speeds)), unit: "mm/s", note: "estimated: SAFFIRE anchor scaled by estimated factors" }
-      : { key: "max_front_speed_mm_s", label: "Fastest fire front between components", value: "not available", unit: "mm/s", note: NA("the fire did not spread from one component to another in this run") },
-    { key: "affected_area_cm2", label: "Affected surface area", value: "not available", unit: "cm2", note: NA("the component engine does not compute burned area; the surface-fire layer of the live panel shows it while the fire burns") },
+      ? { key: "max_front_speed_mm_s", label: tr("Fastest fire front between components", "Frente de fuego más rápido entre componentes"), value: r1(Math.max(...speeds)), unit: "mm/s", note: tr("estimated: SAFFIRE anchor scaled by estimated factors", "estimado: ancla SAFFIRE escalada con factores estimados") }
+      : { key: "max_front_speed_mm_s", label: tr("Fastest fire front between components", "Frente de fuego más rápido entre componentes"), value: NAV, unit: "mm/s", note: NA(tr("the fire did not spread from one component to another in this run", "el fuego no se propagó de un componente a otro en esta simulación")) },
+    { key: "affected_area_cm2", label: tr("Affected surface area", "Superficie afectada"), value: NAV, unit: "cm2", note: NA(tr("the component engine does not compute burned area; the surface-fire layer of the live panel shows it while the fire burns", "el motor de componentes no calcula el área quemada; la capa de fuego de superficie del panel en vivo la muestra mientras el fuego arde")) },
     ruptEv
-      ? { key: "time_to_rupture_s", label: "Time to rupture", value: r1(ruptEv.t), unit: "s", note: ruptEv.forced ? "forced demo scenario, not a prediction" : "mid-point of an assumed heating window (estimated, no dataset)" }
-      : { key: "time_to_rupture_s", label: "Time to rupture", value: "not available", unit: "s", note: NA(tank ? "no rupture in this run" : "this environment has no verified energetic component") },
+      ? { key: "time_to_rupture_s", label: tr("Time to rupture", "Tiempo hasta la rotura"), value: r1(ruptEv.t), unit: "s", note: ruptEv.forced ? tr("forced demo scenario, not a prediction", "escenario de demo forzado, no una predicción") : tr("mid-point of an assumed heating window (estimated, no dataset)", "punto medio de una ventana de calentamiento supuesta (estimado, sin conjunto de datos)") }
+      : { key: "time_to_rupture_s", label: tr("Time to rupture", "Tiempo hasta la rotura"), value: NAV, unit: "s", note: NA(tank ? tr("no rupture in this run", "no hubo rotura en esta simulación") : tr("this environment has no verified energetic component", "este entorno no tiene ningún componente energético verificado")) },
     extinguished
-      ? { key: "time_to_extinction_s", label: "Time to extinction", value: r1(endT), unit: "s", note: `ended by ${endReason}` }
-      : { key: "time_to_extinction_s", label: "Time to extinction", value: "not available", unit: "s", note: NA(`the fire was not extinguished in this run (end reason: ${endReason})`) },
-    { key: "end_reason", label: "End reason", value: endReason, unit: "reason", note: endWhy },
+      ? { key: "time_to_extinction_s", label: tr("Time to extinction", "Tiempo hasta la extinción"), value: r1(endT), unit: "s", note: tr(`ended by ${endReason}`, `terminó por ${endReason}`) }
+      : { key: "time_to_extinction_s", label: tr("Time to extinction", "Tiempo hasta la extinción"), value: NAV, unit: "s", note: NA(tr(`the fire was not extinguished in this run (end reason: ${endReason})`, `el fuego no se apagó en esta simulación (motivo de fin: ${endReason})`)) },
+    { key: "end_reason", label: tr("End reason", "Motivo de fin"), value: endReason, unit: tr("reason", "motivo"), note: endWhy },
   ];
 
-  const ladderOf = (m: CMeasure) => (m.engine.kind === "set_flow" ? "Step 2 · cut the airflow" : m.engine.kind === "relieve" ? "Step 4 · vent / relieve pressure" : m.engine.kind === "extinguish" ? "Step 3 · put the fire out (extinguisher)" : "Step 4 · isolate the burning part");
+  const ladderOf = (m: CMeasure) => (m.engine.kind === "set_flow" ? tr("Step 2 · cut the airflow", "Paso 2 · cortar el flujo de aire") : m.engine.kind === "relieve" ? tr("Step 4 · vent / relieve pressure", "Paso 4 · ventear / aliviar la presión") : m.engine.kind === "extinguish" ? tr("Step 3 · put the fire out (extinguisher)", "Paso 3 · apagar el fuego (extintor)") : tr("Step 4 · isolate the burning part", "Paso 4 · aislar la parte en llamas"));
   const measures: MeasureRow[] = [...measureById.values()].map((m) => ({
-    id: m.id, action: m.action, status: m.id in inp.applied ? "applied" : "offered", atS: m.id in inp.applied ? inp.applied[m.id] : null,
-    ladder: ladderOf(m), effect: m.effect.text, tag: m.effect.tag, source: m.effect.src,
+    id: m.id, action: X(m.action), status: m.id in inp.applied ? "applied" : "offered", atS: m.id in inp.applied ? inp.applied[m.id] : null,
+    ladder: ladderOf(m), effect: X(m.effect.text), tag: m.effect.tag, source: X(m.effect.src),
   }));
 
   const applied = measures.filter((m) => m.status === "applied");
   const kindOf = (id: string) => measureById.get(id)?.kind;
   const ev0 = SAFETY_EVIDENCE[inp.env];
-  const noEv = "no entry for this environment in the safety page";
+  const noEv = X("no entry for this environment in the safety page");
+  const appliedIds = (k: string) => applied.filter((m) => kindOf(m.id) === k).map((m) => m.id).join(", ");
   const phases: PhaseRow[] = [
-    { phase: "1 · Prevent", walked: applied.some((m) => kindOf(m.id) === "prevent") ? `applied: ${applied.filter((m) => kindOf(m.id) === "prevent").map((m) => m.id).join(", ")}` : "no preventive measure applied in this run", evidence: ev0?.prevent ?? noEv },
-    { phase: "2 · Detect", walked: NA("the component engine does not model detection; the live panel's delay is the user's, not a measured time"), evidence: ev0?.detect ?? noEv },
-    { phase: "3 · Spread", walked: `${reached} of ${cat.components.length} components reached`, evidence: ev0?.spread ?? noEv },
-    { phase: "4 · Suppress", walked: applied.some((m) => kindOf(m.id) === "suppress") ? `applied: ${applied.filter((m) => kindOf(m.id) === "suppress").map((m) => m.id).join(", ")}` : "no suppressing measure applied in this run", evidence: ev0?.suppress ?? noEv },
+    { phase: tr("1 · Prevent", "1 · Prevenir"), walked: applied.some((m) => kindOf(m.id) === "prevent") ? tr(`applied: ${appliedIds("prevent")}`, `aplicadas: ${appliedIds("prevent")}`) : tr("no preventive measure applied in this run", "no se aplicó ninguna medida preventiva en esta simulación"), evidence: ev0?.prevent ? X(ev0.prevent) : noEv },
+    { phase: tr("2 · Detect", "2 · Detectar"), walked: NA(tr("the component engine does not model detection; the live panel\u0027s delay is the user\u0027s, not a measured time", "el motor de componentes no modela la detección; el retraso del panel en vivo es el del usuario, no un tiempo medido")), evidence: ev0?.detect ? X(ev0.detect) : noEv },
+    { phase: tr("3 · Spread", "3 · Propagación"), walked: tr(`${reached} of ${cat.components.length} components reached`, `${reached} de ${cat.components.length} componentes alcanzados`), evidence: ev0?.spread ? X(ev0.spread) : noEv },
+    { phase: tr("4 · Suppress", "4 · Suprimir"), walked: applied.some((m) => kindOf(m.id) === "suppress") ? tr(`applied: ${appliedIds("suppress")}`, `aplicadas: ${appliedIds("suppress")}`) : tr("no suppressing measure applied in this run", "no se aplicó ninguna medida supresora en esta simulación"), evidence: ev0?.suppress ? X(ev0.suppress) : noEv },
   ];
 
   const origin = comp.get(inp.source);
-  const factors: FactorRow[] = spreadFactors(inp.atm, origin?.material ?? "fabric").factors.map((f) => ({ name: f.label, value: f.value.toFixed(2), tag: f.tag, source: `${f.src}. ${f.why}` }));
+  const factors: FactorRow[] = spreadFactors(inp.atm, origin?.material ?? "fabric").factors.map((f) => ({ name: X(f.label), value: f.value.toFixed(2), tag: f.tag, source: `${X(f.src)}. ${X(f.why)}` }));
 
   const lastBurn = burnEvents.length ? Math.max(...burnEvents.map((e) => e.t)) : 0;
+  const o2p = Math.round(inp.atm.o2 * 100), psi = (inp.atm.pressureAtm * 14.696).toFixed(1);
   const summary: string[] = [
-    `The fire started at ${startLabel} (ignition point chosen by the user, ${inp.forced ? "forced failure scenario on" : "physical path"}) with ${Math.round(inp.atm.o2 * 100)} % oxygen, ${(inp.atm.pressureAtm * 14.696).toFixed(1)} psi, ${inp.atm.gravityG} g and ${inp.atm.flowCmS} cm/s of airflow.`,
-    reached > 1 ? `It reached ${reached} of ${cat.components.length} components; the last one ignited at t = ${r1(lastBurn)} s.` : `It did not spread to any other component (${reached} of ${cat.components.length} reached).`,
-    ruptEv ? `${rupture?.tankLabel ?? "An energetic component"} ruptured at t = ${r1(ruptEv.t)} s${ruptEv.forced ? " (forced demo scenario)" : ` after about ${r1(rupture?.exposureS ?? 0)} s of heating (assumed window, no dataset)`}.` : tank ? "No energetic component ruptured in this run." : "This environment has no verified energetic component, so no rupture can occur in the model.",
-    `The run ended at t = ${r1(endT)} s (${endReason}): ${endWhy}.${applied.length ? ` Measures applied: ${applied.map((m) => `${m.id} at ${r1(m.atS ?? 0)} s`).join("; ")}.` : " No measure was applied."}`,
-    "Times are simulated seconds and equal real-equivalent seconds in this engine. Everything is simulated (estimated) unless a row says measured or reported.",
+    tr(`The fire started at ${startLabel} (ignition point chosen by the user, ${inp.forced ? "forced failure scenario on" : "physical path"}) with ${o2p} % oxygen, ${psi} psi, ${inp.atm.gravityG} g and ${inp.atm.flowCmS} cm/s of airflow.`,
+       `El fuego empezó en ${startLabel} (punto de ignición elegido por el usuario, ${inp.forced ? "escenario de fallo forzado activado" : "vía física"}) con ${o2p} % de oxígeno, ${psi} psi, ${inp.atm.gravityG} g y ${inp.atm.flowCmS} cm/s de flujo de aire.`),
+    reached > 1 ? tr(`It reached ${reached} of ${cat.components.length} components; the last one ignited at t = ${r1(lastBurn)} s.`, `Alcanzó ${reached} de ${cat.components.length} componentes; el último se encendió a t = ${r1(lastBurn)} s.`) : tr(`It did not spread to any other component (${reached} of ${cat.components.length} reached).`, `No se propagó a ningún otro componente (${reached} de ${cat.components.length} alcanzados).`),
+    ruptEv
+      ? tr(`${rupture?.tankLabel ?? "An energetic component"} ruptured at t = ${r1(ruptEv.t)} s${ruptEv.forced ? " (forced demo scenario)" : ` after about ${r1(rupture?.exposureS ?? 0)} s of heating (assumed window, no dataset)`}.`,
+           `${rupture?.tankLabel ? X(rupture.tankLabel) : "Un componente energético"} se rompió a t = ${r1(ruptEv.t)} s${ruptEv.forced ? " (escenario de demo forzado)" : ` tras unos ${r1(rupture?.exposureS ?? 0)} s de calentamiento (ventana supuesta, sin conjunto de datos)`}.`)
+      : tank ? tr("No energetic component ruptured in this run.", "Ningún componente energético se rompió en esta simulación.") : tr("This environment has no verified energetic component, so no rupture can occur in the model.", "Este entorno no tiene ningún componente energético verificado, así que en el modelo no puede haber rotura."),
+    tr(`The run ended at t = ${r1(endT)} s (${endReason}): ${endWhy}.${applied.length ? ` Measures applied: ${applied.map((m) => `${m.id} at ${r1(m.atS ?? 0)} s`).join("; ")}.` : " No measure was applied."}`,
+       `La simulación terminó a t = ${r1(endT)} s (${endReason}): ${endWhy}.${applied.length ? ` Medidas aplicadas: ${applied.map((m) => `${m.id} a los ${r1(m.atS ?? 0)} s`).join("; ")}.` : " No se aplicó ninguna medida."}`),
+    tr("Times are simulated seconds and equal real-equivalent seconds in this engine. Everything is simulated (estimated) unless a row says measured or reported.", "Los tiempos son segundos simulados e iguales a los segundos reales equivalentes en este motor. Todo es simulado (estimado) salvo que una fila diga medido o reportado."),
   ];
 
   return deepFreeze({
     runId: inp.runId, timestampUtc: inp.timestampUtc, appVersion: inp.appVersion, env: inp.env, startComponent: inp.source, startLabel,
     atm: { ...inp.atm }, atmTag: inp.atmTag, forced: inp.forced, measuredOnly: inp.measuredOnly, measuresApplied: { ...inp.applied },
     endReason, endT, endWhy, summary, events, timeline, components, metrics, measures, rupture, phases, factors,
-    gaps: cat.gaps.slice(), labels: { ...Object.fromEntries(cat.components.map((c) => [c.id, c.label])), [END_ID]: "(whole simulation)" }, componentCount: cat.components.length,
+    gaps: cat.gaps.map(X), labels: { ...Object.fromEntries(cat.components.map((c) => [c.id, X(c.label)])), [END_ID]: X("(whole simulation)") }, componentCount: cat.components.length,
   });
 }
 
 /** One metric as `key=value unit` (the CSV summary row and the window use the same strings) */
 export const metricText = (m: MetricRow) => `${m.key}=${m.value}${m.value === "not available" ? "" : ` ${m.unit}`}`;
 
-/** The complete .txt report, generated only from the RunRecord */
-export function buildReportTxt(run: RunRecord): string {
+/** The complete .txt report, generated only from the RunRecord. `lang` only translates the headings and labels; the record itself carries its own language. */
+export function buildReportTxt(run: RunRecord, lang: "en" | "es" = "en"): string {
+  const es = lang === "es";
+  const tr = (en: string, sp: string) => (es ? sp : en);
+  const X = (t: string) => (es ? esText(t) : t);
+  const NAV = tr("not available", "no disponible");
+  const isNA = (v: string) => v === "not available" || v === "no disponible";
   const L: string[] = [];
   const h = (t: string) => { L.push("", t, "-".repeat(t.length)); };
-  L.push(`JaPax simulation report · ${run.runId} · ${run.env}`, "SIMULATION, NOT A MEASUREMENT. Levels: measured, reported, predicted, estimated.", `Generated (UTC): ${run.timestampUtc} · app ${run.appVersion}`);
-  h("Summary");
-  run.summary.forEach((s) => L.push(`- ${s}`));
-  h("Conditions and assumptions");
-  L.push(`Start component: ${run.startLabel}`, `Oxygen: ${Math.round(run.atm.o2 * 100)} % [${run.atmTag}]`, `Pressure: ${(run.atm.pressureAtm * 14.696).toFixed(1)} psi (${run.atm.pressureAtm} atm) [${run.atmTag}]`, `Gravity: ${run.atm.gravityG} g`, `Airflow: ${run.atm.flowCmS} cm/s`,
-    `Mode: ${run.forced ? "forced failure (demo scenario, not a prediction)" : "physical path"}`, `Measured only switch: ${run.measuredOnly ? "on" : "off"}`, "Model factors (origin material):");
+  L.push(
+    tr(`JaPax simulation report · ${run.runId} · ${run.env}`, `Informe de simulación de JaPax · ${run.runId} · ${run.env}`),
+    tr("SIMULATION, NOT A MEASUREMENT. Levels: measured, reported, predicted, estimated.", "SIMULACIÓN, NO UNA MEDICIÓN. Niveles: measured (medido), reported (reportado), predicted (predicho), estimated (estimado)."),
+    tr(`Generated (UTC): ${run.timestampUtc} · app ${run.appVersion}`, `Generado (UTC): ${run.timestampUtc} · app ${run.appVersion}`),
+  );
+  h(tr("Summary", "Resumen"));
+  run.summary.forEach((x) => L.push(`- ${x}`));
+  h(tr("Conditions and assumptions", "Condiciones y suposiciones"));
+  L.push(
+    `${tr("Start component", "Componente de inicio")}: ${run.startLabel}`,
+    `${tr("Oxygen", "Oxígeno")}: ${Math.round(run.atm.o2 * 100)} % [${run.atmTag}]`,
+    `${tr("Pressure", "Presión")}: ${(run.atm.pressureAtm * 14.696).toFixed(1)} psi (${run.atm.pressureAtm} atm) [${run.atmTag}]`,
+    `${tr("Gravity", "Gravedad")}: ${run.atm.gravityG} g`,
+    `${tr("Airflow", "Flujo de aire")}: ${run.atm.flowCmS} cm/s`,
+    `${tr("Mode", "Modo")}: ${run.forced ? tr("forced failure (demo scenario, not a prediction)", "fallo forzado (escenario de demo, no una predicción)") : tr("physical path", "vía física")}`,
+    `${tr("Measured only switch", "Interruptor «solo medido»")}: ${run.measuredOnly ? tr("on", "activado") : tr("off", "desactivado")}`,
+    tr("Model factors (origin material):", "Factores del modelo (material de origen):"),
+  );
   run.factors.forEach((f) => L.push(`  - ${f.name} = ${f.value} [${f.tag}] ${f.source}`));
-  h("Timeline (all events; t in s)");
+  h(tr("Timeline (all events; t in s)", "Cronología (todos los eventos; t en s)"));
   run.timeline.forEach((e) => L.push(`t=${r1(e.t)} s | ${e.component} | ${e.state} | ${e.level} | ${e.source}\n    ${e.reason}`));
-  h("Components (times in s)");
-  run.components.forEach((c) => L.push(`${c.name} [${c.id}] · material ${c.material} · final ${c.finalState} · ignition ${c.ignitionS === null ? "not available (never ignited)" : r1(c.ignitionS) + " s"} · burning ${c.burningS === null ? "not available (never ignited)" : r1(c.burningS) + " s"} · from ${c.propagatedFrom} · damage ${c.damage} · ${c.note}`));
-  h("Measures");
-  run.measures.forEach((m) => L.push(`${m.status.toUpperCase()}${m.atS === null ? "" : ` at ${r1(m.atS)} s`} · ${m.id} · ${m.ladder} · ${m.action}\n    effect [${m.tag}]: ${m.effect}\n    source: ${m.source}`));
-  h("Rupture");
-  if (!run.rupture || run.rupture.status === "none") L.push(run.rupture ? "No energetic component was reached." : "not available: this environment has no verified energetic component.");
+  h(tr("Components (times in s)", "Componentes (tiempos en s)"));
+  run.components.forEach((c) => L.push(
+    es
+      ? `${c.name} [${c.id}] · material ${c.material} · final ${c.finalState} · ignición ${c.ignitionS === null ? "no disponible (nunca se encendió)" : r1(c.ignitionS) + " s"} · ardiendo ${c.burningS === null ? "no disponible (nunca se encendió)" : r1(c.burningS) + " s"} · desde ${c.propagatedFrom} · daño ${c.damage} · ${c.note}`
+      : `${c.name} [${c.id}] · material ${c.material} · final ${c.finalState} · ignition ${c.ignitionS === null ? "not available (never ignited)" : r1(c.ignitionS) + " s"} · burning ${c.burningS === null ? "not available (never ignited)" : r1(c.burningS) + " s"} · from ${c.propagatedFrom} · damage ${c.damage} · ${c.note}`,
+  ));
+  h(tr("Measures", "Medidas"));
+  run.measures.forEach((m) => L.push(
+    es
+      ? `${m.status === "applied" ? "APLICADA" : "OFRECIDA"}${m.atS === null ? "" : ` a los ${r1(m.atS)} s`} · ${m.id} · ${m.ladder} · ${m.action}\n    efecto [${m.tag}]: ${m.effect}\n    fuente: ${m.source}`
+      : `${m.status.toUpperCase()}${m.atS === null ? "" : ` at ${r1(m.atS)} s`} · ${m.id} · ${m.ladder} · ${m.action}\n    effect [${m.tag}]: ${m.effect}\n    source: ${m.source}`,
+  ));
+  h(tr("Rupture", "Rotura"));
+  if (!run.rupture || run.rupture.status === "none") L.push(run.rupture ? tr("No energetic component was reached.", "No se alcanzó ningún componente energético.") : tr("not available: this environment has no verified energetic component.", "no disponible: este entorno no tiene ningún componente energético verificado."));
   else {
     const r = run.rupture;
-    L.push(`Status: ${r.status}`, `Component: ${r.tankLabel}`, `Fire path: ${r.chain.map((c) => `${c.label} ${r1(c.t)} s`).join(" -> ") || "not available"}`,
-      `Heated for: ${r.exposureS === null ? "not available" : r1(r.exposureS) + " s"}`, `Assumed window: ${r.window[0]}-${r.window[1]} s, mid-point ${r1(r.usedS)} s [estimated]`,
-      `Rupture at: ${r.ruptureAt === null ? "not available (no rupture)" : r1(r.ruptureAt) + " s"}${r.forced ? " (forced scenario)" : ""}`,
-      `Neighbours hit: ${r.consequences.map((c) => `${c.label} (${c.state}, ${r1(c.t)} s)`).join("; ") || "none"}`);
+    L.push(
+      `${tr("Status", "Estado")}: ${r.status}`,
+      `${tr("Component", "Componente")}: ${X(r.tankLabel)}`,
+      `${tr("Fire path", "Vía del fuego")}: ${r.chain.map((c) => `${X(c.label)} ${r1(c.t)} s`).join(" -> ") || NAV}`,
+      `${tr("Heated for", "Calentado durante")}: ${r.exposureS === null ? NAV : r1(r.exposureS) + " s"}`,
+      `${tr("Assumed window", "Ventana supuesta")}: ${r.window[0]}-${r.window[1]} s, ${tr("mid-point", "punto medio")} ${r1(r.usedS)} s [estimated]`,
+      `${tr("Rupture at", "Rotura a los")}: ${r.ruptureAt === null ? tr("not available (no rupture)", "no disponible (sin rotura)") : r1(r.ruptureAt) + " s"}${r.forced ? tr(" (forced scenario)", " (escenario forzado)") : ""}`,
+      `${tr("Neighbours hit", "Vecinos afectados")}: ${r.consequences.map((c) => `${X(c.label)} (${c.state}, ${r1(c.t)} s)`).join("; ") || tr("none", "ninguno")}`,
+    );
   }
-  h("Safety ladder");
-  run.phases.forEach((p) => L.push(`${p.phase}: ${p.walked}\n    evidence: ${p.evidence}`));
-  h("Metrics");
-  run.metrics.forEach((m) => L.push(`${m.label} (${m.key}): ${m.value}${m.value === "not available" ? "" : ` ${m.unit}`} · ${m.note}`));
-  h("Data gaps of this environment");
+  h(tr("Safety ladder", "Escalera de seguridad"));
+  run.phases.forEach((p) => L.push(`${p.phase}: ${p.walked}\n    ${tr("evidence", "evidencia")}: ${p.evidence}`));
+  h(tr("Metrics", "Métricas"));
+  run.metrics.forEach((m) => L.push(`${m.label} (${m.key}): ${m.value}${isNA(m.value) ? "" : ` ${m.unit}`} · ${m.note}`));
+  h(tr("Data gaps of this environment", "Huecos de datos de este entorno"));
   run.gaps.forEach((g) => L.push(`- ${g}`));
   return L.join("\n") + "\n";
 }
