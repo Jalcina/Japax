@@ -1,0 +1,72 @@
+{
+  "env": "earth-planet",
+  "version": 1,
+  "model": "procedural",
+  "components": [
+    {
+      "id": "earthplanet-surface",
+      "label": "Earth surface (land and ocean)",
+      "function": "The globe seen from space.",
+      "material": "inert",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Treated as non-combustible (bare metal, concrete or ground): the model never lets a flame cross into it. A fire can still be lit on it by a tap.",
+        "src": "Assumption: general material property, not an experiment of this archive"
+      },
+      "neighbors": [
+        {
+          "id": "earthplanet-clouds",
+          "path": "proximity",
+          "distanceM": 1,
+          "distanceNote": "layers of the globe: not a fuel path"
+        }
+      ],
+      "measures": [
+        {
+          "id": "m-earthplanet-extinguish",
+          "kind": "suppress",
+          "appliesTo": [
+            "earthplanet-surface",
+            "earthplanet-clouds"
+          ],
+          "action": "Local firefighting response puts the fire out where it started.",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis): the engine ends the fire at the place where it was lit. At planet scale this is only a marker: no firefighting data is used.",
+            "src": "Hypothesis; no test in the sources used"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "extinguish",
+            "target": "origin"
+          }
+        }
+      ]
+    },
+    {
+      "id": "earthplanet-clouds",
+      "label": "Cloud layer",
+      "function": "The cloud shell around the globe.",
+      "material": "inert",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Treated as non-combustible (bare metal, concrete or ground): the model never lets a flame cross into it. A fire can still be lit on it by a tap.",
+        "src": "Assumption: general material property, not an experiment of this archive"
+      },
+      "neighbors": [
+        {
+          "id": "earthplanet-surface",
+          "path": "proximity",
+          "distanceM": 1,
+          "distanceNote": "layers of the globe: not a fuel path"
+        }
+      ],
+      "measures": []
+    }
+  ],
+  "gaps": [
+    "At planet scale the component engine does not apply: a tap marks where a fire starts on the globe, and nothing spreads between the surface and the clouds.",
+    "No PSI/NTRS dataset covers wildfires or large-scale fire on Earth; the archive is about spacecraft fire safety.",
+    "Energetic components: none, so there is no rupture."
+  ]
+}

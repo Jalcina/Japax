@@ -1,0 +1,35 @@
+{
+  "env": "moon",
+  "model": "lm.glb",
+  "method": "Manual labelling by mesh-name prefix with the dev-label tool (route /dev-label?model=lm, development only): meshes were highlighted group by group and compared with the shape of the lunar module. three.js turns spaces of node names into underscores.",
+  "entries": {
+    "meshprefix:polySurfa": "lm-ascent",
+    "meshprefix:group13_p": "lm-descent",
+    "meshprefix:group13_g": "lm-rcs",
+    "meshprefix:group13_1": "lm-rcs",
+    "meshprefix:group31": "lm-landing-gear",
+    "meshprefix:group32": "lm-landing-gear",
+    "meshprefix:group51": "lm-radar",
+    "meshprefix:group75": "lm-antennas"
+  },
+  "ignored": {
+    "mesh:moon_ground": "lunar ground: not a component",
+    "mesh:moon_ridge": "distant ridge of the scenery: not a component",
+    "mesh:pSphere26": "small indicator dot: not a component",
+    "mesh:pSphere27": "small indicator dot: not a component",
+    "mesh:pSphere28": "small indicator dot: not a component",
+    "mesh:pSphere29": "small indicator dot: not a component",
+    "mesh:pSphere30": "small indicator dot: not a component"
+  },
+  "unidentified": [
+    "meshprefix:group61",
+    "meshprefix:group73",
+    "meshprefix:group74",
+    "meshprefix:pCone",
+    "meshprefix:pCube",
+    "meshprefix:pCylinde",
+    "meshprefix:pPipe",
+    "meshprefix:pPlane",
+    "meshprefix:pSphere20"
+  ]
+}

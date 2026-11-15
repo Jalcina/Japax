@@ -69,6 +69,9 @@ async function buildEarth({ scene }: Ctx): Promise<Built> {
   sun.position.set(-40, 14, 30);
   scene.add(sun);
   const { group, earth, clouds } = await makeEarth(5);
+  // names the component engine resolves a tap by (see data/components/earth-planet.map.json)
+  earth.name = "earthplanet_surface";
+  clouds.name = "earthplanet_clouds";
   scene.add(group);
   let pinned = false;
   return {
@@ -95,8 +98,11 @@ async function buildMoon({ scene, progress }: Ctx): Promise<Built> {
   scene.add(sunDisc(sunDir, 700, 12, 0xffffff));
 
   const { group: terr, H } = makeTerrain({ size: 260, seg: 320, amp: 3.2, freq: 0.022, craters: 46, craterMax: 22, seed: 7, flat: 7, low: new THREE.Color(0x4d4b48), high: new THREE.Color(0x9a9791), roughness: 1 });
+  terr.name = "moon_ground";
   scene.add(terr);
-  scene.add(makeRidge(165, 16, 0x6b6966, 3));
+  const ridge = makeRidge(165, 16, 0x6b6966, 3);
+  ridge.name = "moon_ridge";
+  scene.add(ridge);
 
   const [earth, lm] = await Promise.all([makeEarth(26), loadModel("/models/lm.glb", progress)]);
   earth.group.position.set(-260, 150, -430);
@@ -443,18 +449,24 @@ async function buildEarthSite({ scene }: Ctx): Promise<Built> {
   scene.add(sunDisc(sunDir, 800, 12, 0xfff3dc));
 
   const { group: terr } = makeTerrain({ size: 300, seg: 300, amp: 2.4, freq: 0.02, craters: 0, craterMax: 1, seed: 33, flat: 8, low: new THREE.Color(0x6a5a3f), high: new THREE.Color(0xb09a6c), roughness: 0.96 });
+  terr.name = "earth_ground";
   scene.add(terr);
-  scene.add(makeRidge(170, 15, 0x6d7d86, 4, 2.0));
+  const ridgeE = makeRidge(170, 15, 0x6d7d86, 4, 2.0);
+  ridgeE.name = "earth_ridge";
+  scene.add(ridgeE);
 
   // concrete test pad, a red extinguisher and safety cones
   const pad = new THREE.Mesh(new THREE.CylinderGeometry(3.3, 3.4, 0.14, 72), new THREE.MeshStandardMaterial({ color: 0x8d9096, roughness: 0.92 }));
+  pad.name = "earth_pad";
   pad.position.y = 0.0;
   pad.receiveShadow = pad.castShadow = true;
   scene.add(pad);
   const ex = new THREE.Group();
   const eb = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.8, 24), new THREE.MeshStandardMaterial({ color: 0xc21f1f, roughness: 0.35, metalness: 0.3 }));
+  eb.name = "earth_extinguisher";
   eb.position.y = 0.4;
   const ec = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.14, 14), new THREE.MeshStandardMaterial({ color: 0x20242a, roughness: 0.4, metalness: 0.6 }));
+  ec.name = "earth_extinguisher";
   ec.position.y = 0.87;
   ex.add(eb, ec);
   ex.position.set(-3.0, 0.07, 2.1);
@@ -463,6 +475,7 @@ async function buildEarthSite({ scene }: Ctx): Promise<Built> {
   for (let i = 0; i < 4; i++) {
     const a = (i / 4) * Math.PI * 2 + 0.5;
     const cone = new THREE.Mesh(new THREE.ConeGeometry(0.17, 0.5, 20), new THREE.MeshStandardMaterial({ color: 0xff6a00, roughness: 0.6 }));
+    cone.name = `earth_cone_${i}`;
     cone.position.set(Math.cos(a) * 4.6, 0.25, Math.sin(a) * 4.6);
     cone.castShadow = true;
     scene.add(cone);
@@ -492,6 +505,7 @@ async function buildIssInterior({ scene }: Ctx): Promise<Built> {
     new THREE.CylinderGeometry(R, R, L, 72, 1, true).rotateX(Math.PI / 2),
     new THREE.MeshStandardMaterial({ color: 0x8e949c, roughness: 0.6, metalness: 0.2, side: THREE.DoubleSide }),
   );
+  hull.name = "isscab_hull";
   scene.add(hull);
   // racks around the module
   const rackA = new THREE.MeshStandardMaterial({ color: 0xb4b9bf, roughness: 0.55, metalness: 0.2 });
@@ -503,13 +517,16 @@ async function buildIssInterior({ scene }: Ctx): Promise<Built> {
     const a = (i / NR) * Math.PI * 2 + Math.PI / NR;
     const g = new THREE.Group();
     const slab = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.7, L - 1.6), i % 2 ? rackA : rackB);
+    slab.name = `isscab_rack_${i}`;
     g.add(slab);
     for (let k = -3; k <= 3; k++) {
       const door = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.02, 0.02), doorLine);
+      door.name = `isscab_rack_${i}_door`;
       door.position.set(0, -0.36, k * 2.4);
       g.add(door);
       if ((k + i) % 3 === 0) {
         const sc = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.28), screenMats[(k + i + 9) % 3]);
+        sc.name = `isscab_rack_${i}_screen`;
         sc.rotation.x = Math.PI / 2;
         sc.position.set(0.3, -0.361, k * 2.4 + 0.9);
         g.add(sc);
@@ -525,25 +542,30 @@ async function buildIssInterior({ scene }: Ctx): Promise<Built> {
   for (let i = 0; i < 4; i++) {
     const a = (i / 4) * Math.PI * 2;
     const st = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.02, L - 2), strip);
+    st.name = "isscab_strip";
     st.position.set(Math.sin(a) * (R - 0.74), Math.cos(a) * (R - 0.74), 0);
     st.rotation.z = -a;
     scene.add(st);
     const hr = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, L - 3, 10).rotateX(Math.PI / 2), rail);
     const b = a + Math.PI / 4;
+    hr.name = "isscab_handrail";
     hr.position.set(Math.sin(b) * (R - 0.8), Math.cos(b) * (R - 0.8), 0);
     scene.add(hr);
   }
   // end ring that frames the open view of Earth and the closed bulkhead behind the camera
   const ring = new THREE.Mesh(new THREE.TorusGeometry(R - 0.05, 0.1, 16, 96), new THREE.MeshStandardMaterial({ color: 0xaab1bb, roughness: 0.3, metalness: 0.8 }));
+  ring.name = "isscab_endring";
   ring.position.z = -L / 2;
   scene.add(ring);
   const bulk = new THREE.Mesh(new THREE.CircleGeometry(R, 72), new THREE.MeshStandardMaterial({ color: 0xb8bec6, roughness: 0.5, metalness: 0.4 }));
+  bulk.name = "isscab_bulkhead";
   bulk.position.z = L / 2;
   bulk.rotation.y = Math.PI;
   scene.add(bulk);
   // probe that holds the burner, coming in from the left wall
   const steel = new THREE.MeshStandardMaterial({ color: 0x9aa1ab, roughness: 0.32, metalness: 0.92 });
   const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.9, 16).rotateZ(Math.PI / 2), steel);
+  arm.name = "isscab_probe";
   arm.position.set(-1.78, 0, 0);
   scene.add(arm);
   // interior lighting

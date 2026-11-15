@@ -1,0 +1,226 @@
+{
+  "env": "moon",
+  "version": 1,
+  "model": "lm.glb",
+  "components": [
+    {
+      "id": "lm-ascent",
+      "label": "Ascent stage (crew cabin shell and ladder)",
+      "function": "The upper stage that carries the crew; named polySurfa* in the model.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Cabin interior and outer insulation are assumed to be polymer, foil and fabric. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "lm-descent",
+          "path": "contact",
+          "distanceM": 0.5,
+          "distanceNote": "attachment between two stages or fixtures; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        },
+        {
+          "id": "lm-rcs",
+          "path": "contact",
+          "distanceM": 0.5,
+          "distanceNote": "attachment between two stages or fixtures; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        },
+        {
+          "id": "lm-radar",
+          "path": "cable",
+          "distanceM": 0.8,
+          "distanceNote": "attachment between two stages or fixtures; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        },
+        {
+          "id": "lm-antennas",
+          "path": "cable",
+          "distanceM": 0.6,
+          "distanceNote": "attachment between two stages or fixtures; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        }
+      ],
+      "measures": [
+        {
+          "id": "m-lm-vent-off",
+          "kind": "suppress",
+          "appliesTo": [
+            "lm-ascent",
+            "lm-descent",
+            "lm-landing-gear",
+            "lm-rcs",
+            "lm-radar",
+            "lm-antennas"
+          ],
+          "action": "Shut off the fans and ventilation so the air stops moving.",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis for the engine): with less airflow the flame spreads slower or starves (ACME BRE, PSI-20: flames went out in still air at 21 % O2 in microgravity). In this model the effect depends on oxygen and gravity; it is not tested for this place.",
+            "src": "Hypothesis for the engine; effect basis PSI-20 ACME BRE, DOI 10.60555/vb93-3y72 (flames in still air at 21 % O2 in microgravity). No lunar-gravity combustion data exists (LUCI and FM2 are the first)"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "set_flow",
+            "flowCmS": 0
+          }
+        },
+        {
+          "id": "m-lm-extinguish",
+          "kind": "suppress",
+          "appliesTo": [
+            "lm-ascent",
+            "lm-descent",
+            "lm-landing-gear",
+            "lm-rcs",
+            "lm-radar",
+            "lm-antennas"
+          ],
+          "action": "Use a portable extinguisher on the burning part before the fire grows.",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis): the engine puts out the fire where it started at that moment. No extinguisher of the lunar module is documented in the sources used here.",
+            "src": "Hypothesis; no test in the sources used"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "extinguish",
+            "target": "origin"
+          }
+        },
+        {
+          "id": "m-lm-barrier-ascent-descent",
+          "kind": "prevent",
+          "appliesTo": [
+            "lm-ascent",
+            "lm-descent"
+          ],
+          "action": "Put a fire-blocking barrier between the ascent stage and the descent stage so a fire cannot cross.",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis): the engine removes this connection. A barrier breaks the continuous fuel path that the model assumes. No test of such a barrier exists in the sources used.",
+            "src": "Hypothesis; flame spread needs continuous fuel (stated, not measured, for this place)"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "cut_edge",
+            "from": "lm-ascent",
+            "to": "lm-descent"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lm-descent",
+      "label": "Descent stage lower deck (parts group13_p*, group13_pC*)",
+      "function": "Lower body of the descent stage; low-confidence label.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Thermal insulation blankets are assumed to be polymer foil. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "lm-ascent",
+          "path": "contact",
+          "distanceM": 0.5,
+          "distanceNote": "attachment between two stages or fixtures; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        },
+        {
+          "id": "lm-landing-gear",
+          "path": "contact",
+          "distanceM": 0.6,
+          "distanceNote": "attachment between two stages or fixtures; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "lm-landing-gear",
+      "label": "Landing gear (legs and footpads)",
+      "function": "Four legs with footpads and struts.",
+      "material": "inert",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Treated as non-combustible (bare metal, concrete or ground): the model never lets a flame cross into it. A fire can still be lit on it by a tap.",
+        "src": "Assumption: general material property, not an experiment of this archive"
+      },
+      "neighbors": [
+        {
+          "id": "lm-descent",
+          "path": "contact",
+          "distanceM": 0.6,
+          "distanceNote": "attachment between two stages or fixtures; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "lm-rcs",
+      "label": "Reaction control thruster quads (4 clusters)",
+      "function": "Four thruster clusters around the ascent stage; named group13_g* in the model.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Insulation around the clusters is assumed polymer foil; the propellant is not modelled. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "lm-ascent",
+          "path": "contact",
+          "distanceM": 0.5,
+          "distanceNote": "attachment between two stages or fixtures; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "lm-radar",
+      "label": "Rendezvous radar antenna",
+      "function": "Dish on a stalk at the top of the ascent stage; named group51 in the model.",
+      "material": "cable",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Electronics and cabling are assumed to be cable-class. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "lm-ascent",
+          "path": "cable",
+          "distanceM": 0.8,
+          "distanceNote": "attachment between two stages or fixtures; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "lm-antennas",
+      "label": "Antennas and conical fixtures (group75)",
+      "function": "Whip antennas and four conical fixtures; low-confidence label.",
+      "material": "inert",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Treated as non-combustible (bare metal, concrete or ground): the model never lets a flame cross into it. A fire can still be lit on it by a tap.",
+        "src": "Assumption: general material property, not an experiment of this archive"
+      },
+      "neighbors": [
+        {
+          "id": "lm-ascent",
+          "path": "cable",
+          "distanceM": 0.6,
+          "distanceNote": "attachment between two stages or fixtures; length assumed from the model's proportions (no drawing); worst case: continuous fuel"
+        }
+      ],
+      "measures": []
+    }
+  ],
+  "gaps": [
+    "The lunar module is labelled by mesh-name prefix (the 134 meshes have opaque names): 6 components were identified from highlight views of the model, with medium to low confidence; the rest are listed as unidentified.",
+    "Gravity at 0.166 g is an extrapolation: PSI holds no partial-gravity combustion data (LUCI 2025 and FM2 are the first).",
+    "No PSI/NTRS combustion test exists for the lunar module or its materials; spread speeds are the SAFFIRE anchor scaled by estimated factors.",
+    "Energetic components: none verified. The lunar module carried oxygen, propellant and helium tanks, but none was verified with a source here and none is a separately labelled part of the model, so there is no rupture.",
+    "The landing gear and the antennas are treated as non-combustible metal (assumption): a fire does not spread into them in the model.",
+    "The ascent and descent stage labels (polySurfa*, group13_p*) come from the model's shapes by eye; no drawing of the lunar module was used. Detection and crew actions are not modelled."
+  ]
+}

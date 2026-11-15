@@ -65,6 +65,24 @@ export const SAFETY_EVIDENCE: Record<string, Record<string, string>> = {
     spread: "partial: Saffire-I/II/III observed spread on large samples; spread is observed, not modelled",
     suppress: "partial: FLEX (PSI-69) droplet tests with CO2 and helium; the flammability limit is lower in reduced gravity",
   },
+  "iss-interior": {
+    prevent: "known: BASS-II burned materials in microgravity at air-like oxygen (PSI-25)",
+    detect: "known: SAME measured spacecraft smoke particles, 100-200 nm on average",
+    spread: "partial: Saffire-I/II/III observed spread on large samples; spread is observed, not modelled",
+    suppress: "partial: FLEX (PSI-69) droplet tests with CO2 and helium; the flammability limit is lower in reduced gravity",
+  },
+  moon: {
+    prevent: "partial: no BASS-II solid-material test reached 26.5 % O2; BRE gas flames kept burning without airflow in oxygen-enriched air",
+    detect: "unknown: the smoke baseline comes from ISS air; no detector results at lunar oxygen, pressure or gravity",
+    spread: "unknown: PSI holds no partial-gravity combustion data; LUCI (2025) and FM2 are the first",
+    suppress: "partial: of the FLEX tests at lunar-like conditions few ended in extinction; suppression there is the least understood step",
+  },
+  earth: {
+    prevent: "not available: the safety page has no entry for Earth",
+    detect: "not available: the safety page has no entry for Earth",
+    spread: "not available: the PSI experiments are microgravity tests, so 1 g on Earth is the least evidenced side of the lab",
+    suppress: "not available: the safety page has no entry for Earth",
+  },
   suit: {
     prevent: "unknown: no verified test at 100 % O2 and 4.3 psi",
     detect: "unknown: no verified data",
@@ -144,19 +162,20 @@ export function buildRunRecord(inp: BuildInput): RunRecord {
     const dmg = ev.find((e) => e.state === "damaged");
     const rel = ev.find((e) => e.state === "relieved");
     const nr = ev.find((e) => e.state === "not_reached");
-    const finalState = rup ? "ruptured" : dmg ? "damaged" : burn ? "burning" : rel ? "relieved" : nr ? "not_reached" : "intact";
+    const exe = ev.find((e) => e.state === "extinguished");
+    const finalState = rup ? "ruptured" : dmg ? "damaged" : exe ? "extinguished" : burn ? "burning" : rel ? "relieved" : nr ? "not_reached" : "intact";
     const from = !burn ? NA("the component never ignited in this run")
       : burn.cause?.startsWith("spread:") ? label(burn.cause.slice(7))
       : burn.cause?.startsWith("rupture:") ? `blast of ${label(burn.cause.slice(8))}`
       : "ignition point chosen by the user";
     const damage = rup ? `ruptured at t = ${r1(rup.t)} s` : dmg ? `damaged at t = ${r1(dmg.t)} s (${dmg.reason})` : "none";
-    const note = !burn ? (nr ? nr.reason : "no path ignited it within this run") : "burns until the end of the run: the engine has no burn-out model";
-    return { id: c.id, name: c.label, material: c.material, finalState, ignitionS: burn ? burn.t : null, burningS: burn ? Math.max(0, endT - burn.t) : null, propagatedFrom: from, damage, note };
+    const note = !burn ? (nr ? nr.reason : "no path ignited it within this run") : exe ? exe.reason : "burns until the end of the run: the engine has no burn-out model";
+    return { id: c.id, name: c.label, material: c.material, finalState, ignitionS: burn ? burn.t : null, burningS: burn ? Math.max(0, (exe?.t ?? endT) - burn.t) : null, propagatedFrom: from, damage, note };
   });
 
   const rupture = tank ? ruptureReport(events, endT, cat, inp.source) : null;
   const ruptEv = events.find((e) => e.state === "ruptured");
-  const reached = components.filter((c) => c.finalState === "burning" || c.finalState === "damaged" || c.finalState === "ruptured").length;
+  const reached = components.filter((c) => c.finalState === "burning" || c.finalState === "damaged" || c.finalState === "ruptured" || c.finalState === "extinguished").length;
   const damaged = components.filter((c) => c.finalState === "damaged" || c.finalState === "ruptured").length;
   const burnEvents = events.filter((e) => e.state === "burning");
   const speeds = burnEvents.map((e) => e.speedMmS).filter((s): s is number => typeof s === "number");
@@ -182,7 +201,7 @@ export function buildRunRecord(inp: BuildInput): RunRecord {
     { key: "end_reason", label: "End reason", value: endReason, unit: "reason", note: endWhy },
   ];
 
-  const ladderOf = (m: CMeasure) => (m.engine.kind === "set_flow" ? "Step 2 · cut the airflow" : m.engine.kind === "relieve" ? "Step 4 · vent / relieve pressure" : "Step 4 · isolate the burning part");
+  const ladderOf = (m: CMeasure) => (m.engine.kind === "set_flow" ? "Step 2 · cut the airflow" : m.engine.kind === "relieve" ? "Step 4 · vent / relieve pressure" : m.engine.kind === "extinguish" ? "Step 3 · put the fire out (extinguisher)" : "Step 4 · isolate the burning part");
   const measures: MeasureRow[] = [...measureById.values()].map((m) => ({
     id: m.id, action: m.action, status: m.id in inp.applied ? "applied" : "offered", atS: m.id in inp.applied ? inp.applied[m.id] : null,
     ladder: ladderOf(m), effect: m.effect.text, tag: m.effect.tag, source: m.effect.src,

@@ -5,13 +5,15 @@
  *
  * HONESTY: every Fact carries a tag and a source; validateCatalog fails when one does not.
  */
-import type { EnergeticSpec, GEdge, GMeasure, GNode } from "./componentSpread.ts";
+import type { CMaterial, EnergeticSpec, GEdge, GMeasure, GNode } from "./componentSpread.ts";
 import type { MaterialGuess } from "./labPhysics.ts";
 
 export type FactTag = "measured" | "reported" | "predicted" | "estimated";
 export interface CFact { tag: FactTag; text: string; src: string }
 export interface CNeighbor { id: string; path: "contact" | "cable" | "proximity"; distanceM: number; distanceNote: string }
-export type EngineAction = { kind: "cut_edge"; from: string; to: string } | { kind: "relieve"; target: string } | { kind: "set_flow"; flowCmS: number };
+export type EngineAction = { kind: "cut_edge"; from: string; to: string } | { kind: "relieve"; target: string } | { kind: "set_flow"; flowCmS: number }
+  /** `target` is a component id, or "origin" = the component where the user lit the fire */
+  | { kind: "extinguish"; target: string };
 export interface CMeasure {
   id: string;
   kind: "prevent" | "suppress";
@@ -28,7 +30,7 @@ export interface CComponent {
   label: string;
   function: string;
   virtual?: boolean;
-  material: MaterialGuess;
+  material: CMaterial;
   flammability: CFact;
   neighbors: CNeighbor[];
   measures: CMeasure[];
@@ -77,6 +79,7 @@ export function validateCatalog(c: Catalog): string[] {
       for (const a of m.appliesTo ?? []) if (!ids.has(a)) out.push(`${w} measure ${m.id}: appliesTo ${a} does not exist`);
       if (m.engine?.kind === "cut_edge" && (!ids.has(m.engine.from) || !ids.has(m.engine.to))) out.push(`${w} measure ${m.id}: cut_edge ends do not exist`);
       if (m.engine?.kind === "relieve" && !ids.has(m.engine.target)) out.push(`${w} measure ${m.id}: relieve target does not exist`);
+      if (m.engine?.kind === "extinguish" && m.engine.target !== "origin" && !ids.has(m.engine.target)) out.push(`${w} measure ${m.id}: extinguish target does not exist`);
     }
     if (comp.energetic) {
       checkFact(`${w} energetic.pressureNote`, comp.energetic.pressureNote, out);
@@ -153,7 +156,7 @@ export function measuresFor(c: Catalog, componentId: string): CMeasure[] {
 }
 
 /** Applied catalog measures -> engine measures (all applied at the same simulated time). */
-export function engineMeasures(c: Catalog, applied: string[], atS: number): GMeasure[] {
+export function engineMeasures(c: Catalog, applied: string[], atS: number, origin?: string): GMeasure[] {
   const out: GMeasure[] = [];
   const seen = new Set<string>();
   for (const comp of c.components) {
@@ -161,7 +164,7 @@ export function engineMeasures(c: Catalog, applied: string[], atS: number): GMea
       if (!applied.includes(m.id) || seen.has(m.id)) continue;
       seen.add(m.id);
       const a = m.engine;
-      out.push(a.kind === "cut_edge" ? { id: m.id, kind: "cut_edge", from: a.from, to: a.to, atS } : a.kind === "relieve" ? { id: m.id, kind: "relieve", target: a.target, atS } : { id: m.id, kind: "set_flow", flowCmS: a.flowCmS, atS });
+      out.push(a.kind === "cut_edge" ? { id: m.id, kind: "cut_edge", from: a.from, to: a.to, atS } : a.kind === "relieve" ? { id: m.id, kind: "relieve", target: a.target, atS } : a.kind === "extinguish" ? { id: m.id, kind: "extinguish", target: a.target === "origin" ? origin ?? "" : a.target, atS } : { id: m.id, kind: "set_flow", flowCmS: a.flowCmS, atS });
     }
   }
   return out;

@@ -25,7 +25,8 @@ export function spreadFactors(a: Atm, material: string): Speed {
 
   const fG = micro ? 1 : 1 + 0.8 * Math.min(1, a.gravityG);
 
-  const fMat = material === "plastic" ? 0.6 : material === "cable" ? 0.5 : material === "liquid" ? 0.8 : 1;
+  // "inert" = non-combustible (concrete, bare steel, bare ground): it cannot carry a flame at all
+  const fMat = material === "inert" ? 0 : material === "plastic" ? 0.6 : material === "cable" ? 0.5 : material === "liquid" ? 0.8 : 1;
 
   const factors: Factor[] = [
     { key: "anchor", label: "Anchor", value: ANCHOR_MM_S, tag: "measured", why: "Measured concurrent spread on thin fabric (SAFFIRE I-III, 1.8-2.6 mm/s).", src: "NTRS 20180005168 Table 1; PSI-98, PSI-99, PSI-100" },

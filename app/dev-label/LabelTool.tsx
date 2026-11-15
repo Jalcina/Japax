@@ -14,6 +14,7 @@ import { COMPONENT_ENVS } from "@/lib/componentEnvs";
 const MODELS: Record<string, { url: string; env: string }> = {
   iss: { url: "/models/iss_hd.glb", env: "iss" },
   emu: { url: "/models/emu.glb", env: "suit" },
+  lm: { url: "/models/lm.glb", env: "moon" },
 };
 interface Row { i: number; mesh: THREE.Mesh; name: string; material: string }
 const keyOf = (r: { name: string; material: string }, byMesh: boolean) => (!byMesh && r.material ? `material:${r.material}` : `mesh:${r.name}`);
@@ -28,6 +29,8 @@ export default function LabelTool() {
   const [assign, setAssign] = useState<Record<number, string>>({});
   const [byMesh, setByMesh] = useState<Record<number, boolean>>({});
   const [status, setStatus] = useState("loading…");
+  /** highlight every mesh whose name starts with this text (the LM is labelled by name prefix) */
+  const [prefix, setPrefix] = useState("");
 
   useEffect(() => {
     const el = host.current;
@@ -82,9 +85,10 @@ export default function LabelTool() {
   useEffect(() => {
     const hi = new THREE.MeshBasicMaterial({ color: 0xff00ff });
     const ghost = new THREE.MeshBasicMaterial({ color: 0x667788, transparent: true, opacity: 0.22, depthWrite: false });
-    for (const r of rows) r.mesh.material = sel === null ? r.mesh.userData.orig : r.i === sel ? hi : ghost;
+    const off = sel === null && !prefix;
+    for (const r of rows) r.mesh.material = off ? r.mesh.userData.orig : (prefix ? r.name.startsWith(prefix) : r.i === sel) ? hi : ghost;
     return () => { hi.dispose(); ghost.dispose(); };
-  }, [sel, rows]);
+  }, [sel, rows, prefix]);
 
   const exportJson = () => {
     const entries: Record<string, string> = {}, ignored: Record<string, string> = {}, unidentified: string[] = [];
@@ -106,7 +110,8 @@ export default function LabelTool() {
       <div className="h-full w-[460px] overflow-auto border-l border-white/20 p-2 font-mono">
         <p className="mb-1 font-sans text-sm font-semibold">DEV ONLY · label tool · model={model} · {status}</p>
         <button onClick={exportJson} className="mb-2 rounded border border-white/40 px-2 py-1">Export {cfg.env}.map.json</button>
-        <button onClick={() => setSel(null)} className="mb-2 ml-2 rounded border border-white/40 px-2 py-1">Clear highlight</button>
+        <button onClick={() => { setSel(null); setPrefix(""); }} className="mb-2 ml-2 rounded border border-white/40 px-2 py-1">Clear highlight</button>
+        <input value={prefix} onChange={(e) => setPrefix(e.target.value)} placeholder="highlight by name prefix" className="mb-2 ml-2 w-44 rounded border border-white/40 bg-neutral-900 px-2 py-1" data-testid="prefix" />
         <table className="w-full">
           <tbody>
             {rows.map((r) => (

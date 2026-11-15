@@ -1,0 +1,24 @@
+{
+  "env": "iss-interior",
+  "model": "procedural scene (ImmersiveScene.buildIssInterior)",
+  "method": "The objects of the scene are named in code (isscab_*); racks are resolved by name prefix (their doors and screens carry the rack's prefix).",
+  "entries": {
+    "meshprefix:isscab_rack_0": "isscab-rack-0",
+    "meshprefix:isscab_rack_1": "isscab-rack-1",
+    "meshprefix:isscab_rack_2": "isscab-rack-2",
+    "meshprefix:isscab_rack_3": "isscab-rack-3",
+    "meshprefix:isscab_rack_4": "isscab-rack-4",
+    "meshprefix:isscab_rack_5": "isscab-rack-5",
+    "meshprefix:isscab_rack_6": "isscab-rack-6",
+    "meshprefix:isscab_rack_7": "isscab-rack-7"
+  },
+  "ignored": {
+    "mesh:isscab_hull": "structure or fixture of the procedural scene: treated as non-combustible and not simulated",
+    "mesh:isscab_strip": "structure or fixture of the procedural scene: treated as non-combustible and not simulated",
+    "mesh:isscab_handrail": "structure or fixture of the procedural scene: treated as non-combustible and not simulated",
+    "mesh:isscab_endring": "structure or fixture of the procedural scene: treated as non-combustible and not simulated",
+    "mesh:isscab_bulkhead": "structure or fixture of the procedural scene: treated as non-combustible and not simulated",
+    "mesh:isscab_probe": "structure or fixture of the procedural scene: treated as non-combustible and not simulated"
+  },
+  "unidentified": []
+}

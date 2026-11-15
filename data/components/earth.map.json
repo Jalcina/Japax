@@ -1,0 +1,18 @@
+{
+  "env": "earth",
+  "model": "procedural scene (ImmersiveScene.buildEarthSite)",
+  "method": "The objects of the scene are named in code (earth_*) and resolved by exact mesh name.",
+  "entries": {
+    "mesh:earth_pad": "earth-pan",
+    "mesh:earth_extinguisher": "earth-extinguisher",
+    "mesh:earth_cone_0": "earth-cone-0",
+    "mesh:earth_cone_1": "earth-cone-1",
+    "mesh:earth_cone_2": "earth-cone-2",
+    "mesh:earth_cone_3": "earth-cone-3"
+  },
+  "ignored": {
+    "mesh:earth_ground": "bare ground: not a component (no continuous fuel in the model)",
+    "mesh:earth_ridge": "distant ridge of the scenery: not a component"
+  },
+  "unidentified": []
+}

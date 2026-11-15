@@ -18,14 +18,18 @@ export interface EnergeticSpec {
   /** 0..1, how strongly the release enriches the local oxygen (documented assumption) */
   o2Enrich: number;
 }
-export interface GNode { id: string; material: MaterialGuess; energetic?: EnergeticSpec }
+/** "inert" = non-combustible (concrete, bare steel, bare ground): the flame cannot cross into it */
+export type CMaterial = MaterialGuess | "inert";
+export interface GNode { id: string; material: CMaterial; energetic?: EnergeticSpec }
 export interface GEdge { from: string; to: string; path: "contact" | "cable" | "proximity"; distanceM: number }
 export type GMeasure =
   | { id: string; kind: "cut_edge"; from: string; to: string; atS: number }
   | { id: string; kind: "relieve"; target: string; atS: number }
   /** from `atS` on the airflow is `flowCmS` (e.g. the ventilation is shut off); fronts already travelling slow down or starve from that moment */
-  | { id: string; kind: "set_flow"; flowCmS: number; atS: number };
-export type CState = "burning" | "not_reached" | "ruptured" | "relieved" | "damaged" | "end";
+  | { id: string; kind: "set_flow"; flowCmS: number; atS: number }
+  /** at `atS` the fire in `target` is put out (an extinguisher used on it): it stops spreading from that moment and cannot rupture later */
+  | { id: string; kind: "extinguish"; target: string; atS: number };
+export type CState = "burning" | "not_reached" | "ruptured" | "relieved" | "damaged" | "extinguished" | "end";
 /** Why a run ended. The engine emits the first five; the UI adds the last three (the user or the lab's own suppression system stopped it). */
 export type EndReason =
   | "extinguished_by_measure" | "self_extinguished" | "burned_out" | "ruptured_and_settled" | "horizon_reached"
@@ -72,7 +76,8 @@ export function simulate(input: SimInput): { events: CEvent[]; end: { t: number;
   const byId = new Map(nodes.map((n) => [n.id, n]));
   const events: CEvent[] = [];
   const burning = new Map<string, number>();
-  const blocked = new Map<string, { t: number; reason: string; tag: Tag; measure?: boolean }>();
+  const blocked = new Map<string, { t: number; reason: string; tag: Tag; measure?: boolean; inert?: boolean }>();
+  const extinguishOf = (id: string) => measures.find((m): m is Extract<GMeasure, { kind: "extinguish" }> => m.kind === "extinguish" && m.target === id);
   let truncated = false;
   const jobs: Job[] = [{ t: 0, kind: "ignite", id: ignite, reason: "ignition point chosen by the user", tag: "estimated" }];
 
@@ -99,12 +104,20 @@ export function simulate(input: SimInput): { events: CEvent[]; end: { t: number;
       if (burning.has(j.id)) continue;
       burning.set(j.id, j.t);
       events.push({ t: j.t, componentId: j.id, state: "burning", tag: j.tag, reason: j.reason, cause: j.cause, speedMmS: j.speedMmS });
+      // an extinguisher used on this component after it started to burn
+      const exm = extinguishOf(j.id);
+      const exAt = exm && exm.atS >= j.t ? exm.atS : null;
+      if (exm && exAt !== null) events.push({ t: exAt, componentId: j.id, state: "extinguished", tag: "estimated", reason: `fire put out by measure "${exm.id}" at ${exAt} s`, cause: `measure:${exm.id}` });
       for (const e of edges) {
         if (e.path === "proximity") continue; // proximity alone never carries the fire (only a blast does)
         const other = e.from === j.id ? e.to : e.to === j.id ? e.from : null;
         if (!other || burning.has(other)) continue;
         const target = byId.get(other);
         if (!target) continue;
+        if (target.material === "inert") {
+          blocked.set(other, { t: j.t, reason: "non-combustible material: it cannot carry the flame", tag: "estimated", inert: true });
+          continue;
+        }
         const sp = spreadFactors(atm, target.material);
         if (sp.mmS <= 0) {
           blocked.set(other, { t: j.t, reason: "the flame starves: " + sp.note, tag: "reported" });
@@ -127,6 +140,10 @@ export function simulate(input: SimInput): { events: CEvent[]; end: { t: number;
           arrive = from + left / sp2.mmS;
           how = `front slowed to ${sp2.mmS.toFixed(1)} mm/s after measure "${fl.id}" at ${fl.atS} s (${sp2.note})`;
         }
+        if (exAt !== null && arrive > exAt) {
+          blocked.set(other, { t: exAt, reason: `the fire was put out by measure "${exm!.id}" at ${exAt} s, before the front arrived`, tag: "estimated", measure: true });
+          continue;
+        }
         const cut = cutAt(e.from, e.to);
         if (cut && cut.atS <= arrive) {
           blocked.set(other, { t: j.t, reason: `edge cut by measure "${cut.id}" at ${cut.atS} s`, tag: "estimated", measure: true });
@@ -139,7 +156,7 @@ export function simulate(input: SimInput): { events: CEvent[]; end: { t: number;
         const mid = (lo + hi) / 2;
         const tr = j.t + mid;
         const r = relief(j.id);
-        if (!(r && r.atS <= tr)) {
+        if (!(r && r.atS <= tr) && !(exAt !== null && exAt <= tr)) {
           jobs.push({ t: tr, kind: "rupture", id: j.id, reason: `heated for about ${mid} s (assumed range ${lo}-${hi} s, no dataset)`, tag: "estimated" });
         }
       }
@@ -172,11 +189,11 @@ export function simulate(input: SimInput): { events: CEvent[]; end: { t: number;
 
   // the terminal event: why and when the run ends. Priority: still spreading at the look-ahead limit, rupture, a measure that blocked
   // the front, a flame that starved by itself, otherwise everything reachable has burned.
-  const unburnt = (pred: (b: { measure?: boolean }) => boolean) => [...blocked].some(([id, b]) => !burning.has(id) && pred(b));
+  const unburnt = (pred: (b: { measure?: boolean; inert?: boolean }) => boolean) => [...blocked].some(([id, b]) => !burning.has(id) && pred(b));
   const reason: EndReason = truncated ? "horizon_reached"
     : events.some((e) => e.state === "ruptured") ? "ruptured_and_settled"
-    : unburnt((b) => !!b.measure) ? "extinguished_by_measure"
-    : unburnt((b) => !b.measure) ? "self_extinguished"
+    : events.some((e) => e.state === "extinguished") || unburnt((b) => !!b.measure) ? "extinguished_by_measure"
+    : unburnt((b) => !b.measure && !b.inert) ? "self_extinguished"
     : "burned_out";
   const t = truncated ? horizonS : events.length ? events[events.length - 1].t : 0;
   const why = END_TEXT[reason];

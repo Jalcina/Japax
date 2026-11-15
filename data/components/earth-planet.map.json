@@ -1,0 +1,11 @@
+{
+  "env": "earth-planet",
+  "model": "procedural globe (ImmersiveScene.buildEarth)",
+  "method": "The globe layers are named in code (earthplanet_*).",
+  "entries": {
+    "mesh:earthplanet_surface": "earthplanet-surface",
+    "mesh:earthplanet_clouds": "earthplanet-clouds"
+  },
+  "ignored": {},
+  "unidentified": []
+}

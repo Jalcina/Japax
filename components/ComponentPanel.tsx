@@ -24,9 +24,9 @@ const TAGC: Record<string, string> = {
   predicted: "bg-violet-500/15 text-violet-300",
   estimated: "bg-amber-500/15 text-amber-300",
 };
-type Shown = "intact" | "not_reached" | "burning" | "damaged" | "relieved" | "ruptured";
-const RANK: Record<Shown, number> = { intact: 0, not_reached: 1, burning: 2, damaged: 3, relieved: 4, ruptured: 5 };
-const LABEL: Record<Shown | "end", string> = { intact: "Intact", not_reached: "Not reached", burning: "Burning", damaged: "Damaged", relieved: "Pressure relieved", ruptured: "Ruptured", end: "Simulation ended" };
+type Shown = "intact" | "not_reached" | "burning" | "extinguished" | "damaged" | "relieved" | "ruptured";
+const RANK: Record<Shown, number> = { intact: 0, not_reached: 1, burning: 2, extinguished: 2.5, damaged: 3, relieved: 4, ruptured: 5 };
+const LABEL: Record<Shown | "end", string> = { intact: "Intact", not_reached: "Not reached", burning: "Burning", extinguished: "Extinguished", damaged: "Damaged", relieved: "Pressure relieved", ruptured: "Ruptured", end: "Simulation ended" };
 const MEASURED = new Set(["measured", "reported"]);
 
 export interface PanelPick { name: string; material: string; n: number }
@@ -169,7 +169,8 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
   const [speed, setSpeed] = useState(4);
   const blast = useRef<LabBlast | null>(null);
   const fired = useRef(false);
-  const tint = useRef(new Map<THREE.Material, { c: THREE.Color; i: number }>());
+  /** meshes whose material was swapped for a tinted clone, with the original to give back */
+  const tint = useRef(new Map<THREE.Mesh, THREE.Material | THREE.Material[]>());
 
   const cur = useRef<CurRun | null>(null); // the run on screen while it has not ended
   const runMeta = useRef<{ runId: string; ts: string } | null>(null);
@@ -199,7 +200,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
     start(r.componentId, r);
   }, [pick, start]);
 
-  const ms = useMemo(() => Object.entries(applied).flatMap(([id, atS]) => engineMeasures(CATALOG, [id], atS)), [applied]);
+  const ms = useMemo(() => Object.entries(applied).flatMap(([id, atS]) => engineMeasures(CATALOG, [id], atS, source ?? undefined)), [applied, source, CATALOG]);
   const sim = useMemo(
     () => (source ? simulate({ ...GRAPH, atm, ignite: source, horizonS: HORIZON_S, measures: ms, forceRupture: forced ? TANK?.id : undefined }) : null),
     [source, atm, ms, forced, GRAPH, TANK],
@@ -313,23 +314,28 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
   useEffect(() => {
     if (!api) return;
     const touched = tint.current;
+    // each mesh gets its own tinted clone (procedural scenes share one material between several components) and gives the original back
     const restore = () => {
-      touched.forEach((o, m) => { const mm = m as THREE.MeshStandardMaterial; mm.emissive.copy(o.c); mm.emissiveIntensity = o.i; });
+      touched.forEach((orig, mesh) => { for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) m.dispose(); mesh.material = orig; });
       touched.clear();
     };
     restore();
     api.scene.traverse((o) => {
       const mesh = o as THREE.Mesh;
       if (!mesh.isMesh) return;
-      for (const mat of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) {
-        const id = resolveComponent(MAP, { material: mat.name }).componentId;
-        const st = id ? statesRef.current[id] : undefined;
-        const mm = mat as THREE.MeshStandardMaterial;
-        if (!st || st === "intact" || st === "not_reached" || !mm.emissive) continue;
-        if (!touched.has(mat)) touched.set(mat, { c: mm.emissive.clone(), i: mm.emissiveIntensity });
-        mm.emissive.set(st === "burning" ? 0xff5a10 : st === "damaged" || st === "ruptured" ? 0x661100 : 0x2255aa);
-        mm.emissiveIntensity = st === "burning" ? 0.9 : 0.6;
-      }
+      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      const id = resolveComponent(MAP, { mesh: mesh.name || mesh.parent?.name || "", material: mats[0]?.name ?? "" }).componentId;
+      const st = id ? statesRef.current[id] : undefined;
+      if (!st || st === "intact" || st === "not_reached") return;
+      const tinted = mats.map((m) => {
+        const c = m.clone() as THREE.MeshStandardMaterial;
+        if (!c.emissive) return c;
+        c.emissive.set(st === "burning" ? 0xff5a10 : st === "damaged" || st === "ruptured" ? 0x661100 : 0x2255aa);
+        c.emissiveIntensity = st === "burning" ? 0.9 : 0.6;
+        return c;
+      });
+      touched.set(mesh, mesh.material);
+      mesh.material = Array.isArray(mesh.material) ? tinted : tinted[0];
     });
     return restore;
   }, [api, stateKey]);
@@ -348,7 +354,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
   const comp = source ? BY_ID.get(source) : undefined;
   const rupture = sim?.events.find((e) => e.state === "ruptured");
   const relieved = sim?.events.find((e) => e.state === "relieved");
-  const reached = Object.values(states).filter((s) => s === "burning" || s === "damaged" || s === "ruptured" || s === "relieved").length;
+  const reached = Object.values(states).filter((s) => s === "burning" || s === "damaged" || s === "ruptured" || s === "relieved" || s === "extinguished").length;
   const allMeasures = useMemo(() => {
     const seen = new Set<string>();
     return CATALOG.components.flatMap((c) => c.measures).filter((m) => (seen.has(m.id) ? false : (seen.add(m.id), true)));

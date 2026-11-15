@@ -1,0 +1,182 @@
+{
+  "env": "earth",
+  "version": 1,
+  "model": "procedural",
+  "components": [
+    {
+      "id": "earth-pan",
+      "label": "Fuel pan fire on the concrete test pad",
+      "function": "The pad where the lab burns its fuel (illustrative scene).",
+      "material": "liquid",
+      "flammability": {
+        "tag": "estimated",
+        "text": "The burning fuel is assumed to be a liquid fuel. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "earth-extinguisher",
+          "path": "proximity",
+          "distanceM": 3.6,
+          "distanceNote": "bare ground between the pad and the object: there is no continuous fuel, so the model does not let a flame cross it"
+        },
+        {
+          "id": "earth-cone-0",
+          "path": "proximity",
+          "distanceM": 4.6,
+          "distanceNote": "bare ground between the pad and the object: there is no continuous fuel, so the model does not let a flame cross it"
+        },
+        {
+          "id": "earth-cone-1",
+          "path": "proximity",
+          "distanceM": 4.6,
+          "distanceNote": "bare ground between the pad and the object: there is no continuous fuel, so the model does not let a flame cross it"
+        },
+        {
+          "id": "earth-cone-2",
+          "path": "proximity",
+          "distanceM": 4.6,
+          "distanceNote": "bare ground between the pad and the object: there is no continuous fuel, so the model does not let a flame cross it"
+        },
+        {
+          "id": "earth-cone-3",
+          "path": "proximity",
+          "distanceM": 4.6,
+          "distanceNote": "bare ground between the pad and the object: there is no continuous fuel, so the model does not let a flame cross it"
+        }
+      ],
+      "measures": [
+        {
+          "id": "m-earth-extinguish",
+          "kind": "suppress",
+          "appliesTo": [
+            "earth-pan",
+            "earth-extinguisher",
+            "earth-cone-0",
+            "earth-cone-1",
+            "earth-cone-2",
+            "earth-cone-3"
+          ],
+          "action": "Use the fire extinguisher on the burning object before the fire grows.",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis): the engine puts out the fire where it started at that moment. The extinguisher stands in the scene; its type, agent and effectiveness on this fire are not documented here.",
+            "src": "Hypothesis; no test in the sources used"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "extinguish",
+            "target": "origin"
+          }
+        }
+      ]
+    },
+    {
+      "id": "earth-extinguisher",
+      "label": "Fire extinguisher (steel cylinder)",
+      "function": "Red extinguisher standing beside the pad (illustrative scene).",
+      "material": "inert",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Treated as non-combustible (bare metal, concrete or ground): the model never lets a flame cross into it. A fire can still be lit on it by a tap.",
+        "src": "Assumption: general material property, not an experiment of this archive"
+      },
+      "neighbors": [
+        {
+          "id": "earth-pan",
+          "path": "proximity",
+          "distanceM": 3.6,
+          "distanceNote": "bare ground between the pad and the object: there is no continuous fuel, so the model does not let a flame cross it"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "earth-cone-0",
+      "label": "Safety cone 1 of 4",
+      "function": "Plastic safety cone placed around the pad (illustrative scene).",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Traffic cones are plastic, but the exact polymer of this one is not known. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "earth-pan",
+          "path": "proximity",
+          "distanceM": 4.6,
+          "distanceNote": "bare ground between the pad and the object: there is no continuous fuel, so the model does not let a flame cross it"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "earth-cone-1",
+      "label": "Safety cone 2 of 4",
+      "function": "Plastic safety cone placed around the pad (illustrative scene).",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Traffic cones are plastic, but the exact polymer of this one is not known. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "earth-pan",
+          "path": "proximity",
+          "distanceM": 4.6,
+          "distanceNote": "bare ground between the pad and the object: there is no continuous fuel, so the model does not let a flame cross it"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "earth-cone-2",
+      "label": "Safety cone 3 of 4",
+      "function": "Plastic safety cone placed around the pad (illustrative scene).",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Traffic cones are plastic, but the exact polymer of this one is not known. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "earth-pan",
+          "path": "proximity",
+          "distanceM": 4.6,
+          "distanceNote": "bare ground between the pad and the object: there is no continuous fuel, so the model does not let a flame cross it"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "earth-cone-3",
+      "label": "Safety cone 4 of 4",
+      "function": "Plastic safety cone placed around the pad (illustrative scene).",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Traffic cones are plastic, but the exact polymer of this one is not known. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "earth-pan",
+          "path": "proximity",
+          "distanceM": 4.6,
+          "distanceNote": "bare ground between the pad and the object: there is no continuous fuel, so the model does not let a flame cross it"
+        }
+      ],
+      "measures": []
+    }
+  ],
+  "gaps": [
+    "The fire site is a procedural scene (pad, extinguisher, four cones, bare ground), not a model of a real place: distances and objects are illustrative.",
+    "With bare ground between the objects the model keeps the fire on the object where it starts: spread across open ground and radiant ignition are not modelled and no dataset in the archive covers them.",
+    "No PSI/NTRS combustion test of a fuel pan or a safety cone exists; the PSI experiments are microgravity tests, so 1 g on Earth is the least evidenced side of the lab.",
+    "Energetic components: none in this scene (no tank or battery), so there is no rupture.",
+    "Detection and the response of people are not modelled: the times are for an unattended fire."
+  ]
+}

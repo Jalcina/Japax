@@ -1,0 +1,315 @@
+{
+  "env": "iss-interior",
+  "version": 1,
+  "model": "procedural",
+  "components": [
+    {
+      "id": "isscab-rack-0",
+      "label": "Rack 1 of 8 (module wall)",
+      "function": "Experiment or equipment rack along the wall of the pressurised module (procedural scene: the rack layout is illustrative).",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Rack contents are assumed to be a mix of polymers, cables and fabric. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "isscab-rack-1",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        },
+        {
+          "id": "isscab-rack-7",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        }
+      ],
+      "measures": [
+        {
+          "id": "m-isscab-vent-off",
+          "kind": "suppress",
+          "appliesTo": [
+            "isscab-rack-0",
+            "isscab-rack-1",
+            "isscab-rack-2",
+            "isscab-rack-3",
+            "isscab-rack-4",
+            "isscab-rack-5",
+            "isscab-rack-6",
+            "isscab-rack-7"
+          ],
+          "action": "Shut off the fans and ventilation so the air stops moving.",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis for the engine): with less airflow the flame spreads slower or starves (ACME BRE, PSI-20: flames went out in still air at 21 % O2 in microgravity). In this model the effect depends on oxygen and gravity; it is not tested for this place.",
+            "src": "Action: NTRS 20030053429 (ISS fire response closes the intermodule ventilation valves and the cabin fans). Effect: PSI-20 ACME BRE, DOI 10.60555/vb93-3y72; hypothesis for racks"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "set_flow",
+            "flowCmS": 0
+          }
+        },
+        {
+          "id": "m-isscab-extinguish",
+          "kind": "suppress",
+          "appliesTo": [
+            "isscab-rack-0",
+            "isscab-rack-1",
+            "isscab-rack-2",
+            "isscab-rack-3",
+            "isscab-rack-4",
+            "isscab-rack-5",
+            "isscab-rack-6",
+            "isscab-rack-7"
+          ],
+          "action": "Discharge the portable CO2 fire extinguisher on the burning rack.",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis): the engine puts out the fire in the component where it started at that moment and stops its spread. The US segment carries CO2 portable extinguishers; the effect on a real rack fire is not tested here, and the crew need breathing equipment after a CO2 discharge.",
+            "src": "Action: NTRS 20130011664 (CO2 extinguishers in the US Orbital Segment) and NTRS 20030053429 (crew can use the PFE at their discretion). Effect: hypothesis"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "extinguish",
+            "target": "origin"
+          }
+        },
+        {
+          "id": "m-isscab-barrier-0-1",
+          "kind": "prevent",
+          "appliesTo": [
+            "isscab-rack-0",
+            "isscab-rack-1"
+          ],
+          "action": "Put a fire-blocking barrier between rack 1 and rack 2 so a fire cannot cross.",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis): the engine removes this connection. A barrier breaks the continuous fuel path that the model assumes. No test of such a barrier exists in the sources used.",
+            "src": "Hypothesis; flame spread needs continuous fuel (stated, not measured, for this place)"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "cut_edge",
+            "from": "isscab-rack-0",
+            "to": "isscab-rack-1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "isscab-rack-1",
+      "label": "Rack 2 of 8 (module wall)",
+      "function": "Experiment or equipment rack along the wall of the pressurised module (procedural scene: the rack layout is illustrative).",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Rack contents are assumed to be a mix of polymers, cables and fabric. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "isscab-rack-0",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        },
+        {
+          "id": "isscab-rack-2",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "isscab-rack-2",
+      "label": "Rack 3 of 8 (module wall)",
+      "function": "Experiment or equipment rack along the wall of the pressurised module (procedural scene: the rack layout is illustrative).",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Rack contents are assumed to be a mix of polymers, cables and fabric. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "isscab-rack-1",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        },
+        {
+          "id": "isscab-rack-3",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "isscab-rack-3",
+      "label": "Rack 4 of 8 (module wall)",
+      "function": "Experiment or equipment rack along the wall of the pressurised module (procedural scene: the rack layout is illustrative).",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Rack contents are assumed to be a mix of polymers, cables and fabric. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "isscab-rack-2",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        },
+        {
+          "id": "isscab-rack-4",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "isscab-rack-4",
+      "label": "Rack 5 of 8 (module wall)",
+      "function": "Experiment or equipment rack along the wall of the pressurised module (procedural scene: the rack layout is illustrative).",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Rack contents are assumed to be a mix of polymers, cables and fabric. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "isscab-rack-3",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        },
+        {
+          "id": "isscab-rack-5",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        }
+      ],
+      "measures": [
+        {
+          "id": "m-isscab-barrier-4-5",
+          "kind": "prevent",
+          "appliesTo": [
+            "isscab-rack-4",
+            "isscab-rack-5"
+          ],
+          "action": "Put a fire-blocking barrier between rack 5 and rack 6 so a fire cannot cross.",
+          "effect": {
+            "tag": "estimated",
+            "text": "Engineering proposal (hypothesis): the engine removes this connection. A barrier breaks the continuous fuel path that the model assumes. No test of such a barrier exists in the sources used.",
+            "src": "Hypothesis; flame spread needs continuous fuel (stated, not measured, for this place)"
+          },
+          "evidence": "estimated",
+          "engine": {
+            "kind": "cut_edge",
+            "from": "isscab-rack-4",
+            "to": "isscab-rack-5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "isscab-rack-5",
+      "label": "Rack 6 of 8 (module wall)",
+      "function": "Experiment or equipment rack along the wall of the pressurised module (procedural scene: the rack layout is illustrative).",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Rack contents are assumed to be a mix of polymers, cables and fabric. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "isscab-rack-4",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        },
+        {
+          "id": "isscab-rack-6",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "isscab-rack-6",
+      "label": "Rack 7 of 8 (module wall)",
+      "function": "Experiment or equipment rack along the wall of the pressurised module (procedural scene: the rack layout is illustrative).",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Rack contents are assumed to be a mix of polymers, cables and fabric. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "isscab-rack-5",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        },
+        {
+          "id": "isscab-rack-7",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        }
+      ],
+      "measures": []
+    },
+    {
+      "id": "isscab-rack-7",
+      "label": "Rack 8 of 8 (module wall)",
+      "function": "Experiment or equipment rack along the wall of the pressurised module (procedural scene: the rack layout is illustrative).",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Rack contents are assumed to be a mix of polymers, cables and fabric. No flammability test of this object exists.",
+        "src": "Assumption (no PSI/NTRS test of this object); spread speed comes from the SAFFIRE anchor scaled by estimated factors"
+      },
+      "neighbors": [
+        {
+          "id": "isscab-rack-6",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        },
+        {
+          "id": "isscab-rack-0",
+          "path": "contact",
+          "distanceM": 1,
+          "distanceNote": "adjacent racks around the module; assumed one metre of fuel path between them (illustrative scene, no drawing)"
+        }
+      ],
+      "measures": []
+    }
+  ],
+  "gaps": [
+    "The inside of the module is a procedural scene, not a NASA model: the eight racks, their order and the one-metre links between them are illustrative. No drawing of a real module was used.",
+    "No PSI/NTRS combustion test exists for an ISS rack. Spread speeds are the SAFFIRE anchor scaled by estimated factors and each rack is one 'plastic' material class.",
+    "Racks are linked in a ring with open fuel paths (worst case); real racks are separated by gaps, structure and fire-blocking materials that this model does not know.",
+    "Energetic components: none verified. The gas tanks and batteries of the station are outside this scene and were not verified with a source, so there is no rupture here.",
+    "The hull, light strips, handrails, end ring, bulkhead and burner probe are structure or fixtures: declared not simulated (non-combustible or not a component).",
+    "Detection and the crew's actions are not modelled: the times are for an unattended fire."
+  ]
+}
