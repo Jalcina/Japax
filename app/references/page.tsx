@@ -43,6 +43,9 @@ const DOCS: [string, string][] = [
   ["Comparison of Carbon Dioxide and Helium as Fire Extinguishing Agents for Spacecraft, NASA NTRS 20040161188 (Touch to burn)", "https://ntrs.nasa.gov/citations/20040161188"],
   ["Preliminary Results from the Saffire VI Experiment, NASA NTRS 20240002981 (Touch to burn)", "https://ntrs.nasa.gov/citations/20240002981"],
   ["Extinguishment of a Diffusion Flame Over a PMMA Cylinder by Depressurization in Low-Gravity, NASA NTRS 19970020617 (Touch to burn; abstract only)", "https://ntrs.nasa.gov/citations/19970020617"],
+  ["Shuttle/ISS EMU Failure History (ICES-2015-327), NASA NTRS 20150009506 (Component engine: EMU oxygen tank pressures; tank volume is not stated)", "https://ntrs.nasa.gov/citations/20150009506"],
+  ["Report of the Apollo 13 Review Board, Appendices F-H (special tests and analyses), NASA NTRS 19700078913 (Component engine: oxygen-tank failure timing, ignition energy; a different tank)", "https://ntrs.nasa.gov/citations/19700078913"],
+  ["Apollo 13 oxygen tank case study based on the Review Board report (TMX-65270), NASA NTRS 20110015690 (Component engine: failure path, 93 s from fan power to data loss)", "https://ntrs.nasa.gov/citations/20110015690"],
 ];
 
 const T = {

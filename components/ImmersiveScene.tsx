@@ -41,9 +41,10 @@ export type SceneApi = {
   /** called every frame after the scene update; pxPerUnit is what hyperFire.update expects */
   addUpdater: (fn: (dt: number, t: number, camera: THREE.PerspectiveCamera, pxPerUnit: number) => void) => void;
   /** first mesh under a pointer position, skipping `ignore` */
-  raycast: (clientX: number, clientY: number) => { point: THREE.Vector3; normal: THREE.Vector3; name: string } | null;
+  raycast: (clientX: number, clientY: number) => { point: THREE.Vector3; normal: THREE.Vector3; name: string; material: string } | null;
 };
-export type PickInfo = { normal: [number, number, number]; name: string };
+/** `material` is the name of the material that was hit (empty when it has none): the models identify parts by material or by mesh name */
+export type PickInfo = { normal: [number, number, number]; name: string; material?: string };
 
 type Built = {
   update: (dt: number, t: number) => void;
@@ -629,11 +630,15 @@ export default function ImmersiveScene({ env, fire, className = "h-[68vh] min-h-
       const r = renderer.domElement.getBoundingClientRect();
       const ray = new THREE.Raycaster();
       ray.setFromCamera(new THREE.Vector2(((cx - r.left) / r.width) * 2 - 1, -((cy - r.top) / r.height) * 2 + 1), camera);
-      const hit = ray.intersectObjects(scene.children, true).find((h) => (h.object as THREE.Mesh).isMesh && !inFire(h.object) && !skip(h.object));
+      // three.js raycasts hidden meshes too: a tap must only land on what the user can see
+      const shown = (o: THREE.Object3D) => { for (let p: THREE.Object3D | null = o; p; p = p.parent) if (!p.visible) return false; return true; };
+      const hit = ray.intersectObjects(scene.children, true).find((h) => (h.object as THREE.Mesh).isMesh && shown(h.object) && !inFire(h.object) && !skip(h.object));
       if (!hit) return null;
       const n = hit.face ? hit.face.normal.clone().transformDirection(hit.object.matrixWorld) : new THREE.Vector3(0, 1, 0);
       if (n.dot(ray.ray.direction) > 0) n.negate();
-      return { point: hit.point, normal: n, name: hit.object.name || (hit.object.parent?.name ?? "") };
+      const mats = (hit.object as THREE.Mesh).material;
+      const hitMat = Array.isArray(mats) ? mats[hit.face?.materialIndex ?? 0] : mats;
+      return { point: hit.point, normal: n, name: hit.object.name || (hit.object.parent?.name ?? ""), material: hitMat?.name ?? "" };
     };
     // touch to burn: a short tap (not a drag) moves the fire to the surface under the finger and reports the point
     let down: { x: number; y: number; t: number } | null = null;
@@ -647,7 +652,7 @@ export default function ImmersiveScene({ env, fire, className = "h-[68vh] min-h-
       if (!hit) return;
       hf?.group.position.copy(hit.point);
       built?.pin?.();
-      cb([hit.point.x, hit.point.y, hit.point.z], { normal: [hit.normal.x, hit.normal.y, hit.normal.z], name: hit.name });
+      cb([hit.point.x, hit.point.y, hit.point.z], { normal: [hit.normal.x, hit.normal.y, hit.normal.z], name: hit.name, material: hit.material });
     };
     renderer.domElement.addEventListener("pointerdown", onDown);
     renderer.domElement.addEventListener("pointerup", onUp);

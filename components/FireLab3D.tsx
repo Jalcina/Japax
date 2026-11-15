@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { ImmersiveEnv, PickInfo, SceneApi } from "@/components/ImmersiveScene";
+import ComponentPanel, { type PanelPick } from "@/components/ComponentPanel";
 import { LabFire, type LabStats, type Phase } from "@/lib/labFire";
 import { inferMaterial, spreadFactors } from "@/lib/labPhysics";
 import { useData, useLang } from "@/lib/i18n";
@@ -141,6 +142,8 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
   const [lit, setLit] = useState(false);
   const labRef = useRef<LabFire | null>(null);
   const apiRef = useRef<SceneApi | null>(null);
+  const [sceneApi, setSceneApi] = useState<SceneApi | null>(null);
+  const [panelPick, setPanelPick] = useState<PanelPick | null>(null);
 
   const pick = useCallback((id: EnvId) => {
     setEnv(id);
@@ -193,8 +196,9 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
     lf.onStats = setStats;
     labRef.current = lf;
     apiRef.current = api;
+    setSceneApi(api);
     setReady(true);
-    return () => { lf.dispose(); if (labRef.current === lf) labRef.current = null; apiRef.current = null; };
+    return () => { lf.dispose(); if (labRef.current === lf) labRef.current = null; apiRef.current = null; setSceneApi(null); };
   }, []);
 
   const onPick = useCallback((p: [number, number, number], info?: PickInfo) => {
@@ -202,6 +206,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
     if (!lf) return;
     if (apiRef.current) apiRef.current.controls.autoRotate = false;
     setActivated(null);
+    setPanelPick({ name: info?.name ?? "", material: info?.material ?? "", n: performance.now() });
     lf.ignite(new THREE.Vector3(...p), new THREE.Vector3(...(info?.normal ?? [0, 1, 0])), info?.name ?? "");
     setLit(true);
     // what is it made of? a guess from the model's part name (estimated); the user's own choice always wins
@@ -217,7 +222,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
     if (!api || !c) return;
     const r = c.getBoundingClientRect();
     const hit = api.raycast(r.x + r.width / 2, r.y + r.height / 2);
-    if (hit) onPick([hit.point.x, hit.point.y, hit.point.z], { normal: [hit.normal.x, hit.normal.y, hit.normal.z], name: hit.name });
+    if (hit) onPick([hit.point.x, hit.point.y, hit.point.z], { normal: [hit.normal.x, hit.normal.y, hit.normal.z], name: hit.name, material: hit.material });
   };
 
   const switchView = (v: "site" | "overview") => { setView(v); setReady(false); setLit(false); setStats(null); setActivated(null); };
@@ -340,6 +345,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
               </ul>
             </details>
           </div>
+          {env === "suit" && <ComponentPanel api={sceneApi} atm={atm} pick={panelPick} />}
         </div>
       </div>
 

@@ -1,0 +1,51 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>DEV ONLY - GLB contact sheet (not deployed)</title>
+<style>body{margin:0;background:#111;color:#ddd;font:11px monospace}#g{display:flex;flex-wrap:wrap;gap:4px;padding:4px}figure{margin:0;width:200px}img{width:200px;height:200px;display:block;background:#222}</style>
+<div id="g"></div>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+// Dev tool: renders every mesh of a GLB highlighted in magenta over the ghosted model, from several views.
+// Usage (from the repo root, any static server): http://localhost:<port>/scripts/dev-label/sheet.html?model=emu&views=front,back
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+const q = new URLSearchParams(location.search);
+const model = q.get("model") || "emu";
+const views = (q.get("views") || "front,back").split(",");
+const W = 400;
+const r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+r.setSize(W, W);
+// the project GLBs are Draco-compressed
+const loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath("/node_modules/three/examples/jsm/libs/draco/gltf/"));
+const gltf = await loader.loadAsync(`/public/models/${model}.glb`);
+const root = gltf.scene;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x222222);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 2.2));
+scene.add(root);
+const box = new THREE.Box3().setFromObject(root);
+const c = box.getCenter(new THREE.Vector3()), s = box.getSize(new THREE.Vector3()).length();
+const cam = new THREE.PerspectiveCamera(35, 1, 0.01, 1000);
+const ghost = new THREE.MeshBasicMaterial({ color: 0x555555, transparent: true, opacity: 0.25, depthWrite: false });
+const hi = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+const meshes = [];
+root.traverse((o) => { if (o.isMesh) { o.userData.orig = o.material; meshes.push(o); } });
+const dirs = { front: [0, 0.2, 1], back: [0, 0.2, -1], side: [1, 0.2, 0], top: [0, 1, 0.01] };
+const g = document.getElementById("g");
+function shot(v) {
+  const d = new THREE.Vector3(...dirs[v]).normalize();
+  cam.position.copy(c).addScaledVector(d, s * 1.1); cam.lookAt(c);
+  r.render(scene, cam); return r.domElement.toDataURL("image/jpeg", 0.7);
+}
+meshes.forEach((m, i) => {
+  meshes.forEach((o) => { o.material = o === m ? hi : ghost; });
+  const mat = m.userData.orig; const mn = Array.isArray(mat) ? mat.map((x) => x.name).join("|") : mat.name;
+  for (const v of views) {
+    const f = document.createElement("figure"); const im = new Image(); im.src = shot(v);
+    const cap = document.createElement("figcaption"); cap.textContent = `#${i} ${v} mesh="${m.name}" mat="${mn}"`;
+    f.append(im, cap); g.append(f);
+  }
+});
+document.title = "DONE " + meshes.length;
+</script>

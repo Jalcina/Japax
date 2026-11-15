@@ -1,0 +1,201 @@
+{
+  "env": "suit",
+  "version": 1,
+  "model": "emu.glb",
+  "components": [
+    {
+      "id": "emu-upper-garment",
+      "label": "Upper-body garment (torso and arms)",
+      "function": "Outer fabric layers of the suit over the torso and arms.",
+      "material": "fabric",
+      "flammability": {
+        "tag": "estimated",
+        "text": "No combustion test of this garment exists in PSI. The nearest measured fabric is SAFFIRE cotton-fiberglass (1.8-2.6 mm/s, about 21 % O2, microgravity). 100 % O2 at 4.3 psi is outside every tested atmosphere.",
+        "src": "NTRS 20180005168 Table 1; PSI-98, PSI-99, PSI-100"
+      },
+      "neighbors": [
+        { "id": "emu-lower-garment", "path": "contact", "distanceM": 0.3, "distanceNote": "Waist seam; approximate, scaled from the 2 m model height." },
+        { "id": "emu-joint-hardware", "path": "contact", "distanceM": 0.05, "distanceNote": "Shoulder rings; approximate." },
+        { "id": "emu-helmet-shell", "path": "contact", "distanceM": 0.1, "distanceNote": "Neck ring; approximate." },
+        { "id": "emu-plss-o2-tank", "path": "contact", "distanceM": 0.1, "distanceNote": "The PLSS backpack sits on the back of the upper torso; approximate." }
+      ],
+      "measures": [
+        {
+          "id": "m-waist-break", "kind": "prevent", "appliesTo": ["emu-upper-garment", "emu-lower-garment"],
+          "action": "Put a fire-blocking break at the waist seam so a fire in one half cannot cross to the other.",
+          "timeWindowS": 0,
+          "effect": { "tag": "estimated", "text": "Engineering proposal (hypothesis): the engine cuts the waist edge, so the front stops there. No test of such a break exists for this suit.", "src": "Hypothesis; flame spread needs continuous fuel (stated, not measured, for this suit)" },
+          "evidence": "estimated",
+          "engine": { "kind": "cut_edge", "from": "emu-upper-garment", "to": "emu-lower-garment" }
+        },
+        {
+          "id": "m-tank-shield", "kind": "prevent", "appliesTo": ["emu-upper-garment", "emu-plss-o2-tank"],
+          "action": "Shield the tank mount on the back of the torso with a thermal barrier so the garment cannot heat the tank.",
+          "timeWindowS": 0,
+          "effect": { "tag": "estimated", "text": "Engineering proposal (hypothesis): the engine cuts the garment-to-tank edge, so the tank is not heated through contact.", "src": "Hypothesis; no test data for this suit" },
+          "evidence": "estimated",
+          "engine": { "kind": "cut_edge", "from": "emu-upper-garment", "to": "emu-plss-o2-tank" }
+        }
+      ]
+    },
+    {
+      "id": "emu-lower-garment",
+      "label": "Lower-body garment (legs and boots)",
+      "function": "Outer fabric layers of the suit over the legs and boots.",
+      "material": "fabric",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Same situation as the upper garment: no combustion data for this layup; nearest measured fabric is SAFFIRE cotton-fiberglass.",
+        "src": "NTRS 20180005168 Table 1; PSI-98, PSI-99, PSI-100"
+      },
+      "neighbors": [
+        { "id": "emu-upper-garment", "path": "contact", "distanceM": 0.3, "distanceNote": "Waist seam; approximate." }
+      ],
+      "measures": [
+        {
+          "id": "m-waist-break", "kind": "prevent", "appliesTo": ["emu-upper-garment", "emu-lower-garment"],
+          "action": "Put a fire-blocking break at the waist seam so a fire in one half cannot cross to the other.",
+          "timeWindowS": 0,
+          "effect": { "tag": "estimated", "text": "Engineering proposal (hypothesis): the engine cuts the waist edge, so the front stops there.", "src": "Hypothesis; no test data for this suit" },
+          "evidence": "estimated",
+          "engine": { "kind": "cut_edge", "from": "emu-upper-garment", "to": "emu-lower-garment" }
+        }
+      ]
+    },
+    {
+      "id": "emu-joint-hardware",
+      "label": "Joint rings (shoulders and knees)",
+      "function": "Rigid rings at the shoulder and knee joints.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material of the rings is not stated in the 3D model; they are treated as a rigid non-fabric solid, which spreads slower than thin fabric in the model. No flame-spread data for them.",
+        "src": "NTRS 20160000593 (PMMA rods: slower with thickness); labPhysics material factor (estimated)"
+      },
+      "neighbors": [
+        { "id": "emu-upper-garment", "path": "contact", "distanceM": 0.05, "distanceNote": "Shoulder; approximate. The knee rings are not linked, see the gap register." }
+      ],
+      "measures": [
+        {
+          "id": "m-joint-break", "kind": "prevent", "appliesTo": ["emu-joint-hardware"],
+          "action": "Isolate the shoulder rings from the upper garment with a fire-blocking cuff.",
+          "timeWindowS": 0,
+          "effect": { "tag": "estimated", "text": "Engineering proposal (hypothesis): the engine cuts the shoulder edge.", "src": "Hypothesis; no test data for this suit" },
+          "evidence": "estimated",
+          "engine": { "kind": "cut_edge", "from": "emu-upper-garment", "to": "emu-joint-hardware" }
+        }
+      ]
+    },
+    {
+      "id": "emu-helmet-shell",
+      "label": "Helmet (shell and visor)",
+      "function": "Helmet assembly: outer shell and visor.",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material not stated in the 3D model; treated as a rigid non-fabric solid. No flame-spread data.",
+        "src": "NTRS 20160000593; labPhysics material factor (estimated)"
+      },
+      "neighbors": [
+        { "id": "emu-upper-garment", "path": "contact", "distanceM": 0.1, "distanceNote": "Neck ring; approximate." },
+        { "id": "emu-helmet-fittings", "path": "contact", "distanceM": 0.05, "distanceNote": "Side fittings; approximate." },
+        { "id": "emu-plss-o2-tank", "path": "proximity", "distanceM": 0.5, "distanceNote": "The backpack is just behind the head; approximate." }
+      ],
+      "measures": [
+        {
+          "id": "m-neck-break", "kind": "prevent", "appliesTo": ["emu-helmet-shell", "emu-helmet-fittings"],
+          "action": "Close the neck ring path with a fire-blocking collar so a torso fire cannot climb into the helmet.",
+          "timeWindowS": 0,
+          "effect": { "tag": "estimated", "text": "Engineering proposal (hypothesis): the engine cuts the neck edge.", "src": "Hypothesis; no test data for this suit" },
+          "evidence": "estimated",
+          "engine": { "kind": "cut_edge", "from": "emu-upper-garment", "to": "emu-helmet-shell" }
+        }
+      ]
+    },
+    {
+      "id": "emu-helmet-fittings",
+      "label": "Helmet side fittings",
+      "function": "Hardware on both sides of the helmet (function not identified in the model).",
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "Material and function are not stated in the 3D model; treated as a rigid non-fabric solid. No flame-spread data.",
+        "src": "NTRS 20160000593; labPhysics material factor (estimated)"
+      },
+      "neighbors": [
+        { "id": "emu-helmet-shell", "path": "contact", "distanceM": 0.05, "distanceNote": "Attached to the helmet; approximate." }
+      ],
+      "measures": [
+        {
+          "id": "m-neck-break", "kind": "prevent", "appliesTo": ["emu-helmet-shell", "emu-helmet-fittings"],
+          "action": "Close the neck ring path with a fire-blocking collar so a torso fire cannot climb into the helmet.",
+          "timeWindowS": 0,
+          "effect": { "tag": "estimated", "text": "Engineering proposal (hypothesis): the engine cuts the neck edge, so the fittings are never reached.", "src": "Hypothesis; no test data for this suit" },
+          "evidence": "estimated",
+          "engine": { "kind": "cut_edge", "from": "emu-upper-garment", "to": "emu-helmet-shell" }
+        }
+      ]
+    },
+    {
+      "id": "emu-plss-o2-tank",
+      "label": "PLSS oxygen tank (not a selectable part of the 3D model)",
+      "function": "Stores the oxygen that pressurises and supplies the suit. The 3D model has no separately selectable oxygen tank, so this component is selected from the panel and its effects are drawn at the torso.",
+      "virtual": true,
+      "material": "plastic",
+      "flammability": {
+        "tag": "estimated",
+        "text": "A metal pressure vessel does not burn on its own. The model treats it as a non-fabric solid that heats up when a neighbour burns; the heating window before failure is an assumed range, not a measurement.",
+        "src": "Assumption; Apollo 13 anchor in the failure-mode fact below"
+      },
+      "neighbors": [
+        { "id": "emu-upper-garment", "path": "contact", "distanceM": 0.1, "distanceNote": "Mounted on the back of the upper torso; approximate." },
+        { "id": "emu-helmet-shell", "path": "proximity", "distanceM": 0.5, "distanceNote": "Just behind the head; approximate." }
+      ],
+      "energetic": {
+        "kind": "pressure_vessel",
+        "contents": "Oxygen (primary and secondary vessels of the PLSS)",
+        "pressureNote": {
+          "tag": "reported",
+          "text": "ISS EMU pressure schedule: 900 psi in the primary and 6000 psi in the secondary oxygen tank; the advanced EMU uses a single 3000 psi tank design for both. Tank volume is not stated in the source, so the stored energy is only a range.",
+          "src": "NTRS 20150009506 (ICES-2015-327, Shuttle/ISS EMU Failure History), section 'Primary Oxygen Tank (Item 111)'"
+        },
+        "failureMode": {
+          "tag": "reported",
+          "text": "Apollo 13 (1970): a spark in the oxygen tank ignited the oxygen, the tank over-pressured and burst, damaged the adjacent oxygen tank 1 and blew off the side panel of service-module bay 4. About 93 s passed between powering the fan (55:53:20 GET) and the data loss (55:54:53.5 GET); the pressure started to rise at 55:53:36. Ground tests of the Apollo tank wiring in supercritical oxygen: the full-scale tank failed about 57 s after ignition (915 to 990 psia in 48 s, about 1200 psia at 56 s); conduit-only tests failed about 2-3 s and about 10 s after burning reached the insulator. A different tank (cryogenic supercritical oxygen at -190 F, 887 psia), fluid state and trigger (Teflon wire insulation): it shows that the rupture time can be seconds to about a minute, not this suit tank's timing.",
+          "src": "NTRS 20110015690 (case study based on TMX-65270); NTRS 19700078913 (Apollo 13 Review Board report, Appendices F-H: sections F3.3, F3.5, F3.7 and the test summary table; OCR text extracted and searched, those sections read)"
+        },
+        "heatToRuptureS": [30, 120],
+        "blastRadiusM": 0.5,
+        "o2Enrich": 1
+      },
+      "measures": [
+        {
+          "id": "m-tank-vent", "kind": "suppress", "appliesTo": ["emu-plss-o2-tank"],
+          "action": "Vent the oxygen tank through its relief path before the heating window closes.",
+          "timeWindowS": 30,
+          "effect": { "tag": "estimated", "text": "Engineering proposal (hypothesis): removing the stored pressure removes the rupture energy. The engine blocks the rupture when this is applied before the failure time. Apollo 13 tank design did include a relief valve (1000 psi) and a burst pressure of 2200 psia; this suit's tank is not documented.", "src": "Hypothesis; NTRS 20110015690 for the Apollo tank relief valve and burst pressure" },
+          "evidence": "estimated",
+          "engine": { "kind": "relieve", "target": "emu-plss-o2-tank" }
+        },
+        {
+          "id": "m-tank-shield", "kind": "prevent", "appliesTo": ["emu-upper-garment", "emu-plss-o2-tank"],
+          "action": "Shield the tank mount on the back of the torso with a thermal barrier so the garment cannot heat the tank.",
+          "timeWindowS": 0,
+          "effect": { "tag": "estimated", "text": "Engineering proposal (hypothesis): the engine cuts the garment-to-tank edge, so the tank is not heated through contact.", "src": "Hypothesis; no test data for this suit" },
+          "evidence": "estimated",
+          "engine": { "kind": "cut_edge", "from": "emu-upper-garment", "to": "emu-plss-o2-tank" }
+        }
+      ]
+    }
+  ],
+  "gaps": [
+    "No PSI/NTRS combustion test exists for the EMU outer layers (flame spread at 100 % O2 and 4.3 psi). Spread speeds are the SAFFIRE anchor scaled by estimated factors.",
+    "No dataset on oxygen-tank rupture in a suit. The failure window (30-120 s) and the blast radius (0.5 m) are assumptions (estimated). The only anchor is Apollo 13 (a different tank): flight about 77 s from the first pressure rise to data loss, ground full-scale test about 57 s, conduit-only tests 2-10 s (NTRS 19700078913, App. F). The report gives no blast radius or fragment data for a suit tank.",
+    "Apollo 13 report NTRS 19700078913 contains only Appendices F-H (special tests, board procedures, press statements); its energy figures (10-130 Btu to explain the pressure rise, about 260 Btu in 0.13 lbm of Teflon wire, ignition at 8 J or less) refer to a cryogenic tank of 242 lbm oxygen and are not applicable to the EMU tank.",
+    "Component count: the EMU model gives 5 identifiable components plus the virtual PLSS tank (6). The goal of 8 or more was lowered, by the project owner's decision, to the maximum each 3D model allows.",
+    "The tank volume of the EMU oxygen vessels is not stated in NTRS 20150009506, so stored energy is not computed.",
+    "The 3D model has no separately selectable PLSS oxygen tank (any backpack-like shapes belong to the garment meshes), so the tank is a virtual component.",
+    "The shoulder and knee rings share one material in the 3D model, so they are one component. Linking it to both garments would create a false shortcut across the waist, so only the shoulder link is modelled and the knee rings cannot ignite in the model.",
+    "The garment and ring layout is read from the 3D model by eye; component distances are approximate."
+  ]
+}

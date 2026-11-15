@@ -1,0 +1,36 @@
+{
+  "env": "suit",
+  "model": "emu.glb",
+  "method": "Manual labelling by eye from front and side projections of the decoded GLB and confirmed with real taps in the app (labelConfidence: medium). This model is one node with 25 primitives, so it is resolved by material name. The scene names the primitives Extravehicular_Mobility_Unit_<index+1> and hides the ones whose name ends in _4, _5, _6, _7, _9 or _13, plus those with partial transmission.",
+  "entries": {
+    "material:EMU:emusuit21_emusuit5_lambert2SG": "emu-upper-garment",
+    "material:EMU:emusuit21_lambert2SG": "emu-lower-garment",
+    "material:EMU:emusuit21_lambert4SG": "emu-lower-garment",
+    "material:EMU:emusuit21_emusuit4_justbody_lambert2SG": "emu-joint-hardware",
+    "material:EMU:emusuit21_emusuit5_lambert3SG": "emu-helmet-shell",
+    "material:EMU:emusuit21_emusuit4_justbody_blinn3SG": "emu-helmet-shell",
+    "material:EMU:emusuit21_blinn12SG": "emu-helmet-fittings",
+    "material:EMU:emusuit21_blinn3SG": "emu-helmet-fittings",
+    "material:EMU:emusuit21_emusuit5_blinn3SG": "emu-helmet-fittings"
+  },
+  "ignored": {
+    "material:EMU:emusuit21_jetpack2SG": "hidden by the scene (name ends in _4)",
+    "material:EMU:initialShadingGroup": "hidden by the scene (name ends in _5)",
+    "material:EMU:emusuit21_lambert5SG": "hidden by the scene (name ends in _6)",
+    "material:EMU:emusuit21_emusuit5_jetpack2SG": "hidden by the scene (name ends in _7)",
+    "material:EMU:emusuit21_emusuit5_lambert5SG": "hidden by the scene (name ends in _9)",
+    "material:EMU:emusuit21_lambert11SG": "hidden by the scene (name ends in _13)",
+    "material:EMU:emusuit21_blinn1SG": "hidden by the scene (partially transmissive)",
+    "material:EMU:emusuit21_emusuit5_blinn1SG": "hidden by the scene (partially transmissive)"
+  },
+  "unidentified": [
+    "material:EMU:emusuit21_blinn2SG",
+    "material:EMU:emusuit21_emusuit5_blinn2SG",
+    "material:EMU:emusuit21_lambert7SG",
+    "material:EMU:emusuit21_lambert10SG",
+    "material:EMU:emusuit21_lambert3SG",
+    "material:EMU:emusuit21_body_lambert2SG",
+    "material:EMU:emusuit21_lambert8SG",
+    "material:EMU:emusuit21_lambert9SG"
+  ]
+}
