@@ -57,14 +57,24 @@ test("resolution: a tap on a part gives its component; ignored parts give their 
   assert.equal(resolveComponent(E["earth-planet"].map, { mesh: "earthplanet_surface" }).componentId, "earthplanet-surface");
 });
 
-test("Earth fire site: bare ground keeps the fire on the object; the extinguisher measure puts it out and ends the run by measure", () => {
+test("Earth fire site: the spill carries the fire to the four cones (not into the steel extinguisher); extinguisher, blanket and barriers change the result", () => {
   const base = run("earth", "earth-pan");
-  assert.equal(base.events.filter((e) => e.state === "burning").length, 1);
+  for (let i = 0; i < 4; i++) assert.ok(ev(base, `earth-cone-${i}`, "burning"), `cone ${i}`);
+  assert.match(ev(base, "earth-extinguisher", "not_reached").reason, /non-combustible/);
   assert.equal(base.end.reason, "burned_out");
-  const out = run("earth", "earth-pan", { measures: engineMeasures(E.earth.cat, ["m-earth-extinguish"], 5, "earth-pan") });
-  assert.equal(ev(out, "earth-pan", "extinguished").t, 5);
-  assert.equal(out.end.reason, "extinguished_by_measure");
-  assert.ok(out.events.every((e) => e.t <= out.end.t));
+  const t0 = ev(base, "earth-cone-0", "burning").t;
+  assert.ok(t0 > 5);
+  for (const m of ["m-earth-extinguish", "m-earth-blanket"]) {
+    const out = run("earth", "earth-pan", { measures: engineMeasures(E.earth.cat, [m], 5, "earth-pan") });
+    assert.equal(ev(out, "earth-pan", "extinguished").t, 5, m);
+    assert.equal(ev(out, "earth-cone-0", "burning"), undefined, m);
+    assert.equal(out.end.reason, "extinguished_by_measure", m);
+    assert.ok(out.events.every((e) => e.t <= out.end.t));
+  }
+  const bar = run("earth", "earth-pan", { measures: engineMeasures(E.earth.cat, ["m-earth-barrier-0"], 0) });
+  assert.equal(ev(bar, "earth-cone-0", "burning"), undefined);
+  assert.ok(ev(bar, "earth-cone-1", "burning"));
+  assert.equal(bar.end.reason, "extinguished_by_measure");
 });
 
 test("ISS interior: the fire runs round the ring of racks; ventilation off starves it; the extinguisher stops it; a barrier forces the long way round", () => {

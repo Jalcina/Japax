@@ -25,7 +25,7 @@ export const COMPONENT_ENVS: Record<string, EnvBundle> = {
   suit: { catalog: emuCatalog as unknown as Catalog, map: emuMap as unknown as ComponentMap },
   iss: { catalog: issCatalog as unknown as Catalog, map: issMap as unknown as ComponentMap, horizonS: 7200 },
   "iss-interior": { catalog: issInteriorCatalog as unknown as Catalog, map: issInteriorMap as unknown as ComponentMap, horizonS: 7200 },
-  earth: { catalog: earthCatalog as unknown as Catalog, map: earthMap as unknown as ComponentMap },
+  earth: { catalog: earthCatalog as unknown as Catalog, map: earthMap as unknown as ComponentMap, horizonS: 3600 },
   "earth-planet": { catalog: earthPlanetCatalog as unknown as Catalog, map: earthPlanetMap as unknown as ComponentMap },
   moon: { catalog: moonCatalog as unknown as Catalog, map: moonMap as unknown as ComponentMap, horizonS: 3600 },
   mars: { catalog: marsCatalog as unknown as Catalog, map: marsMap as unknown as ComponentMap, horizonS: 3600 },
