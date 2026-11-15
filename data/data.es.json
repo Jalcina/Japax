@@ -29,7 +29,7 @@
         "fibra de vidrio saturada de cera",
         "velas de parafina y cera japonesa"
       ],
-      "note": "41 muestras y 89 puntos de ensayo. El rango de O2 no figura en la ficha.",
+      "note": "41 muestras y 89 puntos de ensayo. El rango de O2 no figura en la ficha. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
       "sensors": [
         "radiómetro (salida de la llama)",
         "anemómetro (flujo real)",
@@ -54,7 +54,7 @@
       "sensors": [
         "vídeo (296 vídeos en PSI)"
       ],
-      "summary": "Continuación de BASS con combustibles más gruesos y realistas; tiende un puente entre el método Test 1 de 1 g, las pruebas en tierra y la inflamabilidad real de materiales en microgravedad.",
+      "summary": "Continuación de BASS con combustibles más gruesos y realistas; tiende un puente entre el método Test 1 de 1 g, las pruebas de microgravedad en tierra y la inflamabilidad real de materiales en microgravedad.",
       "findings": [
         "Objetivo: estudiar ignición, crecimiento de llama, propagación y límites de extinción de combustibles sólidos en flujos forzados de baja velocidad, y dar datos preliminares a los investigadores de SoFIE.",
         "Ayuda a los ingenieros a elegir los materiales más seguros y a mejorar los métodos de extinción en misiones futuras.",
@@ -178,7 +178,7 @@
         "metano",
         "etileno"
       ],
-      "note": "Llamas de difusión de coflujo débil en función de la velocidad y la dilución del combustible.",
+      "note": "Llamas de difusión de coflujo débil en función de la velocidad y la dilución del combustible. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
       "summary": "Datos de referencia sobre llamas de difusión en coflujo para probar modelos computacionales en los extremos de dilución del combustible.",
       "findings": [
         "Caracteriza la forma de la llama, la altura de despegue, las temperaturas y los límites de extinción, y la tendencia a producir hollín con tiempos de residencia largos."
@@ -191,7 +191,10 @@
     },
     "PSI-22": {
       "fuelPhase": "gas",
-      "note": "El enunciado del reto dice que el campo eléctrico imita la gravedad parcial por su efecto sobre los iones de la llama.",
+      "fuels": [
+        "etileno"
+      ],
+      "note": "El enunciado del reto dice que el campo eléctrico imita la gravedad parcial por su efecto sobre los iones de la llama. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
       "summary": "Estudia cómo un campo eléctrico modifica llamas de difusión laminares; el enunciado del reto lo cita como forma de imitar gravedad parcial.",
       "findings": [
         "Según el enunciado del reto, el campo eléctrico actúa sobre los iones presentes de forma natural en las llamas e imita la gravedad parcial.",
@@ -207,7 +210,12 @@
     },
     "PSI-98": {
       "fuelPhase": "sólido (material de nave)",
-      "note": "Experimento no tripulado a bordo de la nave de carga Cygnus.",
+      "fuels": [
+        "mezcla de fibra de vidrio y algodón",
+        "PMMA",
+        "caucho de silicona"
+      ],
+      "note": "Experimento no tripulado a bordo de la nave de carga Cygnus. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
       "sensors": [
         "oxígeno",
         "dióxido de carbono",
@@ -227,7 +235,13 @@
     },
     "PSI-99": {
       "fuelPhase": "sólido (material de nave)",
-      "note": "Mismos objetivos que Saffire-I.",
+      "fuels": [
+        "PMMA",
+        "SIBAL",
+        "caucho de silicona",
+        "Nomex"
+      ],
+      "note": "Mismos objetivos que Saffire-I. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
       "summary": "Segundo vuelo Saffire, en el módulo de carga presurizado de Cygnus.",
       "findings": [
         "Mismos objetivos: rapidez de crecimiento de un fuego a gran escala en baja gravedad y límites de inflamabilidad frente al test de selección de NASA en gravedad normal."
@@ -245,7 +259,13 @@
     },
     "PSI-100": {
       "fuelPhase": "sólido (material de nave)",
-      "note": "Mismos objetivos que Saffire-I.",
+      "fuels": [
+        "PEEK",
+        "policarbonato",
+        "tela de basalto",
+        "PMMA"
+      ],
+      "note": "Mismos objetivos que Saffire-I. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
       "summary": "Tercer vuelo Saffire, con abundante instrumentación y datos en PSI.",
       "findings": [
         "Mismos objetivos que Saffire-I: crecimiento de fuego a gran escala y límites de inflamabilidad."
@@ -270,7 +290,7 @@
         "celulosa",
         "ftalato de dibutilo en una mecha porosa"
       ],
-      "note": "30 muestras (6 por material) con distintos caudales de aire, temperaturas de calentamiento y tiempos de envejecimiento del humo. Expedición 15 de la ISS.",
+      "note": "30 muestras (6 por material) con distintos caudales de aire, temperaturas de calentamiento y tiempos de envejecimiento del humo. Expedición 15 de la ISS. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
       "sensors": [
         "contadores de partículas de varios rangos de tamaño",
         "dispersión de luz",
@@ -288,7 +308,13 @@
     },
     "PSI-101": {
       "fuelPhase": "aerosol (humo)",
-      "note": "Reenvío de SAME.",
+      "fuels": [
+        "Teflón AF-2400",
+        "Kapton",
+        "SIBAL",
+        "plástico ABS"
+      ],
+      "note": "Reenvío de SAME. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
       "sensors": [
         "equipo comparativo de diagnóstico de hollín"
       ],
@@ -306,7 +332,7 @@
       "fuels": [
         "polvo y aerosoles"
       ],
-      "note": "Reduce el riesgo de SAME comprobando un contador de partículas P-Trak modificado.",
+      "note": "Reduce el riesgo de SAME comprobando un contador de partículas P-Trak modificado. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
       "sensors": [
         "TSI P-Trak modificado (condensación de isopropanol y conteo láser)"
       ],
@@ -326,7 +352,7 @@
         "propano",
         "propileno (mezclas)"
       ],
-      "note": "Su conducto de flujo con ventilador se reutiliza en BASS, BASS-II y SLICE.",
+      "note": "Su conducto de flujo con ventilador se reutiliza en BASS, BASS-II y SLICE. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
       "sensors": [
         "imágenes de cámara",
         "vídeo (18 vídeos en PSI)"
@@ -341,7 +367,7 @@
     },
     "PSI-106": {
       "fuelPhase": "gas",
-      "note": "Usa el hardware de SPICE. Operó en 2012 según la guía.",
+      "note": "Usa el hardware de SPICE. Operó en 2012 según la guía. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
       "summary": "Estructura y despegue (lift-off) de llamas de difusión laminares en microgravedad.",
       "findings": [
         "Determina los límites de velocidad de despegue para distintos combustibles y diámetros de quemador, y el efecto de la dilución con nitrógeno."
@@ -356,8 +382,15 @@
     "PSI-60": {
       "acronym": "Análisis de datos SPICE",
       "fuelPhase": "gas",
-      "note": "Investigación en tierra sobre datos de SPICE; más de 1600 imágenes DSLR.",
+      "fuels": [
+        "etileno",
+        "propano",
+        "propileno",
+        "metano"
+      ],
+      "note": "Investigación en tierra sobre datos de SPICE; más de 1600 imágenes DSLR. SUPUESTO: el 21% de O2 y 1.013 atm son la atmósfera estándar de la ISS y no constan en los metadatos de PSI de esta investigación.",
       "sensors": [
+        "pirometría de relación de colores (campos de temperatura del hollín a partir de imágenes DSLR)",
         "más de 1600 imágenes DSLR analizadas"
       ],
       "summary": "Análisis computacional y experimental de los datos de SPICE para explicar la gran discrepancia de formación de hollín entre 1 g y 0 g.",
@@ -380,7 +413,7 @@
     },
     "SoFIE": {
       "gravity": "microgravedad (ISS)",
-      "note": "Un módulo para el Combustion Integrated Rack de la ISS que quema materiales sólidos de naves en geometrías prácticas y con niveles de oxígeno y presión de las atmósferas de exploración actuales y previstas de NASA. Comprobará si el test de llama de 1 g (NASA-STD-6001) es conservador en baja gravedad, mejorará la comprensión del crecimiento temprano del fuego y comparará la supresión por diluyentes, reducción de flujo y despresurización. Sirve a cinco investigaciones y queda abierto a futuros investigadores (NASA NTRS 20200000361)."
+      "note": "Un módulo para el Combustion Integrated Rack de la ISS que quema materiales sólidos de naves en geometrías prácticas y con niveles de oxígeno y presión de las atmósferas de exploración actuales y previstas de NASA. Comprobará si el test de llama de 1 g (NASA-STD-6001) es conservador en baja gravedad, mejorará la comprensión del crecimiento temprano del fuego y comparará la supresión por diluyentes, reducción de flujo y despresurización. Diseñado para dar servicio a cinco investigaciones y abierto a futuros investigadores (NASA NTRS 20200000361)."
     },
     "FLARE": {
       "gravity": "gravedad normal y microgravedad",
@@ -401,7 +434,7 @@
     },
     "mars-habitat": {
       "name": "Base marciana (hábitat)",
-      "note": "ESTIMADO, no medido. La gravedad es la de la superficie de Marte, de unos 0.38 g (hoja de datos planetarios de NASA). Las fuentes usadas aquí no publican ninguna atmósfera de hábitat específica para Marte, así que se ASUME la misma que la de la base lunar prevista (30% de O2 a 10.2 psi, enunciado del reto). El aire fino de CO2 del exterior (alrededor de 0.13% de O2) no es un lugar donde pueda arder una llama. Aún no hay datos de combustión en gravedad parcial; véase la base lunar."
+      "note": "ESTIMADO, no medido. La gravedad es la de la superficie de Marte, de unos 0.38 g (hoja de datos de Marte de NASA, Mars Fact Sheet). Las fuentes usadas aquí no publican ninguna atmósfera de hábitat específica para Marte, así que se ASUME la misma que la de la base lunar prevista (30% de O2 a 10.2 psi, enunciado del reto). El aire fino de CO2 del exterior (alrededor de 0.13% de O2) no es un lugar donde pueda arder una llama. Aún no hay datos de combustión en gravedad parcial; véase la base lunar."
     },
     "suit": {
       "name": "Traje espacial"

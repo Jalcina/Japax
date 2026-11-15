@@ -8,8 +8,8 @@ import { CAT_COLOR, CAT_LABEL, ERAS, TIMELINE, type Cat, type TimelineEvent } fr
 const T = {
   en: {
     eyebrow: "Chronology",
-    title: "Six decades of fire in space",
-    lead: "From a launch-pad tragedy to an open archive of flame experiments: the moments that taught us how fire behaves without gravity, and why the Moon needs new answers.",
+    title: "Six decades of fire in space, and what it cost",
+    lead: "From the fire that killed three Apollo 1 astronauts to an open archive of flame experiments: the moments that taught us how fire behaves without gravity, and why the Moon needs new answers before a crew depends on them.",
     all: "All",
     filter: "Filter by type",
     decades: "Milestones by decade",
@@ -23,8 +23,8 @@ const T = {
   },
   es: {
     eyebrow: "Cronología",
-    title: "Seis décadas de fuego en el espacio",
-    lead: "De una tragedia en la plataforma de lanzamiento a un archivo abierto de experimentos de llama: los momentos que nos enseñaron cómo se comporta el fuego sin gravedad y por qué la Luna necesita respuestas nuevas.",
+    title: "Seis décadas de fuego en el espacio, y lo que costó",
+    lead: "Del fuego que mató a tres astronautas del Apolo 1 a un archivo abierto de experimentos de llama: los momentos que nos enseñaron cómo se comporta el fuego sin gravedad y por qué la Luna necesita respuestas nuevas antes de que una tripulación dependa de ellas.",
     all: "Todo",
     filter: "Filtrar por tipo",
     decades: "Hitos por década",

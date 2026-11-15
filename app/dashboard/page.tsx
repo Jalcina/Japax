@@ -30,8 +30,8 @@ const AREAS: ("all" | Area)[] = ["all", "prevention", "detection", "suppression"
 const T = {
   en: {
     eyebrow: "Ranking",
-    title: "Which investigations matter most for the Moon?",
-    intro: "Every investigation earns points on five criteria. You decide how much each criterion matters, and the ranking re-orders itself instantly.",
+    title: "Which investigations matter most for a crew on the Moon?",
+    intro: "Every investigation earns points on five criteria. You decide how much each criterion matters, and the ranking re-orders itself instantly, so the evidence that protects a crew comes first.",
     steps: [
       ["1", "Each investigation is scored out of 100", "Points come from five criteria, each backed by facts in the investigation catalogue."],
       ["2", "You choose what matters to your mission", "Pick a profile or slide each criterion from Ignore to Essential."],
@@ -64,8 +64,8 @@ const T = {
   },
   es: {
     eyebrow: "Ranking",
-    title: "¿Qué investigaciones importan más para la Luna?",
-    intro: "Cada investigación gana puntos en cinco criterios. Tú decides cuánto importa cada criterio y el ranking se reordena al instante.",
+    title: "¿Qué investigaciones importan más para una tripulación en la Luna?",
+    intro: "Cada investigación gana puntos en cinco criterios. Tú decides cuánto importa cada criterio y el ranking se reordena al instante, para que la evidencia que protege a una tripulación vaya primero.",
     steps: [
       ["1", "Cada investigación se puntúa sobre 100", "Los puntos salen de cinco criterios, cada uno respaldado por hechos del catálogo de investigaciones."],
       ["2", "Tú eliges qué importa para tu misión", "Escoge un perfil o desliza cada criterio de Ignorar a Esencial."],

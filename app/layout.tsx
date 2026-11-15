@@ -22,13 +22,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://japax.vercel.app"),
-  title: "JaPax — Fire in space, explained with NASA data",
+  title: "JaPax — Know what to protect, before the fire decides",
   description:
-    "An AI-assisted dashboard that summarizes, ranks and interprets NASA's microgravity combustion experiments (PSI) to deliver fire-safety insights for the Moon and Mars.",
+    "NASA's fire experiments turned into one answer for spacesuits, ships and lunar bases: where a fire starts, where it goes, how long it takes, and what to protect so the crew comes home.",
   openGraph: {
-    title: "JaPax — Fire in space, explained with NASA data",
+    title: "JaPax — Know what to protect, before the fire decides",
     description:
-      "An AI-assisted dashboard that summarizes, ranks and interprets NASA's microgravity combustion experiments (PSI) to deliver fire-safety insights for the Moon and Mars.",
+      "NASA's fire experiments turned into one answer for spacesuits, ships and lunar bases: where a fire starts, where it goes, how long it takes, and what to protect so the crew comes home.",
     url: "https://japax.vercel.app",
     siteName: "JaPax",
     type: "website",

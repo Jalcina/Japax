@@ -14,7 +14,7 @@ type Sort = "score" | "name" | "files";
 const T = {
   en: {
     eyebrow: "Investigations",
-    title: "NASA combustion investigations",
+    title: "The NASA fire evidence behind what to protect",
     intro1: "investigations from the PSI repository, with their test conditions, findings and sources. Select up to three to compare them side by side.",
     intro2: "Values marked \"assumed\" use the standard ISS cabin atmosphere because PSI does not state them.",
     assumed: "assumed",
@@ -56,7 +56,7 @@ const T = {
   },
   es: {
     eyebrow: "Investigaciones",
-    title: "Investigaciones de combustión de NASA",
+    title: "La evidencia de fuego de la NASA que respalda qué proteger",
     intro1: "investigaciones del repositorio PSI, con sus condiciones de ensayo, hallazgos y fuentes. Selecciona hasta tres para compararlas lado a lado.",
     intro2: "Los valores marcados como \"supuesto\" usan la atmósfera estándar de la cabina de la ISS porque PSI no los indica.",
     assumed: "supuesto",

@@ -42,6 +42,7 @@ const T = {
     projEyebrow: "The project",
     projTitle: "What JaPax is and why we built it",
     p: [
+      "JaPax exists to save lives. In 1967 a fire in a pure-oxygen Apollo 1 cabin killed three astronauts, and today spacesuits and planned lunar habitats are still full of oxygen. In space there are no firefighters and no one to call, so every design choice has to be right before launch.",
       "Fire behaves very differently in microgravity, and no one has measured how it behaves on the Moon. NASA has run decades of combustion experiments on the ISS, but the results sit in tables that only specialists can read.",
       "JaPax turns those public experiments from NASA's Physical Sciences Informatics (PSI) into a traceable evidence base: what burns, at what spread rate, and where the evidence stops. It is aimed at combustion researchers, aerospace and fire-safety engineers, and space-agency and habitat-design professionals.",
       "We follow one rule: every number shows its source (PSI ID and DOI), and anything not measured is labelled as predicted or estimated. Where no data exists, such as partial gravity, we say so instead of filling the gap.",
@@ -75,6 +76,7 @@ const T = {
     projEyebrow: "El proyecto",
     projTitle: "Qué es JaPax y por qué lo hicimos",
     p: [
+      "JaPax existe para salvar vidas. En 1967 un fuego en una cabina del Apollo 1 llena de oxígeno puro mató a tres astronautas, y hoy los trajes espaciales y los hábitats lunares previstos siguen llenos de oxígeno. En el espacio no hay bomberos ni nadie a quien llamar, así que cada decisión de diseño tiene que ser correcta antes del despegue.",
       "El fuego se comporta de forma muy distinta en microgravedad, y nadie ha medido cómo lo hace en la Luna. La NASA lleva décadas haciendo experimentos de combustión en la ISS, pero los resultados están en tablas que solo entienden los especialistas.",
       "JaPax convierte esos experimentos públicos de la NASA (Physical Sciences Informatics, PSI) en una base de evidencia trazable: qué arde, con qué velocidad de propagación y dónde termina la evidencia. Está dirigido a investigadores en combustión, ingenieros aeroespaciales y de seguridad contra incendios, y profesionales de agencias espaciales y diseño de hábitats.",
       "Seguimos una regla: cada número muestra su fuente (PSI ID y DOI), y lo que no está medido se marca como predicho o estimado. Donde no hay datos, como en la gravedad parcial, lo decimos en vez de rellenar la brecha.",
