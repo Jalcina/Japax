@@ -39,39 +39,39 @@ const FIXED: Record<EnvId, { cond: Cond; rows: Record<"o2" | "p" | "g" | "flow",
   earth: {
     cond: { o2: 0.21, pressureAtm: 1, gravityG: 1, flowCmS: 0 },
     rows: {
-      o2: { value: "21 %", tag: "reported", src: "Challenge statement (standard air)", eli5: "Air is mostly nitrogen. Oxygen is the part a fire eats: more oxygen, hungrier fire." },
-      p: { value: "14.7 psi (1 atm)", tag: "reported", src: "Challenge statement", eli5: "How tightly the air is packed. Thinner air carries fewer oxygen molecules to the flame." },
-      g: { value: "1 g", tag: "measured", src: "Physical constant", eli5: "Gravity makes hot air rise, so a flame pulls fresh air in from below and stretches into a teardrop." },
-      flow: { value: "none forced", tag: "estimated", src: "No forced flow assumed; hot gases create their own", eli5: "Hot air rising is itself a wind that keeps feeding the fire." },
+      o2: { value: "21 %", tag: "reported", src: "Challenge statement (standard air)", eli5: "N₂-dominated mixture; the oxidiser is O₂. Burning rate and flame temperature rise with the O₂ mole fraction." },
+      p: { value: "14.7 psi (1 atm)", tag: "reported", src: "Challenge statement", eli5: "Total pressure sets the O₂ partial pressure and hence the oxidiser supply rate to the flame front." },
+      g: { value: "1 g", tag: "measured", src: "Physical constant", eli5: "Buoyancy-driven convection entrains fresh oxidiser from below and elongates the flame into the familiar teardrop." },
+      flow: { value: "none forced", tag: "estimated", src: "No forced flow assumed; hot gases create their own", eli5: "Natural convection from the hot gases supplies its own oxidiser flow." },
     },
     banner: "Earth (1 g): the PSI tables are microgravity tests, so this side of the lab is the least evidenced.",
   },
   iss: {
     cond: { o2: 0.21, pressureAtm: 1, gravityG: 0, flowCmS: 10 },
     rows: {
-      o2: { value: "21 %", tag: "reported", src: "Challenge statement (standard cabin)", eli5: "The same air as on the ground. Oxygen is what a fire eats." },
-      p: { value: "14.7 psi (1 atm)", tag: "reported", src: "Challenge statement (standard cabin)", eli5: "Normal air pressure inside the station." },
-      g: { value: "0 g", tag: "measured", src: "Orbital free fall", eli5: "Everything falls together, so hot air does not rise and a flame is a round blue ball." },
-      flow: { value: "about 10 cm/s", tag: "reported", src: "NASA challenge guide, ventilation level used in BASS tests", eli5: "A gentle breeze from the cabin fans. A flame in space needs a little of it to keep going." },
+      o2: { value: "21 %", tag: "reported", src: "Challenge statement (standard cabin)", eli5: "Sea-level air composition (about 21 % O₂), the baseline for comparison." },
+      p: { value: "14.7 psi (1 atm)", tag: "reported", src: "Challenge statement (standard cabin)", eli5: "Standard sea-level cabin pressure." },
+      g: { value: "0 g", tag: "measured", src: "Orbital free fall", eli5: "Free fall removes buoyancy: transport is diffusion-dominated and the flame becomes quasi-spherical and blue." },
+      flow: { value: "about 10 cm/s", tag: "reported", src: "NASA challenge guide, ventilation level used in BASS tests", eli5: "Typical cabin ventilation velocity. A low opposed flow supplies the oxidiser that a diffusion-limited microgravity flame lacks." },
     },
   },
   moon: {
     cond: { o2: 0.3, pressureAtm: 0.694, gravityG: 0.166, flowCmS: 10 },
     rows: {
-      o2: { value: "30 % or more", tag: "estimated", src: "Challenge statement; FM2 plans 21 % at 14.7 psia and 34 % at 8.2 psia (NTRS 20240015307)", eli5: "Moon bases are planned to use more oxygen so astronauts can use thinner air. More oxygen makes fire hungrier." },
-      p: { value: "10.2 psi or less", tag: "estimated", src: "Challenge statement; FM2 (NTRS 20240015307)", eli5: "Thinner air than on Earth, to save weight in the habitat walls." },
-      g: { value: "0.166 g", tag: "estimated", src: "Lunar gravity is a constant, but there is no PSI combustion data at this g (LUCI 2025 and FM2 are the first)", eli5: "About one sixth of Earth gravity. Nobody has measured how a flame behaves here, so the lab blends 0 g and 1 g." },
-      flow: { value: "about 10 cm/s (assumed)", tag: "estimated", src: "Assumed equal to the ISS cabin; no lunar-habitat data", eli5: "We guess the habitat has fans like the station. This is a guess." },
+      o2: { value: "30 % or more", tag: "estimated", src: "Challenge statement; FM2 plans 21 % at 14.7 psia and 34 % at 8.2 psia (NTRS 20240015307)", eli5: "Planned lunar habitats combine a reduced total pressure with O₂ enrichment to keep a breathable O₂ partial pressure. A higher O₂ mole fraction increases flammability." },
+      p: { value: "10.2 psi or less", tag: "estimated", src: "Challenge statement; FM2 (NTRS 20240015307)", eli5: "Reduced total pressure lowers the structural mass of the pressure vessel." },
+      g: { value: "0.166 g", tag: "estimated", src: "Lunar gravity is a constant, but there is no PSI combustion data at this g (LUCI 2025 and FM2 are the first)", eli5: "About 1/6 of terrestrial g. No flame-spread data exist at this level, so the model interpolates between the 0 g and 1 g regimes." },
+      flow: { value: "about 10 cm/s (assumed)", tag: "estimated", src: "Assumed equal to the ISS cabin; no lunar-habitat data", eli5: "Assumes habitat ventilation comparable to the ISS cabin. This is an assumption, not a measurement." },
     },
     banner: "Lunar gravity = extrapolation. No experimental combustion data in PSI; LUCI (2025) and FM2 are the first.",
   },
   suit: {
     cond: { o2: 1, pressureAtm: 0.293, gravityG: 0, flowCmS: 0 },
     rows: {
-      o2: { value: "100 %", tag: "reported", src: "Challenge statement (suit atmosphere)", eli5: "Pure oxygen. A spark that would fizzle in air can burn fiercely." },
-      p: { value: "4.3 psi (0.29 atm)", tag: "reported", src: "Challenge statement", eli5: "A low pressure so the suit stays flexible, balanced by very high oxygen." },
-      g: { value: "0 g (in orbit)", tag: "estimated", src: "Assumed: suit worn in microgravity", eli5: "Floating in orbit, so no rising hot air." },
-      flow: { value: "none assumed", tag: "estimated", src: "No suit airflow data", eli5: "Inside a suit there is no breeze we can cite." },
+      o2: { value: "100 %", tag: "reported", src: "Challenge statement (suit atmosphere)", eli5: "Pure-O₂ atmosphere, far above any tested O₂ fraction; flammability is expected to rise sharply (extrapolation)." },
+      p: { value: "4.3 psi (0.29 atm)", tag: "reported", src: "Challenge statement", eli5: "Low suit pressure preserves mobility; O₂ enrichment maintains a sufficient O₂ partial pressure." },
+      g: { value: "0 g (in orbit)", tag: "estimated", src: "Assumed: suit worn in microgravity", eli5: "Orbital free fall: no buoyant convection." },
+      flow: { value: "none assumed", tag: "estimated", src: "No suit airflow data", eli5: "No suit-internal flow data are available to cite." },
     },
     banner: "Spacesuit: 100 % O2 at 4.3 psi is outside every tested atmosphere (PSI tables reach about 34 % O2). Everything shown for it is estimated.",
   },
@@ -127,7 +127,7 @@ const WhyCard = memo(function WhyCard({ facts, lang }: { facts: ReturnType<typeo
         <li key={i} className="text-sm">
           <span className={`mr-2 rounded px-1.5 py-0.5 text-[10px] font-medium ${TAG[f.tag]}`}>{t(f.tag)}</span>
           {factText(f, t)}
-          {f.eli5 && <span className="mt-0.5 block text-xs text-ink-2">{t("ELI5:")} {t(f.eli5)}</span>}
+          {f.eli5 && <span className="mt-0.5 block text-xs text-ink-2">{t("Physical basis:")} {t(f.eli5)}</span>}
           <span className="block text-[11px] text-muted">{t("Source:")} {t(f.src)}</span>
         </li>
       ))}
@@ -270,7 +270,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
       <h2 id="fl3-title" className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">{t("Start a fire anywhere and watch it spread")}</h2>
       <p className="mt-2 max-w-3xl text-sm text-ink-2">
         {t("Pick a place, then")} <strong className="text-ink">{t("tap any surface")}</strong> {t("in the 3D scene: that is where the fire starts. It grows and creeps across the surfaces around it while the numbers below the scene change in real time.")}
-        <span className="mt-1 block text-xs text-muted">{t("ELI5: a fire is a hungry glowing patch that eats what touches it. How fast it eats depends on the air (oxygen, wind, gravity) and on what it is eating.")}</span>
+        <span className="mt-1 block text-xs text-muted">{t("Model: a flame front propagating over a surface. Its spread rate depends on the atmosphere (O₂ fraction, total pressure), the ventilation flow, gravity and the fuel.")}</span>
       </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-2" role={fixedEnv === undefined ? "radiogroup" : undefined} aria-label={fixedEnv === undefined ? t("Environment") : undefined}>
@@ -337,14 +337,14 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
             </div>
             <p className="mt-1 text-sm" aria-live="polite"><strong>{t(live ? PHASE_LABEL[live.phase] : PHASE_LABEL.idle)}</strong></p>
             <div className={`mt-2 grid grid-cols-2 gap-2 ${idle ? "flex-1 auto-rows-fr" : ""}`}>
-              <Tile label={t("Time")} value={live ? `${fmt(live.simT, 0)} s` : "—"} tag={t("simulated")} eli5={live ? t("Wall clock. The same spread would take about {m} min for real.", { m: fmt(live.realT / 60, 1) }) : t("Starts when you tap a surface.")} />
-              <Tile label={t("Spread speed")} value={live ? `${fmt(live.speedMmS, 2)} mm/s` : "—"} tag={t("simulated")} eli5={live ? `${t(live.speedNote)}.` : t("How fast the flame front eats the surface.")} />
-              <Tile label={t("Flame front")} value={live ? `${fmt(live.frontM * 100, 0)} cm` : "—"} tag={t("simulated")} eli5={t("Distance from the ignition point to the edge of the burning ring.")} />
-              <Tile label={t("Burned area")} value={live ? `${fmt(live.areaM2 * 10000, 0)} cm²` : "—"} tag={t("simulated")} eli5={t("Surface already charred or glowing. Scene units are about metres.")} />
-              <Tile label={t("Smoke / soot")} value={live ? `${live.particles}` : "—"} tag={t("simulated particles")} eli5={live ? t(atm.gravityG < 0.05 ? "No gravity: smoke hangs around the fire instead of rising." : "Gravity: smoke rises in a plume.") : t("Tiny soot grains drawn on screen.")} />
-              <Tile label={t("Burning spots")} value={live ? t("{f} flames · {c} cells", { f: live.flames, c: live.cells }) : "—"} tag={t("simulated")} eli5={t("Flames shown on the front and cells of surface already involved.")} />
-              <Tile label={t("Surfaces reached")} value={live ? `${live.surfaces}` : "—"} tag={t("simulated")} eli5={t("How many different parts of the model the fire has touched.")} />
-              <Tile label={t("Intensity")} value={live ? `${Math.round(live.intensity * 100)} %` : "—"} tag={t("simulated")} eli5={t("How alive the flame is (not a temperature).")} />
+              <Tile label={t("Time")} value={live ? `${fmt(live.simT, 0)} s` : "—"} tag={t("simulated")} eli5={live ? t("Simulation clock. The equivalent real-time spread would take about {m} min.", { m: fmt(live.realT / 60, 1) }) : t("Starts when you tap a surface.")} />
+              <Tile label={t("Spread speed")} value={live ? `${fmt(live.speedMmS, 2)} mm/s` : "—"} tag={t("simulated")} eli5={live ? `${t(live.speedNote)}.` : t("Flame-front spread rate over the surface.")} />
+              <Tile label={t("Flame front")} value={live ? `${fmt(live.frontM * 100, 0)} cm` : "—"} tag={t("simulated")} eli5={t("Radial distance from the ignition point to the flame front.")} />
+              <Tile label={t("Burned area")} value={live ? `${fmt(live.areaM2 * 10000, 0)} cm²` : "—"} tag={t("simulated")} eli5={t("Surface already pyrolysed or incandescent. Scene units are approximately metres.")} />
+              <Tile label={t("Smoke / soot")} value={live ? `${live.particles}` : "—"} tag={t("simulated particles")} eli5={live ? t(atm.gravityG < 0.05 ? "Microgravity: no buoyant plume; smoke particles remain near the source." : "Gravity: smoke is carried upward in a buoyant plume.") : t("Soot and smoke particles rendered as a visual aid.")} />
+              <Tile label={t("Burning spots")} value={live ? t("{f} flames · {c} cells", { f: live.flames, c: live.cells }) : "—"} tag={t("simulated")} eli5={t("Flame sprites on the front and surface cells already involved.")} />
+              <Tile label={t("Surfaces reached")} value={live ? `${live.surfaces}` : "—"} tag={t("simulated")} eli5={t("Number of distinct model surfaces reached by the fire.")} />
+              <Tile label={t("Intensity")} value={live ? `${Math.round(live.intensity * 100)} %` : "—"} tag={t("simulated")} eli5={t("Normalised flame intensity (dimensionless, not a temperature).")} />
             </div>
             <dl className="mt-3 space-y-1 text-sm">
               <div className="flex justify-between gap-3"><dt className="text-ink-2">{t("Detection")}</dt><dd className="text-right">{detection}<span className="block text-[11px] text-muted">{t("No dataset gives detector response times. The delay below is yours, not a measured time.")}</span></dd></div>

@@ -64,7 +64,7 @@
  "Rigid rings at the shoulder and knee joints.": "Anillos rígidos en las articulaciones de hombros y rodillas.",
  "Material of the rings is not stated in the 3D model; they are treated as a rigid non-fabric solid, which spreads slower than thin fabric in the model. No flame-spread data for them.": "El material de los anillos no figura en el modelo 3D; se tratan como un sólido rígido que no es tela, que en el modelo se propaga más despacio que la tela fina. No hay datos de propagación de llama para ellos.",
  "NTRS 20160000593 (PMMA rods: slower with thickness); labPhysics material factor (estimated)": "NTRS 20160000593 (varillas de PMMA: más lento con el grosor); factor de material de labPhysics (estimado)",
- "Shoulder; approximate. The knee rings are not linked, see the gap register.": "Hombro; aproximado. Los anillos de las rodillas no están enlazados, véase el registro de huecos.",
+ "Shoulder; approximate. The knee rings are not linked, see the gap register.": "Hombro; aproximado. Los anillos de las rodillas no están enlazados, véase el registro de brechas.",
  "Isolate the shoulder rings from the upper garment with a fire-blocking cuff.": "Aísla los anillos de los hombros de la prenda superior con un puño ignífugo.",
  "Engineering proposal (hypothesis): the engine cuts the shoulder edge.": "Propuesta de ingeniería (hipótesis): el motor corta la unión del hombro.",
  "Helmet (shell and visor)": "Casco (carcasa y visera)",

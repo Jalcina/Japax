@@ -91,14 +91,14 @@ export const AREA_LABEL: Record<Area, string> = {
   prevention: 'Prevention',
   detection: 'Detection',
   suppression: 'Suppression',
-  fundamental: 'Basic science',
+  fundamental: 'Combustion science',
 }
 
 export const AREA_LABEL_ES: Record<Area, string> = {
   prevention: 'Prevención',
   detection: 'Detección',
   suppression: 'Supresión',
-  fundamental: 'Ciencia básica',
+  fundamental: 'Ciencia de la combustión',
 }
 
 export const areaLabel = (a: Area, lang: Lang) => (lang === 'es' ? AREA_LABEL_ES[a] : AREA_LABEL[a])

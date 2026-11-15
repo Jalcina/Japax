@@ -19,7 +19,6 @@ const HINTS: Record<string, { en: [string, string]; es: [string, string] }> = {
   "/explorer": { en: ["Lost among the investigations?", "Which NASA investigations matter most for the Moon?"], es: ["¿Perdido entre las investigaciones?", "¿Qué investigaciones de NASA importan más para la Luna?"] },
   "/dashboard": { en: ["Want to know how scores are built?", "What fire data exists for the Moon or Mars?"], es: ["¿Quieres saber cómo se calculan las puntuaciones?", "¿Qué datos de fuego existen para la Luna o Marte?"] },
   "/history": { en: ["Want the story behind an incident?", "Tell me about Apollo 1, Apollo 13 and Mir"], es: ["¿Quieres la historia detrás de un incidente?", "Cuéntame lo de Apollo 1, Apollo 13 y Mir"] },
-  "/learn": { en: ["New to fire in space?", "How is smoke different in microgravity and does it affect detectors?"], es: ["¿Nuevo en el fuego en el espacio?", "¿Cómo es el humo en microgravedad y afecta a los detectores?"] },
   "/safety": { en: ["Questions about fire safety?", "Which suppressants were tested and how did the flames end?"], es: ["¿Dudas sobre seguridad contra incendios?", "¿Qué supresores se ensayaron y cómo terminaron las llamas?"] },
 };
 
@@ -29,7 +28,7 @@ const T = {
     open: `Open ${NAME}, the JaPax mentor`,
     close: "Close",
     ask: "Ask Pax a question",
-    askSub: "Plain-language answers from verified NASA data",
+    askSub: "Technical answers grounded in the PSI/NTRS corpus",
     tour: "Start the guided tour",
     tourSub: "New to the topic? I will point at each part of the page",
     stop: "Stop the tour",
@@ -50,7 +49,7 @@ const T = {
     open: `Abrir a ${NAME}, el mentor de JaPax`,
     close: "Cerrar",
     ask: "Hacer una pregunta a Pax",
-    askSub: "Respuestas claras con datos verificados de la NASA",
+    askSub: "Respuestas técnicas basadas en el corpus PSI/NTRS",
     tour: "Empezar el recorrido guiado",
     tourSub: "¿Nuevo en el tema? Te señalo cada parte de la página",
     stop: "Terminar el recorrido",

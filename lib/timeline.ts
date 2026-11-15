@@ -27,9 +27,9 @@ export const CAT_COLOR: Record<Cat, string> = {
 
 export const CAT_LABEL: Record<Cat, { en: string; es: string }> = {
   incident: { en: 'Incidents', es: 'Incidentes' },
-  research: { en: 'Experiments', es: 'Experimentos' },
-  hardware: { en: 'Hardware', es: 'Equipos' },
-  spinoff: { en: 'Spinoffs', es: 'Derivados' },
+  research: { en: 'Flight experiments', es: 'Experimentos en vuelo' },
+  hardware: { en: 'Hardware', es: 'Equipamiento' },
+  spinoff: { en: 'Technology transfer', es: 'Transferencia tecnológica' },
   data: { en: 'Open data', es: 'Datos abiertos' },
   next: { en: 'Now and next', es: 'Ahora y después' },
 }
@@ -47,15 +47,15 @@ export const ERAS: Era[] = [
     id: 'lessons',
     from: 1965,
     to: 1982,
-    en: { title: 'From tragedy to safety rules', text: 'Two accidents and the first space-fire experiments reshape how spacecraft are built.' },
-    es: { title: 'De la tragedia a las normas de seguridad', text: 'Dos accidentes y los primeros experimentos de fuego espacial cambian cómo se construyen las naves.' },
+    en: { title: 'From mishaps to safety requirements', text: 'Two accidents and the first space-fire experiments reshape spacecraft design requirements.' },
+    es: { title: 'De los siniestros a los requisitos de seguridad', text: 'Dos accidentes y los primeros experimentos de fuego espacial reconfiguran los requisitos de diseño de las naves.' },
   },
   {
     id: 'stations',
     from: 1994,
     to: 2007,
-    en: { title: 'Fire on stations and shuttles', text: 'A real fire on Mir and a generation of shuttle experiments.' },
-    es: { title: 'Fuego en estaciones y transbordadores', text: 'Un incendio real en Mir y una generación de experimentos en el transbordador.' },
+    en: { title: 'Fire on stations and shuttles', text: 'An actual fire on Mir and a generation of shuttle combustion experiments.' },
+    es: { title: 'Fuego en estaciones y transbordadores', text: 'Un incendio real en Mir y una generación de experimentos de combustión en el transbordador.' },
   },
   {
     id: 'iss',
@@ -68,15 +68,15 @@ export const ERAS: Era[] = [
     id: 'open',
     from: 2019,
     to: 2025,
-    en: { title: 'The data opens up', text: 'Investigation by investigation, NASA publishes its combustion results for everyone.' },
-    es: { title: 'Los datos se abren', text: 'Investigación a investigación, NASA publica sus resultados de combustión para todos.' },
+    en: { title: 'Open data release', text: 'Investigation by investigation, NASA publishes its combustion results in PSI.' },
+    es: { title: 'Publicación de datos abiertos', text: 'Investigación a investigación, NASA publica sus resultados de combustión en PSI.' },
   },
   {
     id: 'now',
     from: 2026,
     to: 9999,
-    en: { title: 'Now, and what comes next', text: 'Back to the Moon, and the first fire experiments in partial gravity.' },
-    es: { title: 'Ahora, y lo que viene', text: 'De vuelta a la Luna y los primeros experimentos de fuego en gravedad parcial.' },
+    en: { title: 'Current and planned work', text: 'Return to the Moon and the first fire experiments in partial gravity.' },
+    es: { title: 'Trabajo actual y previsto', text: 'Regreso a la Luna y primeros experimentos de fuego en gravedad parcial.' },
   },
 ]
 
@@ -89,8 +89,8 @@ const GLENN = { label: 'NASA Glenn: Combustion Science', url: 'https://www.nasa.
 export const TIMELINE: TimelineEvent[] = [
   {
     id: 'heaters-1965', year: 1965, when: { en: '1965', es: '1965' }, cat: 'incident',
-    en: { title: 'A heater upgrade goes unchecked', text: 'The Apollo Command Module’s oxygen-tank heaters are upgraded from 28 to 65 V DC, but their thermostatic switches are never modified. Five years later this decision matters.' },
-    es: { title: 'Una mejora de calentadores sin revisar', text: 'Los calentadores de los tanques de oxígeno del módulo de mando Apollo pasan de 28 a 65 V CC, pero sus termostatos no se modifican. Cinco años después esa decisión importa.' },
+    en: { title: 'Heater upgrade without thermostat qualification', text: 'The Apollo Command Module’s oxygen-tank heaters are upgraded from 28 to 65 V DC, but their thermostatic switches are never modified. Five years later this decision matters.' },
+    es: { title: 'Mejora de calentadores sin recalificar los termostatos', text: 'Los calentadores de los tanques de oxígeno del módulo de mando Apollo pasan de 28 a 65 V CC, pero sus termostatos no se modifican. Cinco años después esa decisión importa.' },
     src: APOLLO13,
   },
   {
@@ -238,7 +238,7 @@ export const TIMELINE: TimelineEvent[] = [
     en: { title: 'The last BASS-II test is recorded', text: 'Four years of solid-fuel burning end with none of the 129 tests started at the 26.5% oxygen planned for lunar habitats (initial O₂ ranged from 13.6% to 22.2%).' },
     es: { title: 'Se registra el último ensayo de BASS-II', text: 'Cuatro años quemando combustibles sólidos terminan sin que ninguno de los 129 ensayos empezara con el 26.5% de oxígeno previsto para hábitats lunares (el O₂ inicial fue de 13.6% a 22.2%).' },
     src: PSI('PSI-25'),
-    link: { href: '/lab', en: 'See the oxygen gap in the Data Lab', es: 'Mira la laguna de oxígeno en el Laboratorio' },
+    link: { href: '/lab', en: 'See the oxygen gap in the Data Lab', es: 'Mira la brecha de oxígeno en el Laboratorio' },
   },
   {
     id: 'efield', year: 2019, when: { en: '2019', es: '2019' }, cat: 'data',
@@ -248,8 +248,8 @@ export const TIMELINE: TimelineEvent[] = [
   },
   {
     id: 'bre', year: 2022, when: { en: '15 Sep 2022', es: '15 sep 2022' }, cat: 'data',
-    en: { title: 'BRE reveals a problem with turning off ventilation', text: 'The Burning Rate Emulator data shows flames burning without air flow in oxygen-enriched atmospheres, where at 21% oxygen they self-extinguished. BASS-II follows on 31 December.' },
-    es: { title: 'BRE revela un problema al apagar la ventilación', text: 'Los datos del Burning Rate Emulator muestran llamas que arden sin flujo de aire en atmósferas enriquecidas en oxígeno, donde a 21% de oxígeno se autoextinguían. BASS-II llega el 31 de diciembre.' },
+    en: { title: 'BRE: flames sustained without forced flow in O₂-enriched air', text: 'The Burning Rate Emulator data shows flames burning without air flow in oxygen-enriched atmospheres, where at 21% oxygen they self-extinguished. BASS-II follows on 31 December.' },
+    es: { title: 'BRE: llamas sostenidas sin flujo forzado en aire enriquecido en O₂', text: 'Los datos del Burning Rate Emulator muestran llamas que arden sin flujo de aire en atmósferas enriquecidas en oxígeno, donde a 21% de oxígeno se autoextinguían. BASS-II llega el 31 de diciembre.' },
     src: PSI('PSI-20'),
     link: { href: '/explorer/acme-bre', en: 'Open BRE', es: 'Abrir BRE' },
   },
@@ -278,7 +278,7 @@ export const TIMELINE: TimelineEvent[] = [
     en: { title: 'Flame in Freefall', text: 'NASA Space Apps asks the world to turn decades of microgravity combustion data into fire-safety insights for the Moon and Mars. This project is one answer.' },
     es: { title: 'Flame in Freefall', text: 'NASA Space Apps pide al mundo convertir décadas de datos de combustión en microgravedad en conocimiento de seguridad contra incendios para la Luna y Marte. Este proyecto es una respuesta.' },
     src: { label: 'NASA Space Apps: challenge statement', url: 'https://www.spaceappschallenge.org' },
-    link: { href: '/', en: 'Start from the beginning', es: 'Empieza por el principio' },
+    link: { href: '/', en: 'Back to the overview', es: 'Volver al resumen' },
   },
   {
     id: 'next-moon', year: null, when: { en: 'Next', es: 'Próximamente' }, cat: 'next',

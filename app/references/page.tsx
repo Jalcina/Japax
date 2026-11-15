@@ -95,7 +95,7 @@ const T = {
     m: [
       ["Verificado, nunca inventado.", "Cada valor mostrado procede de una fuente de NASA citada. Cuando una condición no se pudo verificar, aparece como no verificada y se excluye de las afirmaciones."],
       ["Puntuación de relevancia.", "Un método editorial de JaPax (0–100) que combina cinco factores con pesos ajustables: ajuste a la atmósfera de hábitat (35 por defecto), realismo del combustible (25), enfoque en seguridad contra incendios (20), riqueza de datos (10) y valor para modelado (10). Los datos desconocidos cuentan como un 0.5 neutro y se señalan. Es una ayuda de priorización, no una métrica de NASA."],
-      ["Gravedad parcial.", "PSI no contiene datos de combustión en gravedad parcial. Las condiciones lunares y marcianas se muestran como lagunas, sin extrapolar. La curva de inflamabilidad es un esquema cualitativo."],
+      ["Gravedad parcial.", "PSI no contiene datos de combustión en gravedad parcial. Las condiciones lunares y marcianas se muestran como brechas, sin extrapolar. La curva de inflamabilidad es un esquema cualitativo."],
       ["Acceso a los datos.", "Los metadatos de las investigaciones y los inventarios de archivos vienen de la API de PSI. El Laboratorio de datos usa las tablas experimentales de FLEX (274 ensayos) y BASS-II (129 ensayos); los recuentos y porcentajes se calculan a partir de las filas registradas, sin modelado. Las demás tablas y los vídeos enlazan a sus páginas de PSI y son el siguiente paso de la hoja de ruta."],
     ],
     gen: "Datos generados el",

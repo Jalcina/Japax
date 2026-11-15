@@ -32,7 +32,7 @@ export const FACTOR_INFO: Record<FactorKey, { label: string; help: string }> = {
   },
   safety: {
     label: 'Fire-safety focus',
-    help: 'Whether the PSI objective is directly about prevention, detection or suppression (1.0) or basic science with indirect relevance (0.25–0.5).',
+    help: 'Whether the PSI objective is directly about prevention, detection or suppression (1.0) or fundamental combustion science with indirect relevance (0.25–0.5).',
   },
   data: {
     label: 'Data richness',
@@ -55,7 +55,7 @@ export const FACTOR_INFO_ES: Record<FactorKey, { label: string; help: string }> 
   },
   safety: {
     label: 'Enfoque en seguridad contra incendios',
-    help: 'Si el objetivo de PSI trata directamente de prevención, detección o supresión (1.0) o de ciencia básica con relevancia indirecta (0.25–0.5).',
+    help: 'Si el objetivo de PSI trata directamente de prevención, detección o supresión (1.0) o de ciencia fundamental de la combustión con relevancia indirecta (0.25–0.5).',
   },
   data: {
     label: 'Riqueza de datos',

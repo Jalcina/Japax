@@ -130,7 +130,7 @@ function narrative(topic: Topic, lang: Lang): { headline: string; body: string }
         body: L(
           lang,
           `A lunar habitat is expected to run at about 30% oxygen and 10.2 psi, which is 43% more oxygen than Earth air. In NASA's BRE tests, flames in oxygen-enriched atmospheres kept burning in microgravity with no airflow at all, while at 21% they self-extinguished; cutting ventilation is today a standard step to put out a spacecraft fire. The gaps matter as much as the results: of the ${c.lunarN} FLEX tests at lunar-like conditions, ${c.lunarExt} ended in extinction; none of the ${c.bassN} BASS-II solid-material tests started at 26.5% oxygen or more; and nothing has been tested at lunar gravity.`,
-          `Se espera que un hábitat lunar funcione con un 30% de oxígeno y 10.2 psi, es decir, 43% más oxígeno que el aire de la Tierra. En los ensayos BRE de NASA, las llamas en atmósferas enriquecidas en oxígeno siguieron ardiendo en microgravedad sin ningún flujo de aire, mientras que a 21% se autoextinguían; cortar la ventilación es hoy un paso estándar para apagar un incendio en una nave. Las lagunas importan tanto como los resultados: de los ${c.lunarN} ensayos de FLEX en condiciones lunares, ${c.lunarExt} terminaron en extinción; ninguno de los ${c.bassN} ensayos de materiales sólidos de BASS-II empezó con 26.5% de oxígeno o más; y nada se ha ensayado con gravedad lunar.`,
+          `Se espera que un hábitat lunar funcione con un 30% de oxígeno y 10.2 psi, es decir, 43% más oxígeno que el aire de la Tierra. En los ensayos BRE de NASA, las llamas en atmósferas enriquecidas en oxígeno siguieron ardiendo en microgravedad sin ningún flujo de aire, mientras que a 21% se autoextinguían; cortar la ventilación es hoy un paso estándar para apagar un incendio en una nave. Las brechas importan tanto como los resultados: de los ${c.lunarN} ensayos de FLEX en condiciones lunares, ${c.lunarExt} terminaron en extinción; ninguno de los ${c.bassN} ensayos de materiales sólidos de BASS-II empezó con 26.5% de oxígeno o más; y nada se ha ensayado con gravedad lunar.`,
         ),
       }
     case 'flex':
@@ -233,7 +233,7 @@ function confidence(topic: Topic, chunks: Chunk[], lang: Lang): { level: 'high' 
   const n = new Set(chunks.map((c) => c.title)).size
   const hasResult = chunks.some((c) => c.kind === 'measured' || c.kind === 'reported')
   if (topic !== 'general' && n >= 3 && hasResult) return { level: 'high', why: L(lang, `Backed by ${n} investigations with cited results.`, `Respaldado por ${n} investigaciones con resultados citados.`) }
-  if (topic !== 'general' || n >= 2) return { level: 'medium', why: L(lang, 'Partly covered by the data; read the gaps below.', 'Cubierto en parte por los datos; lee las lagunas de abajo.') }
+  if (topic !== 'general' || n >= 2) return { level: 'medium', why: L(lang, 'Partly covered by the data; read the gaps below.', 'Cubierto en parte por los datos; lee las brechas de abajo.') }
   return { level: 'low', why: L(lang, 'Few matching passages: treat this as a pointer, not an answer.', 'Pocos pasajes coinciden: tómalo como una pista, no como una respuesta.') }
 }
 

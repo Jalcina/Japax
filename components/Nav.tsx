@@ -10,14 +10,14 @@ import type { Lang } from "@/lib/data";
 
 const T = {
   en: {
-    ignition: "Home", spark: "Basics", chronicles: "History", worlds: "Simulator", lab: "Data Lab", vault: "Experiments", radar: "Ranking", safety: "Safety", proof: "Sources",
+    ignition: "Overview", chronicles: "Incident record", worlds: "Simulator", lab: "Data Lab", vault: "Investigations", radar: "Ranking", safety: "Fire safety", proof: "Sources",
     main: "Main", language: "Language", guide: "Guide mode", guideOn: "Guide on", menu: "Menu",
-    hints: ["Start here", "New to this? Basics", "Real fires & history", "Simulate fire anywhere", "Every NASA experiment", "Rank what matters", "What to do in a fire", "Sources & licences"],
+    hints: ["Programme overview and key findings", "Mishaps and lessons learned", "Component-level fire spread model", "PSI/NTRS combustion investigations", "Multi-criteria investigation ranking", "Prevention, detection, suppression", "Datasets, DOIs and licences"],
   },
   es: {
-    ignition: "Inicio", spark: "Lo básico", chronicles: "Historia", worlds: "Simulador", lab: "Laboratorio", vault: "Experimentos", radar: "Ranking", safety: "Seguridad", proof: "Fuentes",
+    ignition: "Resumen", chronicles: "Registro de incidentes", worlds: "Simulador", lab: "Laboratorio", vault: "Investigaciones", radar: "Ranking", safety: "Seguridad contra incendios", proof: "Fuentes",
     main: "Principal", language: "Idioma", guide: "Modo guía", guideOn: "Guía activa", menu: "Menú",
-    hints: ["Empieza aquí", "¿Nuevo? Lo básico", "Incendios reales e historia", "Simula fuego en cualquier lugar", "Cada experimento NASA", "Prioriza lo importante", "Qué hacer ante un incendio", "Fuentes y licencias"],
+    hints: ["Resumen del programa y hallazgos clave", "Siniestros y lecciones aprendidas", "Modelo de propagación entre componentes", "Investigaciones de combustión PSI/NTRS", "Ranking multicriterio de investigaciones", "Prevención, detección y supresión", "Conjuntos de datos, DOI y licencias"],
   },
 };
 
@@ -111,10 +111,9 @@ export default function Nav() {
   useEffect(() => setMounted(true), []);
   const live = mounted && on;
 
-  // logical learning order: understand -> see -> play -> explore -> decide -> ask -> verify
+  // order: overview -> incident record -> simulate -> investigations -> ranking -> safety -> sources
   const LINKS = [
     { href: "/", label: t.ignition },
-    { href: "/learn", label: t.spark },
     { href: "/history", label: t.chronicles },
     { href: "/simulator", label: t.worlds },
     { href: "/explorer", label: t.vault },

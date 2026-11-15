@@ -53,7 +53,7 @@ const T = {
   es: {
     eyebrow: "Equipos de nueva generación",
     title: "¿Qué investigación construye qué equipo de seguridad?",
-    intro: "Cada tarjeta es un equipo de seguridad contra incendios para la Luna y más allá, con las investigaciones de la NASA que alimentan su diseño. El texto viene de las fichas de cada investigación; la línea de hueco dice qué no cubre todavía ningún experimento.",
+    intro: "Cada tarjeta es un equipo de seguridad contra incendios para la Luna y más allá, con las investigaciones de la NASA que alimentan su diseño. El texto viene de las fichas de cada investigación; la línea de brecha dice qué no cubre todavía ningún experimento.",
     systems: {
       detect: { name: "Detectores de humo y fuego", need: "Los detectores deben reconocer el humo en baja gravedad, que se comporta distinto que en la Tierra, y no confundirlo con polvo.", gap: "No hay medidas de humo con el oxígeno ni la gravedad lunares: las tablas son de la atmósfera de la ISS." },
       suppress: { name: "Sistemas de extinción", need: "El diseño de supresión necesita saber cuánto CO₂ o helio apaga una llama y con qué nivel de oxígeno.", gap: "FLEX quemó gotas de líquido, no materiales, y no se probó a gravedad lunar ni por encima del 34% de oxígeno." },

@@ -3,8 +3,8 @@ import { computed } from "@/lib/oracle";
 import SafetyView from "./SafetyView";
 
 export const metadata = {
-  title: "Fire Safety Playbook · JaPax",
-  description: "What NASA's microgravity combustion data says about preventing, detecting, slowing and extinguishing a fire in space, and what it cannot yet say.",
+  title: "Fire-Safety Evidence Base · JaPax",
+  description: "What NASA's microgravity combustion data supports for fire prevention, detection, spread limitation and extinguishment in spacecraft and lunar habitats, and what remains unquantified.",
 };
 
 export default function SafetyPage() {

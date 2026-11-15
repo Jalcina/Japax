@@ -27,23 +27,23 @@ function useTyped(text: string) {
 const T = {
   en: {
     aria: "Pax explains the results",
-    intro: "I'm Pax. Tap a question, or ask me anything about this fire, and I will explain these results in plain words.",
+    intro: "I'm Pax. Select a topic, or ask a specific question about this run, and I will break down the results against the model and the PSI evidence.",
     placeholder: "Ask Pax about this fire…",
     ask: "Ask",
     thinking: "Pax is thinking…",
-    fail: "I could not reach my AI brain right now. The buttons above still work: they explain the numbers of this run.",
-    offline: "(Quick answer from verified data: my AI mode is not available right now, so this may not be about your run.)",
-    example: "e.g. Why did the tank not break? What if I had acted sooner?",
+    fail: "The AI service is unavailable right now. The topic buttons above still work: they summarise the numbers of this run.",
+    offline: "(Quick answer from verified data: AI mode is unavailable right now, so it may not address your run.)",
+    example: "e.g. What limited tank heating? How sensitive is the outcome to the actuation delay?",
   },
   es: {
     aria: "Pax explica los resultados",
-    intro: "Soy Pax. Pulsa una pregunta, o pregúntame lo que quieras sobre este fuego, y te explico los resultados con palabras sencillas.",
+    intro: "Soy Pax. Selecciona un tema o plantea una pregunta concreta sobre esta simulación y desgloso los resultados frente al modelo y la evidencia PSI.",
     placeholder: "Pregunta a Pax sobre este fuego…",
     ask: "Preguntar",
     thinking: "Pax está pensando…",
-    fail: "Ahora mismo no puedo conectar con mi cerebro de IA. Los botones de arriba siguen funcionando: explican los números de esta simulación.",
-    offline: "(Respuesta rápida con datos verificados: mi modo IA no está disponible ahora, así que puede no hablar de tu simulación.)",
-    example: "p. ej. ¿Por qué no se rompió el depósito? ¿Y si hubiera actuado antes?",
+    fail: "El servicio de IA no está disponible ahora. Los botones de tema de arriba siguen funcionando: resumen los números de esta simulación.",
+    offline: "(Respuesta rápida con datos verificados: el modo IA no está disponible ahora, por lo que puede no abordar tu simulación.)",
+    example: "p. ej. ¿Qué limitó el calentamiento del depósito? ¿Qué sensibilidad tiene el resultado al retardo de actuación?",
   },
 };
 

@@ -43,7 +43,7 @@ const T = {
     projTitle: "What JaPax is and why we built it",
     p: [
       "Fire behaves very differently in microgravity, and no one has measured how it behaves on the Moon. NASA has run decades of combustion experiments on the ISS, but the results sit in tables that only specialists can read.",
-      "JaPax turns those public experiments from NASA's Physical Sciences Informatics (PSI) into clear answers: what burns, how fast, and where the evidence stops. It is meant for teachers, researchers, aerospace engineers and curious people alike.",
+      "JaPax turns those public experiments from NASA's Physical Sciences Informatics (PSI) into a traceable evidence base: what burns, at what spread rate, and where the evidence stops. It is aimed at combustion researchers, aerospace and fire-safety engineers, and space-agency and habitat-design professionals.",
       "We follow one rule: every number shows its source (PSI ID and DOI), and anything not measured is labelled as predicted or estimated. Where no data exists, such as partial gravity, we say so instead of filling the gap.",
     ],
     ptsEyebrow: "What you can do",
@@ -76,8 +76,8 @@ const T = {
     projTitle: "Qué es JaPax y por qué lo hicimos",
     p: [
       "El fuego se comporta de forma muy distinta en microgravedad, y nadie ha medido cómo lo hace en la Luna. La NASA lleva décadas haciendo experimentos de combustión en la ISS, pero los resultados están en tablas que solo entienden los especialistas.",
-      "JaPax convierte esos experimentos públicos de la NASA (Physical Sciences Informatics, PSI) en respuestas claras: qué arde, con qué rapidez y dónde termina la evidencia. Está pensado para profesores, investigadores, ingenieros aeroespaciales y curiosos.",
-      "Seguimos una regla: cada número muestra su fuente (PSI ID y DOI), y lo que no está medido se marca como predicho o estimado. Donde no hay datos, como en la gravedad parcial, lo decimos en vez de rellenar el hueco.",
+      "JaPax convierte esos experimentos públicos de la NASA (Physical Sciences Informatics, PSI) en una base de evidencia trazable: qué arde, con qué velocidad de propagación y dónde termina la evidencia. Está dirigido a investigadores en combustión, ingenieros aeroespaciales y de seguridad contra incendios, y profesionales de agencias espaciales y diseño de hábitats.",
+      "Seguimos una regla: cada número muestra su fuente (PSI ID y DOI), y lo que no está medido se marca como predicho o estimado. Donde no hay datos, como en la gravedad parcial, lo decimos en vez de rellenar la brecha.",
     ],
     ptsEyebrow: "Qué puedes hacer",
     pts: [

@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 
 /** The guided tour: one stop per page, in a logical learning order. */
-export const TOUR = ["/", "/learn", "/history", "/simulator", "/explorer", "/dashboard", "/references"] as const;
+export const TOUR = ["/", "/history", "/simulator", "/explorer", "/dashboard", "/references"] as const;
 
 /** Where the visitor is in the tour. step -1 = the last step of that page (used when going back a page). */
 export type GuidePos = { page: string; step: number };

@@ -189,7 +189,7 @@ const COMPONENT_UI_ES: Record<string, string> = {
   "The fire never ignited this component during the run.": "El fuego nunca encendió este componente durante la simulación.",
   "Why the run stopped: extinguished by a measure, self-extinguished, burned out, ruptured and settled, or the look-ahead limit.": "Por qué se detuvo la simulación: apagado por una medida, se apagó solo, agotado, rotura ya asentada o límite de previsión.",
   "Summary": "Resumen",
-  "Evidence and gaps": "Evidencia y huecos",
+  "Evidence and gaps": "Evidencia y brechas",
   "View last results": "Ver resultados de la última prueba",
   "Why and source": "Por qué y fuente",
   "What is the PLSS?": "¿Qué es el PLSS?",
