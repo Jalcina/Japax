@@ -81,7 +81,7 @@ const T = {
     h1a: "Saber qué proteger,",
     h1b: "antes de que el fuego decida.",
     lead: "En 1967 un fuego dentro de una cabina de oxígeno puro mató a tres astronautas; la escotilla necesitó unos noventa segundos en abrirse incluso en condiciones ideales. Hoy los trajes espaciales y los hábitats lunares previstos siguen llenos de oxígeno, y en el espacio no hay a quién llamar. JaPax convierte los experimentos de fuego de la NASA en una sola respuesta: dónde empieza un fuego, a dónde llega, cuánto tarda y qué hay que proteger para que la tripulación vuelva a casa.",
-    ctaSim: "Ver un fuego cruzar un traje espacial",
+    ctaSim: "Ver cómo se propaga un fuego por un traje espacial",
     ctaExp: "Leer la evidencia",
     ctaAsk: "Preguntar a Pax",
     s1: "investigaciones de fuego de la NASA",
