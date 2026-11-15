@@ -458,7 +458,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
           <p className="text-sm font-semibold">{X(comp.label)}</p>
           <p className="text-xs text-ink-2">{X(comp.function)}</p>
           <p className="mt-1 text-xs text-muted">
-            {T("Material class: {material}. Identified by: {how}.", { material: lang === "es" ? MATERIAL_ES[comp.material] ?? comp.material : comp.material, how: res?.method === "material" && !comp.virtual ? T("material name in the model (manual label, medium confidence)") : comp.virtual ? T("virtual component (not in the 3D model)") : res?.method ?? "" })}
+            {T("Material class: {material}. Identified by: {how}.", { material: lang === "es" ? MATERIAL_ES[comp.material] ?? comp.material : comp.material, how: res?.method === "material" && !comp.virtual ? T("material name in the model (manual label, medium confidence)") : comp.virtual ? T("virtual component (not in the 3D model)") : res?.method === "mesh" ? T("mesh name in the model") : res?.method === "meshprefix" ? T("mesh-name prefix in the model") : T("not identified") })}
           </p>
           <FactLine f={comp.flammability} hide={measuredOnly} />
           {comp.energetic && (
@@ -548,16 +548,14 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
           {T(ended ? "The simulation ended, so measures are locked. Press “Light it again” to try another one." : "Measures unlock once a fire is burning: tap a part of the model to start one.")}
         </p>
       )}
-      <ul className="mt-1 space-y-1.5">
+      <ul className="mt-1 grid gap-1.5 sm:grid-cols-2">
         {allMeasures.map((m) => (
-          <li key={m.id} className="rounded-lg border border-line p-2 text-xs">
-            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-              <p className="min-w-0 flex-1 basis-48 font-medium text-ink">{X(m.action)}</p>
-              <button onClick={() => apply(m.id)} disabled={!source || !!ended || m.id in applied}
-                className="min-h-9 shrink-0 rounded-lg bg-accent px-3 py-1 text-xs font-semibold text-black disabled:cursor-not-allowed disabled:opacity-40">
-                {m.id in applied ? T("Applied at {s} s", { s: applied[m.id] }) : T("Apply measure")}
-              </button>
-            </div>
+          <li key={m.id} className="flex flex-col rounded-lg border border-line p-2 text-xs sm:[&:last-child:nth-child(odd)]:col-span-2">
+            <p className="flex-1 font-medium text-ink">{X(m.action)}</p>
+            <button onClick={() => apply(m.id)} disabled={!source || !!ended || m.id in applied}
+              className="mt-1.5 min-h-9 w-full rounded-lg bg-accent px-3 py-1 text-xs font-semibold text-black disabled:cursor-not-allowed disabled:opacity-40">
+              {m.id in applied ? T("Applied at {s} s", { s: applied[m.id] }) : T("Apply measure")}
+            </button>
             <details className="mt-1">
               <summary className="cursor-pointer text-[11px] text-ink-2 hover:text-ink">{T("Why and source")}</summary>
               {measuredOnly ? <p className="text-muted">{T("Hidden: not measured data.")}</p> : <FactLine f={m.effect} hide={false} />}

@@ -117,3 +117,11 @@ test("the Spanish .txt report is headed in Spanish and the English one is unchan
   assert.match(es, /^Informe de simulación de JaPax/);
   for (const h of ["Resumen", "Condiciones y suposiciones", "Cronología", "Componentes", "Medidas", "Rotura", "Escalera de seguridad", "Métricas", "Huecos de datos de este entorno"]) assert.ok(es.includes(h), h);
 });
+
+test("the short labels the panel shows (parenthesis dropped) are translated too", () => {
+  const short = (s) => s.replace(/\s*\(.*\)\s*$/, "");
+  const missing = [];
+  for (const [env, cat] of Object.entries(catalogs)) for (const c of cat.components) if (esText(short(c.label)) === short(c.label) && short(esText(c.label)) !== short(c.label)) missing.push(`${env}: ${short(c.label)}`);
+  assert.deepEqual(missing, []);
+  assert.equal(esText("PLSS oxygen tank"), "Depósito de oxígeno del PLSS");
+});

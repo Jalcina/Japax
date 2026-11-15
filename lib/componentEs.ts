@@ -8,7 +8,15 @@
  */
 /** catalog dictionary (data/components/es.json): registered by lib/componentEnvs.ts, which already imports the catalog JSON files (plain node cannot import JSON without an attribute) */
 let CATALOG_ES: Record<string, string> = {};
-export function setCatalogEs(dict: Record<string, string>) { CATALOG_ES = dict; }
+export function setCatalogEs(dict: Record<string, string>) {
+  CATALOG_ES = { ...dict };
+  // shortLabel (lib/componentReport) drops a trailing "(...)" from the English label before it is shown, so the short form needs its own entry
+  const drop = (s: string) => s.replace(/\s*\([^()]*\)\s*$/, "");
+  for (const [en, es] of Object.entries(dict)) {
+    const a = drop(en), b = drop(es);
+    if (a !== en && !(a in CATALOG_ES)) CATALOG_ES[a] = b;
+  }
+}
 
 const EXACT: Record<string, string> = {
   // engine reasons (lib/componentSpread.ts)

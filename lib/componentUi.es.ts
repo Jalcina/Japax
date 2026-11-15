@@ -1,5 +1,8 @@
 /** Spanish for the component panel and the results window, keyed by the exact English text (see lib/labI18n.ts, which merges this file). */
 const COMPONENT_UI_ES: Record<string, string> = {
+  "mesh name in the model": "nombre de la malla en el modelo",
+  "mesh-name prefix in the model": "prefijo del nombre de la malla en el modelo",
+  "not identified": "sin identificar",
   "Hidden: this statement is not measured data (switch off “measured only” to see it).": "Oculto: esta afirmación no es un dato medido (desactiva «solo medido» para verla).",
   "O2 {o2} %, {psi} psi, {g} g, airflow {flow} cm/s": "O2 {o2} %, {psi} psi, {g} g, flujo de aire {flow} cm/s",
   "{name} under heat: the fire reached it at t = {t0} s and has heated it for {exp} s.": "{name} bajo calor: el fuego lo alcanzó a t = {t0} s y lo ha calentado durante {exp} s.",
