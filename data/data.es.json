@@ -380,7 +380,7 @@
     },
     "SoFIE": {
       "gravity": "microgravedad (ISS)",
-      "note": "Un módulo para el Combustion Integrated Rack de la ISS que quema materiales sólidos de naves en geometrías prácticas y con niveles de oxígeno y presión de las atmósferas de exploración actuales y previstas de NASA. Comprobará si el test de llama de 1 g (NASA-STD-6001) es conservador en baja gravedad, mejorará la comprensión del crecimiento temprano del fuego y comparará la supresión por diluyentes, reducción de flujo y venteo. Sirve a cinco investigaciones y queda abierto a futuros investigadores (NASA NTRS 20200000361)."
+      "note": "Un módulo para el Combustion Integrated Rack de la ISS que quema materiales sólidos de naves en geometrías prácticas y con niveles de oxígeno y presión de las atmósferas de exploración actuales y previstas de NASA. Comprobará si el test de llama de 1 g (NASA-STD-6001) es conservador en baja gravedad, mejorará la comprensión del crecimiento temprano del fuego y comparará la supresión por diluyentes, reducción de flujo y despresurización. Sirve a cinco investigaciones y queda abierto a futuros investigadores (NASA NTRS 20200000361)."
     },
     "FLARE": {
       "gravity": "gravedad normal y microgravedad",

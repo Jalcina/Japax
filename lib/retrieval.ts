@@ -153,18 +153,19 @@ export function retrieve(question: string, k = 5, lang: Lang = 'en'): Chunk[] {
   const scored = chunks.map((c, i) => {
     let s = 0
     let hits = 0
+    let titled = false
     for (const t of q) {
       const w = idf.get(t) ?? 0.5
       if (docs[i].doc.has(t)) { s += w; hits++ }
-      if (norm(c.title).includes(t)) s += 0.5 * w
+      if (norm(c.title).includes(t)) { s += 0.5 * w; if (t.length >= 4) titled = true }
     }
     const gapBoost = c.id.startsWith('up:') ? partial : 1
-    return { c, hits, s: (s / Math.sqrt(docs[i].len + 30)) * TYPE_WEIGHT(c.id) * gapBoost }
+    return { c, hits, titled, s: (s / Math.sqrt(docs[i].len + 30)) * TYPE_WEIGHT(c.id) * gapBoost }
   })
-  // in a longer question, a passage that matches a single term is coincidence (e.g. "tiempo" = weather vs "tiempos de residencia"), not evidence
+  // in a longer question, a passage that matches a single generic term is coincidence (e.g. "tiempo" = weather vs "tiempos de residencia"); a single hit counts only when it names the investigation (title match: BASS, SAFFIRE...)
   const minHits = q.length >= 3 ? 2 : 1
   return scored
-    .filter((r) => r.s > 0.15 && r.hits >= minHits)
+    .filter((r) => r.s > 0.15 && (r.hits >= minHits || r.titled))
     .sort((a, b) => b.s - a.s)
     .slice(0, k)
     .map((r) => r.c)

@@ -243,7 +243,9 @@ export function buildAnswer(question: string, lang: Lang): { answer: OracleAnswe
   const context = retrieve(question, 6, lang)
   const base = narrative(topic, lang)
   const conf = confidence(topic, context, lang)
-  const top = context[0]
+  // environment cards are context, not an answer: never use one as the fallback headline/body
+  const prose = context.filter((c) => !c.id.startsWith('env:'))
+  const top = prose[0]
   // first sentence of a passage, capitalised and never cut mid-word (fallback text is assembled from retrieved passages)
   const firstSentence = (t: string, max = 150) => {
     const s = t.replace(/^[^:]+:\s*/, '').split(/(?<=[.!?])\s/)[0].trim()
@@ -258,8 +260,8 @@ export function buildAnswer(question: string, lang: Lang): { answer: OracleAnswe
     headline: base?.headline ?? fallbackHeadline,
     body:
       base?.body ??
-      (context.length
-        ? context.slice(0, 3).map((c) => firstSentence(c.text, 400)).map((s) => (/[.!?…]$/.test(s) ? s : `${s}.`)).join(' ')
+      (prose.length
+        ? prose.slice(0, 3).map((c) => firstSentence(c.text, 400)).map((s) => (/[.!?…]$/.test(s) ? s : `${s}.`)).join(' ')
         : L(lang, 'Try asking about an investigation (BASS, FLEX, SAME, BRE), an environment (Moon, ISS) or a topic (smoke detection, suppression, ventilation).', 'Prueba a preguntar por una investigación (BASS, FLEX, SAME, BRE), un entorno (Luna, ISS) o un tema (detección de humo, supresión, ventilación).')),
     keyFacts: facts(topic, lang),
     evidence: toEvidence(context),
