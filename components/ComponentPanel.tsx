@@ -528,7 +528,7 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
           )}
           <div className="mt-2">
             <label htmlFor="cp-time" className="flex justify-between text-xs text-ink-2"><span>{T("Simulated time")}</span><span className="tabular-nums">{t.toFixed(0)} s</span></label>
-            <input id="cp-time" type="range" min={0} max={Math.max(maxT, 1)} step={0.5} value={t} disabled={!!ended} onChange={(e) => { setPlaying(false); setT(Number(e.target.value)); }} className="w-full" />
+            <input id="cp-time" type="range" min={0} max={Math.max(Math.ceil(maxT * 2) / 2, 1)} step={0.5} value={t} disabled={!!ended} onChange={(e) => { setPlaying(false); setT(Math.min(Number(e.target.value), maxT)); }} className="w-full" />
           </div>
 
           <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
