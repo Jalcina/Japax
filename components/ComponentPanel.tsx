@@ -425,7 +425,9 @@ function EnvPanel({ api, atm: atmIn, pick, env, bundle, condTag = "estimated", l
     if (resultsSignal !== firstSignal.current) { firstSignal.current = resultsSignal; openLast(); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resultsSignal]);
-  useEffect(() => { onRuns?.(runCount); }, [runCount, onRuns]);
+  // only runs that already finished or were closed count: the run on screen has no results yet, so the page buttons stay disabled until one exists
+  const doneRuns = sessionRuns.length;
+  useEffect(() => { onRuns?.(doneRuns); }, [doneRuns, onRuns]);
 
   return (
     <div className="card p-4" id="component-panel">
