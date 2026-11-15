@@ -246,7 +246,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
       <p className="eyebrow">{t("Touch to burn")}</p>
       <h2 id="fl3-title" className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">{t("Start a fire anywhere and watch it spread")}</h2>
       <p className="mt-2 max-w-3xl text-sm text-ink-2">
-        {t("Pick a place, then")} <strong className="text-ink">{t("tap any surface")}</strong> {t("in the 3D scene: that is where the fire starts. It grows and creeps across the surfaces around it while the numbers on the right change in real time.")}
+        {t("Pick a place, then")} <strong className="text-ink">{t("tap any surface")}</strong> {t("in the 3D scene: that is where the fire starts. It grows and creeps across the surfaces around it while the numbers below the scene change in real time.")}
         <span className="mt-1 block text-xs text-muted">{t("ELI5: a fire is a hungry glowing patch that eats what touches it. How fast it eats depends on the air (oxygen, wind, gravity) and on what it is eating.")}</span>
       </p>
 
@@ -265,7 +265,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
 
       {fixed.banner && <p className="mt-3 rounded-lg border p-2.5 text-xs" style={{ borderColor: "var(--warn)", color: "var(--warn)" }}>{t(fixed.banner)}</p>}
 
-      <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+      <div className="mt-4 flex flex-col gap-5">
         {/* ---- 3D scene ---- */}
         <div className="flex flex-col">
           <div className="relative lg:min-h-[66vh] lg:flex-1" role="region" aria-label={t("Interactive 3D scene. Tap a surface to start a fire; or use the button below the scene to start one at the centre of the view.")}>
@@ -308,8 +308,8 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
           </label>
         </div>
 
-        {/* ---- right column: live data next to the scene ---- */}
-        <div className="space-y-4">
+        {/* ---- live data and component engine, side by side under the scene ---- */}
+        <div className="grid items-start gap-5 lg:grid-cols-2">
           <div className="card p-4">
             <div className="flex items-baseline justify-between">
               <h3 className="font-semibold">{t("Live data")}</h3>
@@ -353,7 +353,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
       </div>
 
       {/* ---- conditions, material and suppression below ---- */}
-      <div className="mt-5 grid items-start gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-5 grid items-start gap-5 lg:grid-cols-2">
           {!custom ? (
             <div className="card p-4">
               <h3 className="font-semibold">{t("{env}: fixed conditions", { env: t(ENV_NAME[env]) })}</h3>
@@ -398,6 +398,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
             </div>
           )}
 
+          <div className="space-y-5">
           <div className="card p-4">
             <label className="block text-sm">
               <span className="font-semibold">{t("Material at the ignition point")}</span>
@@ -439,6 +440,7 @@ export default function FireLab3D({ fixedEnv, onOpenEvidence }: { fixedEnv?: Env
               {active && <button onClick={() => setActivated(null)} className="rounded-lg border border-line-2 px-3 py-2 text-sm text-ink-2 hover:text-ink">{t("Cancel")}</button>}
             </div>
             <p className="mt-3 text-sm font-medium" aria-live="polite">{t(active || ext === "none" ? sc.headline : !lit ? "Start a fire first: tap a surface in the 3D scene, then Activate unlocks." : "Press Activate to apply it.")}</p>
+          </div>
           </div>
       </div>
 

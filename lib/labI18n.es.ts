@@ -246,7 +246,7 @@ const ES: Record<string, string> = {
   "predicted": "predicho",
   "estimated": "estimado",
   "simulated": "simulado",
-  "in the 3D scene: that is where the fire starts. It grows and creeps across the surfaces around it while the numbers on the right change in real time.": "en la escena 3D: ahí empieza el fuego. Crece y se extiende por las superficies que lo rodean mientras los números de la derecha cambian en tiempo real.",
+  "in the 3D scene: that is where the fire starts. It grows and creeps across the surfaces around it while the numbers below the scene change in real time.": "en la escena 3D: ahí empieza el fuego. Crece y se extiende por las superficies que lo rodean mientras los números de debajo de la escena cambian en tiempo real.",
   "Wall clock. The same spread would take about {m} min for real.": "Reloj de la pantalla. Esa misma propagación tardaría unos {m} min de verdad.",
   "Distance from the ignition point to the edge of the burning ring.": "Distancia desde el punto de ignición hasta el borde del anillo en llamas.",
   "Spraying an agent only at the flame is not enough: the jet drags air in and keeps the flame alive even with the ambient airflow off. Dilute the whole space.": "Rociar el agente solo sobre la llama no basta: el chorro arrastra aire y mantiene viva la llama aunque el flujo de aire ambiente esté apagado. Hay que diluir todo el espacio.",
