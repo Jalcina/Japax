@@ -485,7 +485,7 @@ export default function Explorer() {
         <div
           role="region"
           aria-label={t.compStart}
-          className="fixed inset-x-0 bottom-4 z-40 mx-auto flex w-[calc(100%-2rem)] max-w-xl items-center justify-between gap-3 rounded-xl border border-accent bg-surface px-4 py-3 shadow-2xl"
+          className="fixed inset-x-0 bottom-4 z-[55] mx-auto flex w-[calc(100%-2rem)] max-w-xl items-center justify-between gap-3 rounded-xl border border-accent bg-surface px-4 py-3 shadow-2xl"
         >
           <div className="text-sm">
             <span className="font-semibold tabular-nums">{picked.length}</span> {t.compSelN}
